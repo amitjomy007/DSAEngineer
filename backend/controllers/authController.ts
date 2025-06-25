@@ -7,11 +7,12 @@ const User = require("../models/user");
 
 export const registerControl = async (req: any, res: any) => {
   try {
-    const { firstname, lastname, email, password } = req.body;
-
+    let { firstname, lastname, email, password } = req.body;
+    
     if (!(firstname && lastname && email && password)) {
       return res.status(400).send("All input is required");
     }
+    email = email.toLowerCase();
     const existingUser = await User.findOne({ email });
     console.log("Existing user? : ", existingUser);
     if (existingUser) {
@@ -29,6 +30,7 @@ export const registerControl = async (req: any, res: any) => {
       expiresIn: "1h",
     });
     user.token = token;
+    console.log("token was: ", token);
     user.password = undefined;
     res
       .status(200)
@@ -41,27 +43,31 @@ export const registerControl = async (req: any, res: any) => {
 
 export const loginControl = async (req: any, res: any) => {
   try {
-    const { email, password } = req.body;
+    let { email, password } = req.body;
 
     if (!email || !password) {
       return res.status(400).send("All input is required");
     }
-    const user = await User.findOne({ email });
+    email = email.toLowerCase();
+    const user = await User.findOne({email });
     if (!user) {
-      return res.status(401).send("Invalid email or password");
-      console.log("ivde1")
-    }
+      return res.status(401).send("The user with this email does not exist");
+    } 
     const isPasswordValid = bcrypt.compareSync(password, user.password);
     if (!isPasswordValid) {
-      return res.status(401).send("Invalid email or password");
       console.log("ivde 2")
+      return res.status(401).send("Invalid email or password");
+      
     }
-    const token = jwt.sign({ user: user }, process.env.SECRET_KEY, {
+    const token = await jwt.sign({ user: user }, process.env.SECRET_KEY, {
       expiresIn: "1h",
     });
-
+    
     user.token = token;
+    
     user.password = undefined;
+    console.log("token was: ", token);
+    console.log(user);
     res.status(200).json({ message: "You have successfully logged in", user });
   } catch (error) {}
 };

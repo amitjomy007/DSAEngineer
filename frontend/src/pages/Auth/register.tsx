@@ -1,14 +1,26 @@
 import React, { useState } from 'react';
+import Cookies from 'js-cookie';
+import axios from 'axios';
+const RegistrationPage = () => {
+  const [firstname, setFirstname] = useState('tima');
+  const [lastname, setLastname] = useState('test');
+  const [email, setEmail] = useState('johndoe@random.com');
+  const [password, setPassword] = useState('1234');
 
-const Register = () => {
-  const [firstname, setFirstname] = useState('');
-  const [lastname, setLastname] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // TODO: Implement registration logic
+    try{
+      setEmail(email => email.toLowerCase());
+      const response = await axios.post("http://localhost:8000/register", {firstname, lastname, email, password});
+      await Cookies.set("token", JSON.stringify(response.data.user.token), {secure:true, expires: 1}); //expires in a day and httpS Cookie
+      await Cookies.set("user", JSON.stringify(response.data.user.email), {secure:true, expires: 1});
+      console.log("Response: ", response);
+      console.log("Succesful");
+    }
+    catch(error){
+      console.log("catched registration error: ", error);
+    }
     console.log('Registration form submitted', { firstname, lastname, email, password });
   };
 
@@ -114,4 +126,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default RegistrationPage;

@@ -1,12 +1,24 @@
 import React, { useState } from 'react';
-
+import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import Cookies from 'js-cookie';
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    console.log("haha")
+  const [email, setEmail] = useState('johnDoeExample@example.com');
+  const [password, setPassword] = useState('1234');
+  const dispatch = useDispatch();
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    console.log("Going to handle submit");
     e.preventDefault();
+    try{
+      const response = await axios.post("http://localhost:8000/login", {email, password});
+      dispatch({type:"auth/login", payload:response.data}); //not required
+      await Cookies.set("token", JSON.stringify(response.data.user.token), {secure:true, expires: 1}); //expires in a day and httpS Cookie
+      await Cookies.set("user", JSON.stringify(response.data.user.email), {secure:true, expires: 1});
+      console.log("Response: ", response);
+    }
+    catch(error){
+      console.log("Catched the Error: ", error);
+    }
     // TODO: Implement login logic
     console.log('Login form submitted', { email, password });
   };
