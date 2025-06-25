@@ -1,7 +1,13 @@
-
+import ProblemListPage from "../components/other/problemList"
+import Navbar from "../components/layout/Navbar"
+import Footer from "../components/layout/Footer"
 const Problems = () => {
   return (
-    <div>this is the problems page</div>
+    <>
+    <Navbar/>
+    <ProblemListPage/>
+    <Footer/>
+    </>
   )
 }
 
