@@ -16,4 +16,9 @@
 
 9) now you can >> npm run "anyScript" 
 
+# Mongoose Database 
+
+1) mkdir models and user.ts
+2)
+
 
