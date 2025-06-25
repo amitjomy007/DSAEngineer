@@ -19,6 +19,14 @@
 # Mongoose Database 
 
 1) mkdir models and user.ts
-2)
+2) npm i mongoose
+3) npm install mongodb
+4) Details of cloud.mongodb.com
+    used Google Sign up with college Email
+    Project_0  -> Cluster name is "OnlineJudge"
+    allowed IP => current IP (at the time of creation)
+    
+
+
 
 
