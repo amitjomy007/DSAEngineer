@@ -10,3 +10,21 @@
 wrap app in <Provider store={store}><Provider/>
 9) next Steps?? Learn redux thunk and see if it can be implemented.
     performing async functions in RTK
+
+# 2) react-router-dom
+1) npm install react-router-dom
+2) mkdir Pages, make the tsx files inside 
+3) In the main.jsx file, add a Browser Router enclosing the entire app.jsx.
+4) Add Routes in App.tsx
+    <Routes>
+      <Route path="/" element={<div>Welcome to the Home page</div>} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/dsa" element={<DSA />} />
+      <Route path="/contests" element={<Contests />} />
+    </Routes>
+5) To use Buttons and navigate (when you need to control the flow like when fetching data)  
+import useNavigate  
+const navigate = useNavigate();
+navigate("/yourRout");  #you can place this in a buttonClickHandleFunction
+
+
