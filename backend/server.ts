@@ -1,5 +1,8 @@
 const express = require("express");
 import router from "./routes/routes";
+const { DBConnection } = require("./database/db");
+DBConnection();
+
 
 const PORT = process.env.PORT || 8000;
 
