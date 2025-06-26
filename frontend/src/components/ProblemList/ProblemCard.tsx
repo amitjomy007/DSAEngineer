@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Clock, Users, Star, Bookmark, CheckCircle, Circle, AlertCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface ProblemCardProps {
   id: number;
@@ -25,6 +26,7 @@ const ProblemCard: React.FC<ProblemCardProps> = ({
   likes = 0,
   submissions = 0
 }) => {
+  const Navigate = useNavigate();
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'Easy':
@@ -48,9 +50,16 @@ const ProblemCard: React.FC<ProblemCardProps> = ({
         return <Circle className="w-5 h-5 text-gray-500" />;
     }
   };
+  
+    const handleSolveProblem = (problemTitle:string) => {
+    Navigate("/solve");
+    console.log("Not yet navigating dynamically to: ", problemTitle);
+  };
 
   return (
-    <div className="group bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6 hover:bg-gray-800/60 hover:border-gray-600/50 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg">
+    <div 
+    onClick = {() => handleSolveProblem(title)}
+    className="group bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6 hover:bg-gray-800/60 hover:border-gray-600/50 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg">
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-start space-x-3">

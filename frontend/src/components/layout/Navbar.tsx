@@ -4,6 +4,7 @@ import { BookOpen, ChevronDown } from "lucide-react";
 import UserDropdown from "./UserDropdown";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../store/store";
+import { useNavigate } from "react-router-dom";
 interface NavbarProps {
   isLoggedIn?: boolean;
   userName?: string;
@@ -16,9 +17,13 @@ const Navbar: React.FC<NavbarProps> = ({
   userEmail = "alex.chen@example.com",
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const Navigate = useNavigate();
   isLoggedIn = useSelector(
     (state: RootState) => state.auth.isAuthenticated
   );
+  const handleAuthButtons = (route:string) => {
+    Navigate(route);
+  }
 
   return (
     <nav className="sticky top-0 z-50 bg-gray-900/80 backdrop-blur-lg border-b border-gray-800">
@@ -89,10 +94,12 @@ const Navbar: React.FC<NavbarProps> = ({
               </div>
             ) : (
               <div className="flex items-center space-x-3">
-                <button className="text-gray-300 hover:text-white px-4 py-2 rounded-lg transition-colors duration-200">
+                <button className="text-gray-300 hover:text-white px-4 py-2 rounded-lg transition-colors duration-200"
+                onClick = {() => handleAuthButtons("/login")}>
                   Sign In
                 </button>
-                <button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 transform hover:scale-105">
+                <button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 transform hover:scale-105"
+                onClick = {() => handleAuthButtons("/register")}>
                   Sign Up
                 </button>
               </div>

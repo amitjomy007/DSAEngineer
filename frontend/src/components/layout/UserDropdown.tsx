@@ -16,13 +16,13 @@ const UserDropdown: React.FC<UserDropdownProps> = ({
   userEmail,
 }) => {
   const dropdownRef = useRef<HTMLDivElement>(null);
-  
+
   const dispatch = useDispatch();
   const handleSignOut = () => {
     Cookies.remove("token");
     Cookies.remove("user");
     Cookies.remove("email");
-    dispatch({type:"auth/logout"});
+    dispatch({ type: "auth/logout" });
   };
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -71,7 +71,7 @@ const UserDropdown: React.FC<UserDropdownProps> = ({
       {/* Menu Items */}
       <div className="py-2">
         <a
-          href="#"
+          href="admin"
           className="flex items-center space-x-3 px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700/50 transition-colors duration-200"
         >
           <User className="w-4 h-4" />

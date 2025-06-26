@@ -10,7 +10,7 @@ const RegistrationPage = () => {
   const [password, setPassword] = useState("1234");
   const isAuthenticated = Cookies.get("token");
   const Navigate = useNavigate();
-  const dispatch =useDispatch();
+  const dispatch = useDispatch();
   useEffect(() => {
     if (isAuthenticated) {
       Navigate("/problems");
@@ -28,7 +28,7 @@ const RegistrationPage = () => {
         email,
         password,
       });
-      dispatch({type:"auth/login", payload:response.data});
+      dispatch({ type: "auth/login", payload: response.data });
       await Cookies.set("token", JSON.stringify(response.data.user.token), {
         secure: true,
         expires: 1,

@@ -12,28 +12,30 @@ import NotFoundPage from "./pages/NotFound/notFound";
 import AdminPage from "./pages/Admin/admin";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
+import ProblemSolver from "./pages/SolveProblem/solve";
 function App() {
   const dispatch = useDispatch();
-  useEffect (() => {
+  useEffect(() => {
     const userEmail = Cookies.get("email");
-    const token  = Cookies.get("token");
+    const token = Cookies.get("token");
     let isAuthenticated = false;
-    if(token){
+    if (token) {
       isAuthenticated = true;
+      const data = {
+        isAuthenticated: isAuthenticated,
+        user: userEmail,
+        token: token,
+      };
+
+      dispatch({ type: "auth/login", payload: data });
     }
-    const data = {
-      "isAuthenticated":isAuthenticated,
-      "user": userEmail,
-      "token":token,
-    }
-    dispatch({type:"auth/login", payload:data});
-     
-  },[dispatch]);
+  }, [dispatch]);
   return (
     <>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/admin" element={<AdminPage />} />
+        <Route path="/solve" element={<ProblemSolver />} />
         <Route path="/problems" element={<Problems />} />
         <Route path="/solutions" element={<Solutions />} />
         <Route path="/login" element={<Login />} />
