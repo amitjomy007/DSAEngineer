@@ -1,4 +1,5 @@
 import "./App.css";
+import Cookies from "js-cookie";
 import { Routes, Route } from "react-router-dom";
 //pages
 import Login from "./pages/Auth/login";
@@ -9,7 +10,25 @@ import Solutions from "./pages/solutions";
 import Home from "./pages/home";
 import NotFoundPage from "./pages/NotFound/notFound";
 import AdminPage from "./pages/Admin/admin";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
 function App() {
+  const dispatch = useDispatch();
+  useEffect (() => {
+    const userEmail = Cookies.get("email");
+    const token  = Cookies.get("token");
+    let isAuthenticated = false;
+    if(token){
+      isAuthenticated = true;
+    }
+    const data = {
+      "isAuthenticated":isAuthenticated,
+      "user": userEmail,
+      "token":token,
+    }
+    dispatch({type:"auth/login", payload:data});
+     
+  },[dispatch]);
   return (
     <>
       <Routes>

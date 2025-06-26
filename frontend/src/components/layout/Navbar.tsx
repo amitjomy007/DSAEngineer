@@ -2,6 +2,8 @@ import React, { useState } from "react";
 // import { Search, User, LogOut, BookOpen, ChevronDown } from 'lucide-react';
 import { BookOpen, ChevronDown } from "lucide-react";
 import UserDropdown from "./UserDropdown";
+import { useSelector } from "react-redux";
+import type { RootState } from "../../store/store";
 interface NavbarProps {
   isLoggedIn?: boolean;
   userName?: string;
@@ -14,6 +16,9 @@ const Navbar: React.FC<NavbarProps> = ({
   userEmail = "alex.chen@example.com",
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  isLoggedIn = useSelector(
+    (state: RootState) => state.auth.isAuthenticated
+  );
 
   return (
     <nav className="sticky top-0 z-50 bg-gray-900/80 backdrop-blur-lg border-b border-gray-800">

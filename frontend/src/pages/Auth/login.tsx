@@ -1,11 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import Cookies from 'js-cookie';
+import { useNavigate } from 'react-router-dom';
 const Login = () => {
   const [email, setEmail] = useState('johnDoeExample@example.com');
   const [password, setPassword] = useState('1234');
   const dispatch = useDispatch();
+  const Navigate = useNavigate();
+  const isAuthenticated = Cookies.get("token");
+  useEffect (()=> {
+    if(isAuthenticated){
+      Navigate("/problems");
+    }
+  },[isAuthenticated,Navigate]);
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     console.log("Going to handle submit");
     e.preventDefault();
@@ -13,7 +21,9 @@ const Login = () => {
       const response = await axios.post("http://localhost:8000/login", {email, password});
       dispatch({type:"auth/login", payload:response.data}); //not required
       await Cookies.set("token", JSON.stringify(response.data.user.token), {secure:true, expires: 1}); //expires in a day and httpS Cookie
-      await Cookies.set("user", JSON.stringify(response.data.user.email), {secure:true, expires: 1});
+      await Cookies.set("user", JSON.stringify(response.data.user.firstname), {secure:true, expires: 1});
+      await Cookies.set("email", JSON.stringify(response.data.user.email), {secure:true, expires: 1});
+      Navigate("/problems");
       console.log("Response: ", response);
     }
     catch(error){
