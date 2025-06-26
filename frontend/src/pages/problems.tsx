@@ -1,4 +1,4 @@
-import ProblemListPage from "../components/other/problemList"
+import ProblemListPage from "../components/ProblemList/problemList"
 import Navbar from "../components/layout/Navbar"
 import Footer from "../components/layout/Footer"
 const Problems = () => {
