@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Button } from "../ui/button";
-import { Input } from "../ui/input"
+import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Label } from "../ui/label";
 import {
@@ -25,6 +25,7 @@ interface Tag {
   color: string;
 }
 
+
 // interface AddEditProblemFormProps {
 //   onSubmit: (data: any) => void;
 //   onCancel: () => void;
@@ -35,16 +36,18 @@ interface Tag {
 // keeping any for data and intialdata gives error asking not to use
 // im creating a temporary solution for now below but it's bullshit
 
-
 // This is the properly typed props interface for the AddEditProblemForm component. (Using gemini 2.5 PRO) May have to review later
 interface ProblemFormData {
   title: string;
   difficulty: string;
-  description: string;
-  constraints: string;
-  solution: string;
-  examples: Example[];
   tags: Tag[];
+  description: string;
+  examples: Example[];
+  constraints: string;
+  hints: string[];
+  testcases: string[];
+  testcaseOutputs: string[];
+  solution: string;
 }
 interface AddEditProblemFormProps {
   /**

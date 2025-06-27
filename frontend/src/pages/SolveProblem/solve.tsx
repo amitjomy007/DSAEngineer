@@ -121,12 +121,11 @@ var twoSum = function(nums, target) {
         // Your code here
     }
 }`,
-  cpp: `class Solution {
-public:
-    vector<int> twoSum(vector<int>& nums, int target) {
-        // Your code here
-    }
-};`,
+  cpp: `#include <iostream>
+int main() {
+    std::cout << "Hello from C++!";
+    return 0;
+}`,
   c: `/**
  * Note: The returned array must be malloced, assume caller calls free().
  */
@@ -524,7 +523,7 @@ const ProblemSolver: React.FC = () => {
     try {
       const payload = { language, code };
       let response = undefined;
-      console.log("Going to send payload to compiler backend")
+      console.log("Going to send payload to compiler backend");
       response = await axios.post("http://localhost:8000/judge", payload);
       // setOutput(response);
       console.log("Output from backend: ", response);
