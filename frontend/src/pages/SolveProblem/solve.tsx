@@ -1,4 +1,5 @@
 import React, { useState, type JSX } from "react";
+import axios from "axios";
 import {
   Play,
   Star,
@@ -493,7 +494,7 @@ const ProblemSolver: React.FC = () => {
   });
 
   // Conditional rendering flags - set these based on your database/state
-    const [showVerdict, setShowVerdict] = useState<boolean>(true);
+  const [showVerdict, setShowVerdict] = useState<boolean>(true);
   // const [showHeader, setShowHeader] = useState<boolean>(true);
   // const [showDescription, setShowDescription] = useState<boolean>(true);
   // const [showDropdown, setShowDropdown] = useState<boolean>(true);
@@ -508,16 +509,29 @@ const ProblemSolver: React.FC = () => {
   const showTestCases: boolean = true;
   const showRunButton: boolean = true;
 
-
-
   const handleLanguageChange = (language: string): void => {
     setSelectedLanguage(language);
     setCode(codeTemplates[language]);
   };
 
-  const handleRunCode = async (): Promise<void> => {
+  const handleRunCode = async (
+    language: string,
+    code: string
+  ): Promise<void> => {
     setIsRunning(true);
     // Simulate API call
+    // const [output, setOutput] = useState(undefined);
+    try {
+      const payload = { language, code };
+      let response = undefined;
+      console.log("Going to send payload to compiler backend")
+      response = await axios.post("http://localhost:8000/judge", payload);
+      // setOutput(response);
+      console.log("Output from backend: ", response);
+      console.log("Output from backend.data :  ", response.data);
+    } catch (error) {
+      console.log("Catched the Error: ", error);
+    }
     setTimeout(() => {
       setIsRunning(false);
       setVerdict({
@@ -571,7 +585,7 @@ const ProblemSolver: React.FC = () => {
             {/* Run Button */}
             <div className="flex justify-between items-center">
               <RunButton
-                onRun={handleRunCode}
+                onRun={() => handleRunCode(selectedLanguage, code)}
                 isRunning={isRunning}
                 showRunButton={showRunButton}
               />

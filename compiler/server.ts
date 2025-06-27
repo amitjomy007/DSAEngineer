@@ -23,8 +23,10 @@ app.post("/run", async (req: any, res: any) => {
   try{
     const filePath = generateFile(language, code);
     const output = await executeCode(filePath, language);
+    res.send(output);
   }catch(error){
     console.log("Error catched : ", error);
+    res.send("Error running code in compiler: ", error);
   }
 });
 app.listen(PORT, () => {

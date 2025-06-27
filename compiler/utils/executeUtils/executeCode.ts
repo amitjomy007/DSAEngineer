@@ -23,5 +23,6 @@ const executeCode = (filePath : string, language : string) => {
             output = executeCpp(filePath);
             break;
     }
+    return output;
 }
 export default executeCode;
