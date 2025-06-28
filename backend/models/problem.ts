@@ -13,9 +13,21 @@ const problemSchema = new mongoose.Schema({
   },
   tags: [
     {
-      type: String,
-      default: null,
-      required: true,
+      id: {
+        type: String,
+        default: null,
+        required: true,
+      },
+      tag: {
+        type: String,
+        default: null,
+        required: true,
+      },
+      color: {
+        type: String,
+        default: null,
+        required: true,
+      },
     },
   ],
   description: {
@@ -29,8 +41,8 @@ const problemSchema = new mongoose.Schema({
     {
       id: {
         type: String,
-        default: null,
-        required: true,
+        default: Date.now(),
+        required: false,
       },
       input: {
         type: String,
@@ -58,29 +70,41 @@ const problemSchema = new mongoose.Schema({
     {
       id: {
         type: String,
-        default: null,
+        default: Date.now(),
         required: false,
       },
-      text: {
+      hint: {
         type: String,
         default: null,
         required: false,
       },
     },
   ],
-  testcases: [
-    {
+  testcases: [{
+    id: {
+      type: String,
+      default: Date.now(),
+      required: false,
+    },
+    testcase: {
       type: String,
       default: null,
       required: true,
-    },
+    }
+}
   ],
-  testcaseOutputs: [
-    {
+  testcaseOutputs:  [{
+    id: {
+      type: String,
+      default: Date.now(),
+      required: false,
+    },
+    testcaseOutput: {
       type: String,
       default: null,
       required: true,
-    },
+    }
+}
   ],
 });
 

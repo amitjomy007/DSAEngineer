@@ -25,7 +25,18 @@ interface Tag {
   color: string;
 }
 
-
+interface Hint {
+  id: string;
+  text: string;
+}
+interface TestCase {
+  id: string;
+  text: string;
+}
+interface TestCaseOutput {
+  id: string;
+  text: string;
+}
 // interface AddEditProblemFormProps {
 //   onSubmit: (data: any) => void;
 //   onCancel: () => void;
@@ -43,12 +54,13 @@ interface ProblemFormData {
   tags: Tag[];
   description: string;
   examples: Example[];
-  constraints: string;
-  hints: string[];
-  testcases: string[];
-  testcaseOutputs: string[];
+  constraints: string; //markdown ig?
+  hints: Hint[]; //
+  testcases: TestCase[]; //
+  testcaseOutputs: TestCaseOutput[]; //
   solution: string;
 }
+
 interface AddEditProblemFormProps {
   /**
    * Callback function to handle the form submission.
@@ -85,10 +97,20 @@ const AddEditProblemForm = ({
     solution: initialData?.solution || "",
   });
 
+  const [hints, setHints] = useState<Hint[]>(
+    initialData?.hints || [{ id: "1", text: "" }]
+  );
+
   const [examples, setExamples] = useState<Example[]>(
     initialData?.examples || [
       { id: "1", input: "", output: "", explanation: "" },
     ]
+  );
+  const [testcases, setTestcases] = useState<TestCase[]>(
+    initialData?.testcases || [{ id: "1", text: "" }]
+  );
+  const [testcaseOutputs, setTestcaseOutputs] = useState<TestCaseOutput[]>(
+    initialData?.testcaseOutputs || [{ id: "1", text: "" }]
   );
 
   const [tags, setTags] = useState<Tag[]>(initialData?.tags || []);
@@ -109,6 +131,51 @@ const AddEditProblemForm = ({
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const addTestCase = () => {
+    setTestcases((prev) => [...prev, { id: crypto.randomUUID(), text: "" }]);
+  };
+
+  const removeTestCase = (id: string) => {
+    setTestcases((prev) => prev.filter((tc) => tc.id !== id));
+  };
+
+  const updateTestCase = (id: string, value: string) => {
+    setTestcases((prev) =>
+      prev.map((tc) => (tc.id === id ? { ...tc, text: value } : tc))
+    );
+  };
+
+  const addTestCaseOutput = () => {
+    setTestcaseOutputs((prev) => [
+      ...prev,
+      { id: crypto.randomUUID(), text: "" },
+    ]);
+  };
+
+  const removeTestCaseOutput = (id: string) => {
+    setTestcaseOutputs((prev) => prev.filter((tco) => tco.id !== id));
+  };
+
+  const updateTestCaseOutput = (id: string, value: string) => {
+    setTestcaseOutputs((prev) =>
+      prev.map((tco) => (tco.id === id ? { ...tco, text: value } : tco))
+    );
+  };
+
+  const addHint = () => {
+    setHints((prev) => [...prev, { id: crypto.randomUUID(), text: "" }]);
+  };
+
+  const removeHint = (id: string) => {
+    setHints((prev) => prev.filter((hint) => hint.id !== id));
+  };
+
+  const updateHint = (id: string, value: string) => {
+    setHints((prev) =>
+      prev.map((hint) => (hint.id === id ? { ...hint, text: value } : hint))
+    );
   };
 
   const addExample = () => {
@@ -158,6 +225,9 @@ const AddEditProblemForm = ({
       ...formData,
       examples: examples.filter((ex) => ex.input.trim() || ex.output.trim()),
       tags,
+      testcases: testcases.filter((tc) => tc.text.trim()),
+      testcaseOutputs: testcaseOutputs.filter((tco) => tco.text.trim()),
+      hints: hints.filter((hint) => hint.text.trim()),
     };
     onSubmit(data);
   };
@@ -359,6 +429,146 @@ const AddEditProblemForm = ({
                       rows={2}
                     />
                   </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* Hints Section */}
+          <div className="space-y-2 mt-6">
+            <div className="flex items-center justify-between">
+              <Label className="text-white">Hints</Label>
+              <Button
+                type="button"
+                onClick={addHint}
+                variant="outline"
+                size="sm"
+                className="border-slate-600 text-white hover:bg-slate-700"
+              >
+                <Plus className="w-4 h-4 mr-1" />
+                Add Hint
+              </Button>
+            </div>
+            <div className="space-y-4">
+              {hints.map((hint, index) => (
+                <div
+                  key={hint.id}
+                  className="bg-slate-800 p-4 rounded-lg border border-slate-700"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="text-white font-medium">Hint {index + 1}</h4>
+                    {hints.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeHint(hint.id)}
+                        className="text-slate-400 hover:text-red-400 transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                  <Textarea
+                    value={hint.text}
+                    onChange={(e) => updateHint(hint.id, e.target.value)}
+                    placeholder="Hint content"
+                    className="bg-slate-700 border-slate-600 text-white mt-1"
+                    rows={2}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Test Cases Section */}
+          <div className="space-y-2 mt-6">
+            <div className="flex items-center justify-between">
+              <Label className="text-white">Test Cases</Label>
+              <Button
+                type="button"
+                onClick={addTestCase}
+                variant="outline"
+                size="sm"
+                className="border-slate-600 text-white hover:bg-slate-700"
+              >
+                <Plus className="w-4 h-4 mr-1" />
+                Add Test Case
+              </Button>
+            </div>
+            <div className="space-y-4">
+              {testcases.map((tc, index) => (
+                <div
+                  key={tc.id}
+                  className="bg-slate-800 p-4 rounded-lg border border-slate-700"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="text-white font-medium">
+                      Test Case {index + 1}
+                    </h4>
+                    {testcases.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeTestCase(tc.id)}
+                        className="text-slate-400 hover:text-red-400 transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                  <Textarea
+                    value={tc.text}
+                    onChange={(e) => updateTestCase(tc.id, e.target.value)}
+                    placeholder="Input for test case"
+                    className="bg-slate-700 border-slate-600 text-white mt-1"
+                    rows={2}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Test Case Outputs Section */}
+          <div className="space-y-2 mt-6">
+            <div className="flex items-center justify-between">
+              <Label className="text-white">Test Case Outputs</Label>
+              <Button
+                type="button"
+                onClick={addTestCaseOutput}
+                variant="outline"
+                size="sm"
+                className="border-slate-600 text-white hover:bg-slate-700"
+              >
+                <Plus className="w-4 h-4 mr-1" />
+                Add Output
+              </Button>
+            </div>
+            <div className="space-y-4">
+              {testcaseOutputs.map((tco, index) => (
+                <div
+                  key={tco.id}
+                  className="bg-slate-800 p-4 rounded-lg border border-slate-700"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="text-white font-medium">
+                      Output {index + 1}
+                    </h4>
+                    {testcaseOutputs.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeTestCaseOutput(tco.id)}
+                        className="text-slate-400 hover:text-red-400 transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                  <Textarea
+                    value={tco.text}
+                    onChange={(e) =>
+                      updateTestCaseOutput(tco.id, e.target.value)
+                    }
+                    placeholder="Expected output"
+                    className="bg-slate-700 border-slate-600 text-white mt-1"
+                    rows={2}
+                  />
                 </div>
               ))}
             </div>
