@@ -3,6 +3,7 @@ import { Plus } from "lucide-react";
 import ProblemCardWithSubmissions from "./ProblemCardWithSubmissions";
 import AddEditProblemForm from "./AddEditProblemForm";
 import { Button } from "../ui/button";
+import axios from "axios";
 
 interface ProblemListProps {
   onViewSubmissions?: (problemId: number, problemTitle: string) => void;
@@ -125,8 +126,15 @@ const ProblemList = ({ onViewSubmissions }: ProblemListProps) => {
   ];
 
   // this type may have to be reviewed
-  const handleAddProblem = (data: ProblemFormData) => {
+  const handleAddProblem = async (data: ProblemFormData) => {
     console.log("Adding problem:", data);
+    // response = await axios.post("http://localhost:8000/judge", payload);
+    try{
+      const response = await axios.post("http://localhost:8000/addProblem", data);
+      console.log("Added and got response: ", response);
+    }catch(error){
+      console.log("catched error trying to post with axios: ", error);
+    }
     // Here you would typically send the data to your backend
     setShowAddForm(false);
   };

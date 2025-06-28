@@ -1,5 +1,6 @@
 import express from 'express'; 
 const router = express.Router();
+import { addProblemControl } from '../controllers/addProblemControl';
 //Controller Imports
 import { loginControl, registerControl } from '../controllers/authController';
 import { judgeControl } from '../controllers/judgeController';
@@ -7,7 +8,7 @@ import { judgeControl } from '../controllers/judgeController';
 router.post('/login', loginControl);
 router.post('/register', registerControl);
 router.post('/judge', judgeControl);
-
+router.post('/addProblem',addProblemControl);
 
 
 
