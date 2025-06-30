@@ -186,3 +186,4 @@ const ProblemList = ({ onViewSubmissions }: ProblemListProps) => {
 };
 
 export default ProblemList;
+export type {Tag};

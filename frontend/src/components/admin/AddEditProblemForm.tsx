@@ -48,7 +48,10 @@ interface TestCaseOutput {
 // im creating a temporary solution for now below but it's bullshit
 
 // This is the properly typed props interface for the AddEditProblemForm component. (Using gemini 2.5 PRO) May have to review later
-interface ProblemFormData {
+export interface ProblemFormData {
+  acceptanceRate: number;
+  status: string;
+  id: string;
   title: string;
   difficulty: string;
   tags: Tag[];
@@ -95,6 +98,8 @@ const AddEditProblemForm = ({
     description: initialData?.description || "",
     constraints: initialData?.constraints || "",
     solution: initialData?.solution || "",
+    acceptanceRate: initialData?.acceptanceRate || 0,
+    status: initialData?.status || "",
   });
 
   const [hints, setHints] = useState<Hint[]>(
@@ -223,6 +228,7 @@ const AddEditProblemForm = ({
     e.preventDefault();
     const data = {
       ...formData,
+      id:Date.now().toString(),
       examples: examples.filter((ex) => ex.input.trim() || ex.output.trim()),
       tags,
       testcases: testcases.filter((tc) => tc.text.trim()),
@@ -520,6 +526,7 @@ const AddEditProblemForm = ({
                     className="bg-slate-700 border-slate-600 text-white mt-1"
                     rows={2}
                   />
+
                 </div>
               ))}
             </div>

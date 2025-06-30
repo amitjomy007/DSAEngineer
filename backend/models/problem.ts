@@ -1,6 +1,11 @@
 import mongoose from "mongoose";
 
 const problemSchema = new mongoose.Schema({
+  id: {
+    type:String,
+    default : null,
+    required:true,
+  },
   title: {
     type: String,
     default: null,
@@ -106,6 +111,16 @@ const problemSchema = new mongoose.Schema({
     }
 }
   ],
+  acceptanceRate: {
+    type: Number,
+    default : 0,
+    required : false,
+  },
+  status : {
+    type : String,
+    default : "pending",
+    required : false
+  }
 });
 
 module.exports = mongoose.model("Problem", problemSchema);

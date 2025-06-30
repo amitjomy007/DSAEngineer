@@ -13,7 +13,7 @@ import {
 interface Problem {
   id: number;
   title: string;
-  difficulty: "Easy" | "Medium" | "Hard";
+  difficulty: string,
   acceptanceRate: string;
   tags: string[];
   solvedCount: number;

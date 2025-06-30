@@ -2,14 +2,14 @@
 import React from 'react';
 import { Clock, Users, Star, Bookmark, CheckCircle, Circle, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-
+import type { Tag } from '../admin/ProblemList';
 interface ProblemCardProps {
-  id: number;
+  id: string;
   title: string;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
+  difficulty: string;
   acceptanceRate: number;
-  tags: string[];
-  status: 'solved' | 'attempted' | 'not-tried';
+  tags: Tag[];
+  status: string;
   isBookmarked?: boolean;
   likes?: number;
   submissions?: number;
@@ -97,7 +97,7 @@ const ProblemCard: React.FC<ProblemCardProps> = ({
             key={index}
             className="text-xs px-2 py-1 bg-purple-500/10 text-purple-300 border border-purple-500/20 rounded-md hover:bg-purple-500/20 transition-colors duration-200 cursor-pointer"
           >
-            {tag}
+            {tag.name}
           </span>
         ))}
       </div>
