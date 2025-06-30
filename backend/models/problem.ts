@@ -1,12 +1,12 @@
 import mongoose from "mongoose";
 
 const problemSchema = new mongoose.Schema({
-  id: {
-    type:String,
-    default : null,
-    required:true,
-  },
   title: {
+    type: String,
+    default: null,
+    required: true,
+  },
+  titleSlug: {
     type: String,
     default: null,
     required: true,
@@ -18,109 +18,32 @@ const problemSchema = new mongoose.Schema({
   },
   tags: [
     {
-      id: {
-        type: String,
-        default: null,
-        required: true,
-      },
-      tag: {
-        type: String,
-        default: null,
-        required: true,
-      },
-      color: {
-        type: String,
-        default: null,
-        required: true,
-      },
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Tag",
     },
   ],
   description: {
     type: String,
-    default: null,
     required: true,
   },
   // examples is of type array corresponding to each example
   // now every example has three fields input, output, explanation
   examples: [
     {
-      id: {
-        type: String,
-        default: Date.now(),
-        required: false,
-      },
-      input: {
-        type: String,
-        default: null,
-        required: true,
-      },
-      output: {
-        type: String,
-        default: null,
-        required: true,
-      },
-      explanation: {
-        type: String,
-        default: null,
-        required: false,
-      },
+      input: { type: String, required: true },
+      output: { type: String, required: true },
+      explanation: { type: String },
     },
   ],
-  constraints: {
-    type: String,
-    default: null,
-    required: false,
-  },
-  hints: [
+  constraints: [String],
+
+  hints: [String],
+  testcases: [
     {
-      id: {
-        type: String,
-        default: Date.now(),
-        required: false,
-      },
-      hint: {
-        type: String,
-        default: null,
-        required: false,
-      },
+      input: String,
+      output: String,
     },
   ],
-  testcases: [{
-    id: {
-      type: String,
-      default: Date.now(),
-      required: false,
-    },
-    testcase: {
-      type: String,
-      default: null,
-      required: true,
-    }
-}
-  ],
-  testcaseOutputs:  [{
-    id: {
-      type: String,
-      default: Date.now(),
-      required: false,
-    },
-    testcaseOutput: {
-      type: String,
-      default: null,
-      required: true,
-    }
-}
-  ],
-  acceptanceRate: {
-    type: Number,
-    default : 0,
-    required : false,
-  },
-  status : {
-    type : String,
-    default : "pending",
-    required : false
-  }
 });
 
 module.exports = mongoose.model("Problem", problemSchema);

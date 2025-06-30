@@ -32,6 +32,20 @@ const userSchema = new mongoose.Schema({
     default: "user",
     required: true,
   },
-});
+  // --- Fields for Tracking User Progress & Activity ---
+  solvedProblems: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Problem',
+  }],
+  attemptedProblems: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Problem',
+  }],
+  bookmarkedProblems: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Problem',
+  }],
+
+}, { timestamps: true } );
 
 module.exports = mongoose.model("User", userSchema);
