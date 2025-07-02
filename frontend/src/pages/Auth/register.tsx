@@ -33,6 +33,10 @@ const RegistrationPage = () => {
         secure: true,
         expires: 1,
       }); //expires in a day and httpS Cookie
+      await Cookies.set("userId", JSON.stringify(response.data.user._id), {
+        secure: true,
+        expires: 1,
+      });
       await Cookies.set("user", JSON.stringify(response.data.user.firstname), {
         secure: true,
         expires: 1,

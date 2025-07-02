@@ -1,6 +1,32 @@
 import mongoose from "mongoose";
 
 const problemSchema = new mongoose.Schema({
+  isApproved: {
+    type: Boolean,
+    default: false,
+    required: true,
+  },
+  problemAuthorId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
+  problemCreatedDate: {
+    type: Date,
+    default: Date.now,
+    required: false,
+  },
+  problemLastModifiedDate: {
+    type: Date,
+    default: Date.now,
+    required: false,
+  },
+  problemNumber: {
+    type: Number,
+    unique: true,
+    required: true,
+    index: true,
+  },
   title: {
     type: String,
     default: null,
@@ -44,6 +70,22 @@ const problemSchema = new mongoose.Schema({
       output: String,
     },
   ],
+  timeLimit: {
+    type: Number,
+    default: 1,
+    required: false,
+  },
+  memoryLimit: {
+    type: Number,
+    default: 128,
+    required: false,
+  },
+  allowedLanguages: {
+    type: [String],
+    default: ["javascript", "python", "java", "cpp"],
+    required: false,
+  },
+
 });
 
 module.exports = mongoose.model("Problem", problemSchema);

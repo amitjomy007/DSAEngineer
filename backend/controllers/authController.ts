@@ -25,6 +25,7 @@ export const registerControl = async (req: any, res: any) => {
       lastname,
       email: email.toLowerCase(),
       password: hashedPassword,
+      
     });
     const token = jwt.sign({ user: user }, process.env.SECRET_KEY, {
       expiresIn: "1h",

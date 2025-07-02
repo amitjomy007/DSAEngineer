@@ -4,6 +4,7 @@ import { Routes, Route } from "react-router-dom";
 //pages
 import Login from "./pages/Auth/login";
 import Register from "./pages/Auth/register";
+import AddProblemPage from "./pages/ProblemRelated/addProblem";
 // temporary pages which has to be replaced
 
 import Home from "./pages/home";
@@ -31,9 +32,9 @@ function App() {
     <>
       <Routes>
         <Route path="/" element={<Home />} />
-
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/addProblem" element={<AddProblemPage />} />
         //404 Not found
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

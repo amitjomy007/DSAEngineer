@@ -22,6 +22,7 @@ const Login = () => {
       dispatch({type:"auth/login", payload:response.data}); //not required
       await Cookies.set("token", JSON.stringify(response.data.user.token), {secure:true, expires: 1}); //expires in a day and httpS Cookie
       await Cookies.set("user", JSON.stringify(response.data.user.firstname), {secure:true, expires: 1});
+      await Cookies.set("userId", JSON.stringify(response.data.user._id), {secure:true, expires: 1});
       await Cookies.set("email", JSON.stringify(response.data.user.email), {secure:true, expires: 1});
       Navigate("/problems");
       console.log("Response: ", response);
