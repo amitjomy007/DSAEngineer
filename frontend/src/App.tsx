@@ -5,12 +5,16 @@ import { Routes, Route } from "react-router-dom";
 import Login from "./pages/Auth/login";
 import Register from "./pages/Auth/register";
 import AddProblemPage from "./pages/ProblemRelated/addProblem";
+import Hero from "./pages/Hero";
+import ProblemsPage from "./pages/ProblemRelated/problems";
+
 // temporary pages which has to be replaced
 
 import Home from "./pages/home";
 import NotFoundPage from "./pages/NotFound/notFound";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
+import SolveProblemPage from "./pages/ProblemRelated/solveProblem";
 function App() {
   const dispatch = useDispatch();
   useEffect(() => {
@@ -32,6 +36,10 @@ function App() {
     <>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/Hero" element={<Hero />} />
+        <Route path="/problems" element={<ProblemsPage />} />
+        
+        <Route path="/problems/:slug" element={<SolveProblemPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/addProblem" element={<AddProblemPage />} />

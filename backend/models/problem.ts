@@ -1,6 +1,12 @@
-import mongoose from "mongoose";
+import mongoose, { mongo } from "mongoose";
 
 const problemSchema = new mongoose.Schema({
+  id: {
+    type: Number,
+    unique: true,
+    required: true,
+    index: true,
+  },
   isApproved: {
     type: Boolean,
     default: false,
@@ -44,8 +50,8 @@ const problemSchema = new mongoose.Schema({
   },
   tags: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Tag",
+      type: String,
+      required: true,
     },
   ],
   description: {
@@ -85,6 +91,11 @@ const problemSchema = new mongoose.Schema({
     default: ["javascript", "python", "java", "cpp"],
     required: false,
   },
+  editorialId: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "Editorial",
+  required: false,
+},
 
 });
 

@@ -1,15 +1,15 @@
 export interface IProblem {
   isApproved: boolean;
   problemAuthorId: string; // MongoDB ObjectId as string
-  problemCreatedDate?: string; // ISO string, optional (will be defaulted)
+  problemCreatedDate?: string; // ISO string, optional (defaulted to Date.now)
   problemLastModifiedDate?: string;
 
   problemNumber: number;
   title: string;
   titleSlug: string;
 
-  difficulty: "Easy" | "Medium" | "Hard" | string; // constrain if desired
-  tags?: string[]; // Array of Tag ObjectIds as strings
+  difficulty: "Easy" | "Medium" | "Hard" | string;
+  tags: string[]; // Required, so no "?"
 
   description: string;
 
@@ -31,5 +31,9 @@ export interface IProblem {
   timeLimit?: number; // default: 1
   memoryLimit?: number; // default: 128
 
-  allowedLanguages?: string[]; // e.g. ["cpp", "python"]
+  allowedLanguages?: string[]; // default: ["javascript", "python", "java", "cpp"]
+
+  problemUpVote?: string; // ObjectId as string
+  problemDownVote?: string; // ObjectId as string
+  editorialId?: string; // ObjectId as string
 }
