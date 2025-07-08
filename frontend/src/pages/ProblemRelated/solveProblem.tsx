@@ -180,25 +180,26 @@ const SolveProblemPage = () => {
 
   const fetchProblemData = async () => {
     // This will be replaced with actual API call
-    try{
-        const uId = Cookies.get("userId");
-        console.log("slug before sending: ", slug);
-        const response = await axios.get(`http://localhost:8000/getProblem/${slug}`,{
-      headers: {
-        "user-id": uId,
-      },
-    });
-        console.log("received response from server was : ", response);
-        // console.log("Received data from server: ", response.data.problem);
-        console.log("mock problem : ", mockProblem);
-         setProblem(response.data.problem);
+    try {
+      const uId = Cookies.get("userId");
+      console.log("slug before sending: ", slug);
+      const response = await axios.get(
+        `http://localhost:8000/getProblem/${slug}`,
+        {
+          headers: {
+            "user-id": uId,
+          },
+        }
+      );
+      console.log("received response from server was : ", response);
+      // console.log("Received data from server: ", response.data.problem);
+      console.log("mock problem : ", mockProblem);
+      setProblem(response.data.problem);
+    } catch (err) {
+      console.log("Received error when trying to fetch problem data: ", err);
     }
-    catch(err){
-        console.log("Received error when trying to fetch problem data: ", err);
-    }
-    
+
     // setProblem(response.data.problem);
-   
   };
 
   useEffect(() => {
@@ -225,6 +226,21 @@ const SolveProblemPage = () => {
   const handleSubmit = async () => {
     setIsSubmitting(true);
     // Simulate API call
+    try {
+        const userId = Cookies.get("userId");
+        const payload = {problemId: problem?._id, code:code, language:selectedLanguage, userId: userId};
+      const response = await axios.post("http://localhost:8000/judge", payload);
+      console.log(
+        "Submitted payload : ",
+        problem?._id,
+        code,
+        selectedLanguage,
+        Cookies.get("userId")
+      );
+      console.log(response);
+    } catch (err) {
+      console.log("failed to submit code: ", err);
+    }
     await new Promise((resolve) => setTimeout(resolve, 3000));
     setIsSubmitting(false);
     console.log("Code submitted");

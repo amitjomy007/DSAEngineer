@@ -1,7 +1,8 @@
 const express = require("express");
 import cors from "cors";
 const dotenv = require("dotenv");
-import generateFile from "./utils/fileGenerator";
+import generateCodeFile from "./utils/codeFileGenerator";
+import generateTestCaseFiles from "./testcaseFileGenerator";
 import executeCode from "./utils/executeUtils/executeCode";
 
 dotenv.config();
@@ -17,12 +18,18 @@ app.get("/", (req: any, res: any) => {
 });
 
 app.post("/run", async (req: any, res: any) => {
-  const { language, code } = req.body;
+  const { language, code, testcases } = req.body;
   console.log("language:", language);
   console.log("code:", code);
+  console.log("testcases:", testcases);
+  // console.log("testcaseOutputs:", testcaseOutputs);
+
   try{
-    const filePath = generateFile(language, code);
-    const output = await executeCode(filePath, language);
+    //generates a single code file and return the exact path
+    const {filePath, uniqueString} = generateCodeFile(language, code);
+    //below fn generate testcase files and return the parent folder
+    const testcaseDirPath = generateTestCaseFiles(testcases,uniqueString);
+    const output = await executeCode(filePath,testcaseDirPath, language);
     res.send(output);
   }catch(error){
     console.log("Error catched : ", error);
