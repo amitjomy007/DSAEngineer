@@ -24,16 +24,18 @@ app.post("/run", async (req: any, res: any) => {
   console.log("testcases:", testcases);
   // console.log("testcaseOutputs:", testcaseOutputs);
 
-  try{
+  try {
     //generates a single code file and return the exact path
-    const {filePath, uniqueString} = generateCodeFile(language, code);
+    const { filePath, uniqueString } = generateCodeFile(language, code);
     //below fn generate testcase files and return the parent folder
-    const testcaseDirPath = generateTestCaseFiles(testcases,uniqueString);
-    const output = await executeCode(filePath,testcaseDirPath, language);
-    res.send(output);
-  }catch(error){
-    console.log("Error catched : ", error);
-    res.send("Error running code in compiler: ", error);
+    const testcaseDirPath = generateTestCaseFiles(testcases, uniqueString);
+    const output = await executeCode(filePath, testcaseDirPath, language);
+    res.status(200).json(output);
+  } catch (error) {
+    return res.status(500).json({
+      status: "internal_error",
+      message: error || "Error running code",
+    });
   }
 });
 app.listen(PORT, () => {

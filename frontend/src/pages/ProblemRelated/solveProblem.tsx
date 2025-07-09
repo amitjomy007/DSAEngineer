@@ -241,7 +241,7 @@ const SolveProblemPage = () => {
     } catch (err) {
       console.log("failed to submit code: ", err);
     }
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    // await new Promise((resolve) => setTimeout(resolve, 3000));
     setIsSubmitting(false);
     console.log("Code submitted");
   };
