@@ -175,9 +175,10 @@ const Problems: React.FC = () => {
 
   const fetchResponse = async () => {
     const uId = Cookies.get("userId");
+    const userId = uId.replace(/^"+|"+$/g, "");
     return await axios.get(`http://localhost:8000/problems`, {
       headers: {
-        "user-id": uId,
+        "user-id": userId,
       },
     });
   };

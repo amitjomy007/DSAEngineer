@@ -31,7 +31,7 @@ export const getProblemsControl = async (req: any, res: any) => {
     // ASSUMPTION: Your authentication middleware attaches the user object to `req`.
     // If the user is not logged in, we can proceed without user-specific data.
     const userId = req.headers["user-id"];
-
+    console.log("User ID:", userId);
     // Sanitize and get pagination parameters from query string
     const page = parseInt(req.query.page, 10) || 1;
     const limit = parseInt(req.query.limit, 10) || 9;
@@ -141,7 +141,8 @@ export const getProblemsControl = async (req: any, res: any) => {
                             $filter: {
                               input: "$submissions",
                               as: "sub",
-                              cond: { $eq: ["$$sub.userId", userId] },
+                              cond: { $eq: [ { $toString: "$$sub.userId" }, userId ] }
+
                             },
                           },
                         },
