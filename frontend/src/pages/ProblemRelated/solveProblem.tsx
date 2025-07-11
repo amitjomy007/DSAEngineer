@@ -127,6 +127,7 @@ const SolveProblemPage = () => {
   const [code, setCode] = useState(codeTemplates.javascript);
   const [isRunning, setIsRunning] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [voteLoading, setVoteLoading] = useState(false);
 
   // Mock data for development
   const mockProblem: ISolveProblem = {
@@ -260,6 +261,35 @@ const SolveProblemPage = () => {
     console.log("Code submitted");
   };
 
+  const handleVote = async (voteType: "upvote" | "downvote") => {
+    if (!problem) return;
+    setVoteLoading(true);
+    try {
+      let userId = Cookies.get("userId");
+      userId = userId.replace(/^"+|"+$/g, "");
+      const payload = {
+        userId,
+        problemId: problem._id,
+        voteType,
+      };
+      const response = await axios.post("http://localhost:8000/voteProblem", payload);
+      // Update local state based on response
+      setProblem((prev) =>
+        prev
+          ? {
+              ...prev,
+              upvoteCount: response.data.upvoteCount,
+              downvoteCount: response.data.downvoteCount,
+              userVoteStatus: voteType === "upvote" ? "upvoted" : "downvoted",
+            }
+          : prev
+      );
+    } catch (err) {
+      console.log("Vote failed:", err);
+    }
+    setVoteLoading(false);
+  };
+
   //   const getDifficultyColor = (difficulty: string) => {
   //     switch (difficulty) {
   //       case 'Easy': return 'text-green-400';
@@ -322,18 +352,50 @@ const SolveProblemPage = () => {
 
           {/* Stats Section - More Prominent */}
           <div className="flex items-center space-x-6">
-            <div className="flex items-center space-x-2 bg-green-600/20 px-4 py-2 rounded-lg">
-              <ThumbsUp size={20} className="text-green-400" />
+            {/* Upvote Button */}
+            <button
+              disabled={voteLoading}
+              onClick={() => handleVote("upvote")}
+              className={`flex items-center space-x-2 bg-green-600/20 px-4 py-2 rounded-lg border-2 transition-colors ${
+                problem.userVoteStatus === "upvoted"
+                  ? "border-green-400"
+                  : "border-transparent"
+              }`}
+            >
+              <ThumbsUp
+                size={20}
+                className={`${
+                  problem.userVoteStatus === "upvoted"
+                    ? "text-green-400"
+                    : "text-green-300"
+                }`}
+              />
               <span className="text-lg font-semibold text-green-400">
                 {problem.upvoteCount}
               </span>
-            </div>
-            <div className="flex items-center space-x-2 bg-red-600/20 px-4 py-2 rounded-lg">
-              <ThumbsDown size={20} className="text-red-400" />
+            </button>
+            {/* Downvote Button */}
+            <button
+              disabled={voteLoading}
+              onClick={() => handleVote("downvote")}
+              className={`flex items-center space-x-2 bg-red-600/20 px-4 py-2 rounded-lg border-2 transition-colors ${
+                problem.userVoteStatus === "downvoted"
+                  ? "border-red-400"
+                  : "border-transparent"
+              }`}
+            >
+              <ThumbsDown
+                size={20}
+                className={`${
+                  problem.userVoteStatus === "downvoted"
+                    ? "text-red-400"
+                    : "text-red-300"
+                }`}
+              />
               <span className="text-lg font-semibold text-red-400">
                 {problem.downvoteCount}
               </span>
-            </div>
+            </button>
             <div className="flex items-center space-x-2 bg-blue-600/20 px-4 py-2 rounded-lg">
               <Users size={20} className="text-blue-400" />
               <span className="text-lg font-semibold text-blue-400">
