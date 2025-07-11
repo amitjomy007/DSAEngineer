@@ -1,3 +1,5 @@
+import test from "node:test";
+
 const fs = require("fs");
 const path = require("path");
 const exec = require("child_process").exec;
@@ -32,10 +34,17 @@ const runSingleTestCase = (
     const commmand = `${outputFileName} < ${inputPath}`;
     exec(
       commmand,
-      { cwd: dirOutput },
+      { cwd: dirOutput, timeout: 2000, maxBuffer: 1024 * 1024 },
       (err: any, stdout: string, stderr: any) => {
         if (err) {
           // Runtime crash, timeout, etc.
+          if (
+            err.killed ||
+            err.signal === "SIGTERM" ||
+            err.message.includes("timed out")
+          ) {
+            return resolve({ status: "TimeLimitExceeded" }); //i'm not rejecting this because it is not a runtime error, it is a time limit exceeded error and is easier to handle this way and pass to frontend (you can make it a reject and handle it in future code restructuring)
+          }
           return reject({
             status: "runtime_error",
             errorMessage: stderr || err.message,
@@ -59,10 +68,11 @@ const executeCpp = async (filePath: string, testcaseDir: string) => {
     await generateExeFile(filePath, outPath);
     const compilationTime = Date.now() - compilationTimeStart;
     console.log("Took time to compile: ", compilationTime);
-
+    let timeTaken = 0;
     for (const file of files) {
       const inputPath = path.join(testcaseDir, file);
       const start = Date.now();
+      
       try {
         const output: string = await runSingleTestCase(
           inputPath,
@@ -70,8 +80,8 @@ const executeCpp = async (filePath: string, testcaseDir: string) => {
           filePath,
           outputFileName
         );
-        const timeTaken = Date.now() - start;
-        if (timeTaken > 1000) {
+        timeTaken = Date.now() - start;
+        if (timeTaken > 1990) {
           return {
             status: "TimeLimitExceeded",
             outputs,
@@ -88,13 +98,15 @@ const executeCpp = async (filePath: string, testcaseDir: string) => {
         return {
           status: runtimeError,
           outputs,
-          failedAtTestcase: file,
+          failedTestcase: testcasesExecutedWithinLimits + 1,
           testcasesExecutedWithinLimits,
           compilationTime,
         };
       }
     }
     return {
+      timeTaken: timeTaken, // time taken for the last test case
+      memoryTaken: 256,
       status: "success",
       outputs,
       testcasesExecutedWithinLimits,

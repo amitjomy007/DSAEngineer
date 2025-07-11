@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
+import { useNavigate } from "react-router-dom";
+
 import { useParams, Link } from "react-router-dom";
 import {
   ChevronLeft,
@@ -118,6 +120,7 @@ public:
 // };
 
 const SolveProblemPage = () => {
+  const navigate = useNavigate();
   const { slug } = useParams<{ slug: string }>();
   const [problem, setProblem] = useState<ISolveProblem | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState("javascript");
@@ -227,8 +230,13 @@ const SolveProblemPage = () => {
     setIsSubmitting(true);
     // Simulate API call
     try {
-        const userId = Cookies.get("userId");
-        const payload = {problemId: problem?._id, code:code, language:selectedLanguage, userId: userId};
+      const userId = Cookies.get("userId");
+      const payload = {
+        problemId: problem?._id,
+        code: code,
+        language: selectedLanguage,
+        userId: userId,
+      };
       const response = await axios.post("http://localhost:8000/judge", payload);
       console.log(
         "Submitted payload : ",
@@ -238,6 +246,12 @@ const SolveProblemPage = () => {
         Cookies.get("userId")
       );
       console.log(response);
+      navigate(`/problems/${slug}/submission`);
+      console.log(
+        "Final Verdict and Status : ",
+        response.data.verdict,
+        response.data.responseFromCompiler.status
+      );
     } catch (err) {
       console.log("failed to submit code: ", err);
     }

@@ -7,7 +7,7 @@ import Register from "./pages/Auth/register";
 import AddProblemPage from "./pages/ProblemRelated/addProblem";
 import Hero from "./pages/Hero";
 import ProblemsPage from "./pages/ProblemRelated/problems";
-
+import SubmissionResult from "./pages/ProblemRelated/verdictPage";
 // temporary pages which has to be replaced
 
 import Home from "./pages/home";
@@ -38,8 +38,15 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/Hero" element={<Hero />} />
         <Route path="/problems" element={<ProblemsPage />} />
-        
         <Route path="/problems/:slug" element={<SolveProblemPage />} />
+        <Route
+          path="/problems/:slug/submission"
+          element={<SubmissionResult />}
+        />
+        <Route
+          path="/problems/:slug/submission/:submissionId"
+          element={<SubmissionResult />}
+        />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/addProblem" element={<AddProblemPage />} />
