@@ -19,11 +19,6 @@ app.get("/", (req: any, res: any) => {
 
 app.post("/run", async (req: any, res: any) => {
   const { language, code, testcases } = req.body;
-  console.log("language:", language);
-  console.log("code:", code);
-  console.log("testcases:", testcases);
-  // console.log("testcaseOutputs:", testcaseOutputs);
-
   try {
     //generates a single code file and return the exact path
     const { filePath, uniqueString } = generateCodeFile(language, code);

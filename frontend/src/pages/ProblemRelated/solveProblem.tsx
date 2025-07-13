@@ -78,12 +78,14 @@ var twoSum = function(nums, target) {
         
     }
 }`,
-  cpp: `class Solution {
-public:
-    vector<int> twoSum(vector<int>& nums, int target) {
-        
-    }
-};`,
+  cpp: `#include <iostream>
+using namespace std;
+
+int main() {
+    cout<<"hello world";
+    return 0;
+}
+`,
 };
 
 // Simple syntax highlighting function

@@ -378,6 +378,21 @@ const SubmissionResult = () => {
               Submitted {formatTimeAgo(submission.createdAt)}
             </div>
           </div>
+          {submission.verdict==="Time Limit Exceeded" && 
+
+          (<h2 className="text-xl pb-8">Time limit exceeded on testcase {submission.passedTestCases+1}</h2>) 
+          }
+
+          {/* // error renderring box  */}
+          {submission.verdict==="Compilation Error" && (
+            <div>
+            <h2 >Error Message</h2>
+            <div className = "border-red-500 border-2 p-4 mt-2 mb-6 rounded-sm">
+                <h2 className="text-amber-300">{submission.error}</h2>
+            </div>
+            </div>
+         
+          )}
 
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

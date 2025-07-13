@@ -14,11 +14,8 @@ const generateExeFile = (codePath: string, outPath: string) => {
   return new Promise((resolve, reject) => {
     exec(command, (err: any, stdout: any, stderr: any) => {
       if (err) {
-        // Compilation failed
-        return reject({
-          status: "compile_error",
-          errorMessage: stderr || err.message,
-        });
+        // Compilation failed - syntax errors, missing headers, etc.
+        return reject(err);
       }
       resolve(stdout);
     });
@@ -37,17 +34,31 @@ const runSingleTestCase = (
       { cwd: dirOutput, timeout: 2000, maxBuffer: 1024 * 1024 },
       (err: any, stdout: string, stderr: any) => {
         if (err) {
-          // Runtime crash, timeout, etc.
+          // Check for timeout first - process killed by timeout or signal
           if (
             err.killed ||
             err.signal === "SIGTERM" ||
             err.message.includes("timed out")
           ) {
-            return resolve({ status: "TimeLimitExceeded" }); //i'm not rejecting this because it is not a runtime error, it is a time limit exceeded error and is easier to handle this way and pass to frontend (you can make it a reject and handle it in future code restructuring)
+            return reject({
+              status: "TimeLimitExceeded",
+              error: "Process timed out after 2000ms",
+            });
           }
+          // Check for memory limit exceeded
+          if (
+            err.message.includes("maxBuffer") ||
+            err.message.includes("ENOMEM")
+          ) {
+            return reject({
+              status: "MemoryLimitExceeded",
+              error: stderr || err.message,
+            });
+          }
+          // Runtime error - segmentation fault, divide by zero, array out of bounds, etc.
           return reject({
-            status: "runtime_error",
-            errorMessage: stderr || err.message,
+            status: "RuntimeError",
+            error: stderr || err.message,
           });
         }
         resolve(stdout);
@@ -72,15 +83,30 @@ const executeCpp = async (filePath: string, testcaseDir: string) => {
     for (const file of files) {
       const inputPath = path.join(testcaseDir, file);
       const start = Date.now();
-      
+
       try {
-        const output: string = await runSingleTestCase(
+        const output: any = await runSingleTestCase(
           inputPath,
           outPath,
           filePath,
           outputFileName
         );
+
+        // Check if the result is a timeout status object instead of actual output
+        if (
+          typeof output === "object" &&
+          output.status === "TimeLimitExceeded"
+        ) {
+          return {
+            status: "TimeLimitExceeded",
+            outputs,
+            testcasesExecutedWithinLimits,
+            compilationTime,
+          };
+        }
+
         timeTaken = Date.now() - start;
+        // Secondary timeout check - if individual test case takes too long
         if (timeTaken > 1990) {
           return {
             status: "TimeLimitExceeded",
@@ -94,14 +120,46 @@ const executeCpp = async (filePath: string, testcaseDir: string) => {
         outputs.push(formattedOutput[0]);
         testcasesExecutedWithinLimits++;
         //console.log("outputs is: ", outputs);
-      } catch (runtimeError) {
-        return {
-          status: runtimeError,
-          outputs,
-          failedTestcase: testcasesExecutedWithinLimits + 1,
-          testcasesExecutedWithinLimits,
-          compilationTime,
-        };
+      } catch (executionError: any) {
+        // Handle different types of execution errors properly
+        if (executionError.status === "TimeLimitExceeded") {
+          return {
+            status: "TimeLimitExceeded",
+            outputs,
+            testcasesExecutedWithinLimits,
+            compilationTime,
+            error: executionError.error,
+            failedTestcase: testcasesExecutedWithinLimits + 1,
+          };
+        } else if (executionError.status === "MemoryLimitExceeded") {
+          return {
+            status: "MemoryLimitExceeded",
+            outputs,
+            testcasesExecutedWithinLimits,
+            compilationTime,
+            error: executionError.error,
+            failedTestcase: testcasesExecutedWithinLimits + 1,
+          };
+        } else if (executionError.status === "RuntimeError") {
+          return {
+            status: "RuntimeError",
+            error: executionError.error,
+            outputs,
+            failedTestcase: testcasesExecutedWithinLimits + 1,
+            testcasesExecutedWithinLimits,
+            compilationTime,
+          };
+        } else {
+          // Fallback for any other execution errors
+          return {
+            status: "RuntimeError",
+            error: executionError,
+            outputs,
+            failedTestcase: testcasesExecutedWithinLimits + 1,
+            testcasesExecutedWithinLimits,
+            compilationTime,
+          };
+        }
       }
     }
     return {
@@ -113,8 +171,13 @@ const executeCpp = async (filePath: string, testcaseDir: string) => {
       compilationTime,
     };
   } catch (compilationError) {
-    console.log("Catched error: ", compilationError);
-    return { status: "compile_error", outputs, testcasesExecutedWithinLimits };
+    console.log("Caught compilation error: ", compilationError);
+    return {
+      status: "CompileError",
+      error: compilationError,
+      outputs,
+      testcasesExecutedWithinLimits,
+    };
   }
 };
 

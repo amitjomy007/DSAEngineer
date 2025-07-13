@@ -9,9 +9,9 @@ const executeCode = async (
   let output = null;
   switch (language) {
     case "cpp":
-      console.log("going to cpp ");
+      // console.log("going to cpp ");
       output = await executeCpp(filePath, testcaseDir);
-      console.log("Output was : ", output);
+      // console.log("Output was : ", output);
       break;
     // case "javascript":
     //     output = executeJavascript(filePath);

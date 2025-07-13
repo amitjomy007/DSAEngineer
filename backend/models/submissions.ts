@@ -35,6 +35,7 @@ const submissionSchema = new mongoose.Schema(
         "Memory Limit Exceeded",
         "Runtime Error",
         "Compilation Error",
+      
       ],
       default: "Pending",
     },
@@ -57,12 +58,13 @@ const submissionSchema = new mongoose.Schema(
       default: null,
     },
 
+    error: {
+      type: String,
+      default: null,
+    },
+
     //only for testcases with wrong Output
     failedTestCase: {
-      number: {
-        type: Number,
-        default: null,
-      },
       input: {
         type: String,
         default: null,
@@ -76,16 +78,7 @@ const submissionSchema = new mongoose.Schema(
         default: null,
       },
     },
-    //only for compilation Error
-    compileError: {
-      stderr: String,
-    },
-    // Only if Runtime Error
-    runTimeError: {
-      message: String,
-      signal: String,
-      stderr: String,
-    },
+
     submittedAt: {
       type: Date,
       default: Date.now,

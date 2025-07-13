@@ -17,14 +17,14 @@ export const getAllSubmissionsOfProblem = async (req: any, res: any) => {
     const problem = await Problem.findOne({
       titleSlug: slug,
     });
-    console.log("problem is: ", problem);
+    //console.log("problem is: ", problem);
     const problemId = problem._id;
     console.log("user id and problemId is : ", userId, problemId);
     const submissions = await Submission.find({
       problemId: problemId,
       userId: userId,
     }).sort({ createdAt: -1 });
-    console.log("received submissions: ", submissions);
+    // console.log("received submissions: ", submissions);
     if (!submissions) {
       return res.status(404).json({ message: "Submission not found" });
     }

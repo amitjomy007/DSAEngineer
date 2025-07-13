@@ -2,215 +2,339 @@ const dotenv = require("dotenv");
 const Problem = require("../models/problem");
 dotenv.config();
 import axios from "axios";
+import { error } from "console";
 import { response } from "express";
 import { Mongoose } from "mongoose";
-import test from "node:test";
+import test, { run } from "node:test";
 const compilerBackendUrl =
   process.env.COMPILER_BACKEND_URL || "localhost:3000/run";
 
-const addSubmissionToDatabase = async (
-  userId: string,
-  problemId: string,
-  code: string,
-  language: string,
-  responseFromCompiler: any,
-  verdict: string,
-  correctTestCases: number,
-  testcases: string[],
-  testcaseOutputs: string[]
-) => {
-  const Submission = require("../models/submissions");
+type SubmissionData = {
+  userId: string;
+  problemId: string;
+  code: string;
+  language: string;
+  responseFromCompiler: any;
+  status: string;
+  verdict: string;
+  error: string;
+  testcases: string[];
+  testcaseOutputs: string[];
+  correctTestCases: number;
+};
+
+// Standardized response interface for frontend
+interface JudgeResponse {
+  verdict: string;
+  correctTestCases?: number;
+  responseFromCompiler: any;
+  error?: string;
+}
+
+const addSubmissionToDatabase = async (Arg: SubmissionData) => {
   let data = undefined;
-  if (responseFromCompiler.status === "TimeLimitExceeded") {
+  data = {
+    userId: Arg.userId,
+    problemId: Arg.problemId,
+    code: Arg.code,
+    language: Arg.language,
+    status: Arg.responseFromCompiler.status,
+    verdict: Arg.verdict,
+    error: Arg.error,
+    totalTestCases: Arg.testcases.length,
+    passedTestCases: Arg.correctTestCases,
+  };
+
+  // Add specific fields based on verdict type
+  if (Arg.verdict === "Not Accepted") {
     data = {
-      userId,
-      problemId,
-      code,
-      language,
-      status: responseFromCompiler.status,
-      verdict: "Time Limit Exceeded",
-      totalTestCases: testcases.length,
-      passedTestCases: correctTestCases,
-    };
-  }
-  ///syntax error
-  else if (responseFromCompiler.status === "compile_error") {
-    data = {
-      userId,
-      problemId,
-      code,
-      language,
-      status: responseFromCompiler.status,
-      verdict: "Compilation Error",
-      // compileError: {
-      //   stderr: responseFromCompiler.stderr,
-      // },
-    };
-  }
-  //not sure when this appears
-  else if (responseFromCompiler.status === "RuntimeError") {
-    data = {
-      userId,
-      problemId,
-      code,
-      language,
-      status: responseFromCompiler.status,
-      verdict: "Runtime Error",
-      // runTimeError: {
-      //   message: responseFromCompiler.message,
-      //   signal: responseFromCompiler.signal,
-      //   stderr: responseFromCompiler.stderr,
-      // },
-    };
-  } else if (verdict === "Not Accepted") {
-    data = {
-      userId,
-      problemId,
-      code,
-      language,
-      status: responseFromCompiler.status,
-      verdict: "Wrong Answer",
-      totalTestCases: testcases.length,
-      passedTestCases: correctTestCases,
+      ...data,
       failedTestCase: {
-        input: testcases[correctTestCases],
-        output: responseFromCompiler.outputs[correctTestCases],
-        expectedOutput: testcaseOutputs[correctTestCases],
+        input: Arg.testcases[Arg.correctTestCases],
+        output: Arg.responseFromCompiler.outputs[Arg.correctTestCases],
+        expectedOutput: Arg.testcaseOutputs[Arg.correctTestCases],
       },
     };
-  } else if (verdict === "Accepted") {
+  } else if (Arg.verdict === "Accepted") {
     data = {
-      userId,
-      problemId,
-      code,
-      language,
-      status: responseFromCompiler.status,
-      verdict: "Accepted",
-      totalTestCases: testcases.length,
-      passedTestCases: correctTestCases,
-      runtimeMs: responseFromCompiler.compilationTime,
-      memoryKb: responseFromCompiler.timeTaken,
+      ...data,
+      runtimeMs: Arg.responseFromCompiler.timeTaken,
+      memoryKb: 256,
     };
   }
 
-  // else if (responseFromCompiler.status === "Accepted") {
+  const Submission = require("../models/submissions");
+  console.log("data putting in db: ", data);
   const submission = new Submission(data);
   await submission.save();
+  console.log("saved submission: ", submission);
 };
 
 export const judgeControl = async (req: any, res: any) => {
-  let output = undefined;
   const { language, code, problemId } = req.body;
-
   const userIdNotformatted = req.body.userId;
-  const userId = userIdNotformatted.trim().replace(/^"+|"+$/g, '');
-  console.log("user id is what? : ", userId);
-  let t = 0;
+  const userId = userIdNotformatted.trim().replace(/^"+|"+$/g, "");
+
   try {
-    //find the testcases corresponding to the problem id and get the testcaseOutputs from MongoDB
-    // const {testcases, testcaseOutputs} =  from mongodb
-    const { testcases } = await Problem.findById(problemId);
+    // Find the testcases corresponding to the problem id and get the testcaseOutputs from MongoDB
+    const problemData = await Problem.findById(problemId);
+    if (!problemData) {
+      return res.status(404).json({
+        verdict: "Error",
+        error: "Problem not found",
+        responseFromCompiler: null,
+      });
+    }
+
+    const { testcases } = problemData;
     const testcaseOutputs = testcases.map((testcase: any) => testcase.output);
-    console.log("testcaseOutputs is: ", testcaseOutputs);
-    //console.log("testcaseOutputs is: ", testcaseOutputs);
+
     const payload = {
       language,
       code,
       testcases,
     };
 
+    // Make request to compiler backend
     const response = await axios.post<{
       outputs: string[];
       status: string;
       compilationTime: number;
+      timeTaken: number;
+      error: string;
       testcasesExecutedWithinLimits: number;
     }>(`http://${compilerBackendUrl}`, payload);
-    // console.log("output is: ", output);
-    //loop output
 
-    const responseFromCompiler: {
-      outputs: string[];
-      status: string;
-      compilationTime: number;
-      testcasesExecutedWithinLimits: number;
-    } = response.data;
+    console.log("response.data is: ", response.data);
+    const responseFromCompiler = response.data;
 
-    if (responseFromCompiler.status === "TimeLimitExceeded") {
-      console.log(responseFromCompiler.status);
-      await addSubmissionToDatabase(
-        userId,
-        problemId,
-        code,
-        language,
-        responseFromCompiler,
-        "Time Limit Exceeded",
-        t,
-        testcases,
-        testcaseOutputs
-      );
-      console.log("submitted to database with Time Limit Exceeded");
-      return res
-        .status(200)
-        .json({ verdict: "Time Limit Exceeded", responseFromCompiler });
-    }
-    console.log("response from compiler is : ", responseFromCompiler);
     if (!responseFromCompiler) {
-      return res
-        .status(400)
-        .json({ message: "No output from compiler backend" });
-    } else {
-      const outputs = responseFromCompiler.outputs;
-
-      for (let i = 0; i < testcaseOutputs.length; i++) {
-        if (testcaseOutputs[i] === outputs[i]) {
-          t++;
-        } else {
-          break;
-        }
-        //console.log("output and testcaseOutputs[i] and i are: ", output, testcaseOutputs[i], i);
-      }
-      if (t === testcaseOutputs.length) {
-        console.log("all testcases are correct");
-        await addSubmissionToDatabase(
-          userId,
-          problemId,
-          code,
-          language,
-          responseFromCompiler,
-          "Accepted",
-          t,
-          testcases,
-          testcaseOutputs
-        );
-        console.log("submitted to database with Accepted");
-        return res.status(200).json({
-          verdict: "Accepted",
-          correctTestCases: t,
-          responseFromCompiler,
-        });
-      } else {
-        console.log("not all testcases are correct and t is ", t);
-        await addSubmissionToDatabase(
-          userId,
-          problemId,
-          code,
-          language,
-          responseFromCompiler,
-          "Not Accepted",
-          t,
-          testcases,
-          testcaseOutputs
-        );
-        console.log("submitted to database with Not Accepted");
-        return res.status(200).send({
-          verdict: "Not Accepted",
-          correctTestCases: t,
-          responseFromCompiler,
-        });
-      }
+      return res.status(500).json({
+        verdict: "Error",
+        error: "Compiler server returned empty response",
+        responseFromCompiler: null,
+      });
     }
-  } catch (err) {
-    console.log("Catched error in backend server: ", err);
-    res.status(500).json({ msg: "failed to connect to compiler", err });
+
+    // Base data structure for database
+    const baseData = {
+      userId: userId,
+      problemId: problemId,
+      code: code,
+      language: language,
+      responseFromCompiler: responseFromCompiler,
+      status: responseFromCompiler.status,
+      testcases: testcases,
+      testcaseOutputs: testcaseOutputs,
+      correctTestCases: 0,
+    };
+
+    // Handle different compiler response statuses
+    switch (responseFromCompiler.status) {
+      case "CompileError":
+      case "compile_error": // Handle both old and new status names
+        const compileErrorData = {
+          ...baseData,
+          error: responseFromCompiler.error || "Compilation failed",
+          verdict: "Compilation Error",
+        };
+        await addSubmissionToDatabase(compileErrorData);
+        console.log("Submitted to database with Compilation Error");
+        return res.status(200).json({
+          verdict: "Compilation Error",
+          responseFromCompiler,
+          error: responseFromCompiler.error,
+        });
+
+      case "RuntimeError":
+      case "runtimeError": // Handle both old and new status names
+        const runTimeOutputs = responseFromCompiler.outputs || [];
+        let correctTestCasesrunTime = 0;
+        for (
+          let i = 0;
+          i < runTimeOutputs.length && i < testcaseOutputs.length;
+          i++
+        ) {
+          if (testcaseOutputs[i] === runTimeOutputs[i]) {
+            correctTestCasesrunTime++;
+          } else {
+            break;
+          }
+        }
+        const runtimeErrorData = {
+          ...baseData,
+          correctTestCases: correctTestCasesrunTime,
+          error: responseFromCompiler.error || "Runtime error occurred",
+          verdict: "Runtime Error",
+        };
+        await addSubmissionToDatabase(runtimeErrorData);
+        console.log("Submitted to database with Runtime Error");
+        return res.status(200).json({
+          verdict: "Runtime Error",
+          responseFromCompiler,
+          error: responseFromCompiler.error,
+        });
+
+      case "TimeLimitExceeded":
+        // Manually check how many outputs were correct before timeout
+        const timeoutOutputs = responseFromCompiler.outputs || [];
+        let correctTestCasesTimeout = 0;
+        for (
+          let i = 0;
+          i < timeoutOutputs.length && i < testcaseOutputs.length;
+          i++
+        ) {
+          if (testcaseOutputs[i] === timeoutOutputs[i]) {
+            correctTestCasesTimeout++;
+          } else {
+            break;
+          }
+        }
+
+        const timeoutData = {
+          ...baseData,
+          correctTestCases: correctTestCasesTimeout,
+          error: responseFromCompiler.error || "Time limit exceeded",
+          verdict: "Time Limit Exceeded",
+        };
+        await addSubmissionToDatabase(timeoutData);
+        console.log("Submitted to database with Time Limit Exceeded");
+        return res.status(200).json({
+          verdict: "Time Limit Exceeded",
+          correctTestCases: correctTestCasesTimeout,
+          responseFromCompiler,
+          error: responseFromCompiler.error,
+        });
+
+      case "MemoryLimitExceeded":
+        // Manually check how many outputs were correct before memory limit
+        const memoryOutputs = responseFromCompiler.outputs || [];
+        let correctTestCasesMemory = 0;
+        for (
+          let i = 0;
+          i < memoryOutputs.length && i < testcaseOutputs.length;
+          i++
+        ) {
+          if (testcaseOutputs[i] === memoryOutputs[i]) {
+            correctTestCasesMemory++;
+          } else {
+            break;
+          }
+        }
+
+        const memoryErrorData = {
+          ...baseData,
+          correctTestCases: correctTestCasesMemory,
+          error: responseFromCompiler.error || "Memory limit exceeded",
+          verdict: "Memory Limit Exceeded",
+        };
+        await addSubmissionToDatabase(memoryErrorData);
+        console.log("Submitted to database with Memory Limit Exceeded");
+        return res.status(200).json({
+          verdict: "Memory Limit Exceeded",
+          correctTestCases: correctTestCasesMemory,
+          responseFromCompiler,
+          error: responseFromCompiler.error,
+        });
+
+      case "success":
+        // Compare outputs with expected outputs
+        const outputs = responseFromCompiler.outputs;
+        let correctTestCases = 0;
+
+        for (let i = 0; i < testcaseOutputs.length; i++) {
+          if (i < outputs.length && testcaseOutputs[i] === outputs[i]) {
+            correctTestCases++;
+          } else {
+            break;
+          }
+        }
+
+        const successData = {
+          ...baseData,
+          correctTestCases: correctTestCases,
+        };
+
+        if (correctTestCases === testcaseOutputs.length) {
+          const acceptedData = {
+            ...successData,
+            verdict: "Accepted",
+            error: "NONE",
+          };
+          await addSubmissionToDatabase(acceptedData);
+          console.log("Submitted to database with Accepted");
+          return res.status(200).json({
+            verdict: "Accepted",
+            correctTestCases: correctTestCases,
+            responseFromCompiler,
+          });
+        } else {
+          const notAcceptedData = {
+            ...successData,
+            verdict: "Wrong Answer",
+            error: "NONE",
+          };
+          await addSubmissionToDatabase(notAcceptedData);
+          console.log(
+            "Submitted to database with Not Accepted (disguised wrong answer"
+          );
+          return res.status(200).json({
+            verdict: "Not Accepted/disguised Wrong Answer",
+            correctTestCases: correctTestCases,
+            responseFromCompiler,
+          });
+        }
+
+      default:
+        // Handle unknown status from compiler
+        console.log("Unknown compiler status:", responseFromCompiler.status);
+        const unknownErrorData = {
+          ...baseData,
+          error: `Unknown compiler status: ${responseFromCompiler.status}`,
+          verdict: "Error",
+        };
+        await addSubmissionToDatabase(unknownErrorData);
+        return res.status(200).json({
+          verdict: "Error",
+          responseFromCompiler,
+          error: `Unknown compiler status: ${responseFromCompiler.status}`,
+        });
+    }
+  } catch (err: any) {
+    console.log("Caught error in backend server:", err);
+
+    // Handle axios errors specifically
+    if (err.code === "ECONNREFUSED" || err.code === "ENOTFOUND") {
+      return res.status(503).json({
+        verdict: "Error",
+        error: "Compiler server is unavailable. Please try again later.",
+        responseFromCompiler: null,
+      });
+    }
+
+    // Handle axios timeout
+    if (err.code === "ECONNABORTED") {
+      return res.status(504).json({
+        verdict: "Error",
+        error: "Compiler server request timed out. Please try again.",
+        responseFromCompiler: null,
+      });
+    }
+
+    // Handle database errors
+    if (err.name === "MongoError" || err.name === "ValidationError") {
+      return res.status(500).json({
+        verdict: "Error",
+        error: "Database error occurred. Please try again.",
+        responseFromCompiler: null,
+      });
+    }
+
+    // Generic error handler
+    return res.status(500).json({
+      verdict: "Error",
+      error: "An unexpected error occurred. Please try again.",
+      responseFromCompiler: null,
+    });
   }
 };
