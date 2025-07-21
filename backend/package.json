@@ -13,6 +13,7 @@
     "dev": "nodemon --exec ts-node ./server.ts"
   },
   "dependencies": {
+    "@google/genai": "^1.9.0",
     "axios": "^1.10.0",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",

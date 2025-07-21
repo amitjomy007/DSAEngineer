@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useParams, Link } from "react-router-dom";
 import {
   ChevronLeft,
+  ChevronDown,
   Play,
   Upload,
   ThumbsUp,
@@ -20,6 +21,7 @@ import {
   Loader2,
 } from "lucide-react";
 import Editor from "@monaco-editor/react";
+import ChatWindow from "../../components/chat/chatWindow";
 
 // Interface for the problem data
 interface ISolveProblem {
@@ -125,11 +127,12 @@ const SolveProblemPage = () => {
   const navigate = useNavigate();
   const { slug } = useParams<{ slug: string }>();
   const [problem, setProblem] = useState<ISolveProblem | null>(null);
-  const [selectedLanguage, setSelectedLanguage] = useState("javascript");
-  const [code, setCode] = useState(codeTemplates.javascript);
+  const [selectedLanguage, setSelectedLanguage] = useState("cpp");
+  const [code, setCode] = useState(codeTemplates.cpp);
   const [isRunning, setIsRunning] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [voteLoading, setVoteLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   // Mock data for development
   const mockProblem: ISolveProblem = {
@@ -214,6 +217,7 @@ const SolveProblemPage = () => {
 
   const handleLanguageChange = (language: string) => {
     setSelectedLanguage(language);
+    setIsOpen(false);
     setCode(codeTemplates[language as keyof typeof codeTemplates]);
   };
 
@@ -268,13 +272,18 @@ const SolveProblemPage = () => {
     setVoteLoading(true);
     try {
       let userId = Cookies.get("userId");
+      if (!userId) return;
       userId = userId.replace(/^"+|"+$/g, "");
+
       const payload = {
         userId,
         problemId: problem._id,
         voteType,
       };
-      const response = await axios.post("http://localhost:8000/voteProblem", payload);
+      const response = await axios.post(
+        "http://localhost:8000/voteProblem",
+        payload
+      );
       // Update local state based on response
       setProblem((prev) =>
         prev
@@ -323,10 +332,10 @@ const SolveProblemPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className="min-h-screen bg-gray-900 text-white ">
       {/* Header */}
-      <div className="border-b border-gray-700 bg-gray-800/50 backdrop-blur-sm">
-        <div className="flex items-center justify-between px-6 py-4">
+      <div className="fixed top-0 w-full border-b border-gray-700 bg-gray-800/50 backdrop-blur-sm">
+        <div className="flex items-center justify-between px-6 py-4 pb-2">
           <div className="flex items-center space-x-4">
             <Link
               to="/problems"
@@ -339,7 +348,7 @@ const SolveProblemPage = () => {
                 {problem.problemNumber}. {problem.title}
               </span>
               <span
-                className={`text-lg font-bold px-4 py-2 rounded-lg border-2 ${
+                className={`text-sm font-bold px-4 py-1 rounded-lg border-2 ${
                   problem.difficulty === "Easy"
                     ? "text-green-400 border-green-400 bg-green-400/10"
                     : problem.difficulty === "Medium"
@@ -372,7 +381,7 @@ const SolveProblemPage = () => {
                     : "text-green-300"
                 }`}
               />
-              <span className="text-lg font-semibold text-green-400">
+              <span className="text-sm font-semibold text-green-400">
                 {problem.upvoteCount}
               </span>
             </button>
@@ -394,13 +403,13 @@ const SolveProblemPage = () => {
                     : "text-red-300"
                 }`}
               />
-              <span className="text-lg font-semibold text-red-400">
+              <span className="text-sm font-semibold text-red-400">
                 {problem.downvoteCount}
               </span>
             </button>
             <div className="flex items-center space-x-2 bg-blue-600/20 px-4 py-2 rounded-lg">
               <Users size={20} className="text-blue-400" />
-              <span className="text-lg font-semibold text-blue-400">
+              <span className="text-sm font-semibold text-blue-400">
                 {problem.successfulSubmissionCount}
               </span>
             </div>
@@ -412,45 +421,48 @@ const SolveProblemPage = () => {
             </div>
           </div>
         </div>
-
-        {/* Navigation Tabs - More Prominent */}
-        <div className="px-6 pb-4">
-          <div className="flex space-x-2">
-            <div className="px-4 py-2 bg-purple-600 text-white rounded-lg font-medium">
-              <Code size={16} className="inline mr-2" />
-              Problem
-            </div>
-            <Link
-              to={`/problems/${slug}/editorial`}
-              className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white rounded-lg transition-colors font-medium"
-            >
-              <BookOpen size={16} className="inline mr-2" />
-              Editorial
-            </Link>
-            <Link
-              to={`/problems/${slug}/comments`}
-              className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white rounded-lg transition-colors font-medium"
-            >
-              <MessageSquare size={16} className="inline mr-2" />
-              Comments
-            </Link>
-            <Link
-              to={`/problems/${slug}/submissions`}
-              className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white rounded-lg transition-colors font-medium"
-            >
-              <FileText size={16} className="inline mr-2" />
-              Submissions
-            </Link>
-          </div>
-        </div>
       </div>
 
       {/* Main Content */}
-      <div className="flex h-[calc(100vh-140px)]">
+
+      <div className="flex h-screen pt-20">
         {/* Left Panel - Problem Description */}
-        <div className="w-1/2 border-r border-gray-700 overflow-y-auto">
+        <div className="w-1/2 border-r border-gray-700 overflow-y-auto no-scrollbar">
           <div className="p-6">
+            {/* Navigation Tabs - More Prominent */}
+            <div className="px-6 pb-4">
+              <div className="flex space-x-2">
+                <div className="px-4 py-2 bg-purple-600 text-white rounded-lg font-medium">
+                  <Code size={16} className="inline mr-2" />
+                  Problem
+                </div>
+                <Link
+                  to={`/problems/${slug}/editorial`}
+                  className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white rounded-lg transition-colors font-medium"
+                >
+                  <BookOpen size={16} className="inline mr-2" />
+                  Editorial
+                </Link>
+                <Link
+                  to={`/problems/${slug}/comments`}
+                  className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white rounded-lg transition-colors font-medium"
+                >
+                  <MessageSquare size={16} className="inline mr-2" />
+                  Comments
+                </Link>
+                <Link
+                  to={`/problems/${slug}/submissions`}
+                  className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white rounded-lg transition-colors font-medium"
+                >
+                  <FileText size={16} className="inline mr-2" />
+                  Submissions
+                </Link>
+              </div>
+            </div>
             <div className="prose prose-invert max-w-none">
+              <h1 className="text-2xl font-semibold mb-4">
+                Problem Description
+              </h1>
               <p className="text-gray-300 leading-relaxed mb-6 text-lg">
                 {problem.description}
               </p>
@@ -568,30 +580,93 @@ const SolveProblemPage = () => {
         </div>
 
         {/* Right Panel - Code Editor */}
-        <div className="w-1/2 flex flex-col">
-          {/* Language Selector */}
-          <div className="border-b border-gray-700 p-4 bg-gray-800/30">
-            <div className="flex items-center justify-between">
-              <div className="flex space-x-2">
-                {problem.allowedLanguages.map((lang) => (
+        <div className="w-1/2 h-2/3 flex  flex-col">
+          <div className=" flex align-center justify-between ">
+            {/* Language Selector */}
+            <div className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="relative">
                   <button
-                    key={lang}
-                    onClick={() => handleLanguageChange(lang)}
-                    className={`px-4 py-2 text-sm rounded-lg font-medium transition-colors ${
-                      selectedLanguage === lang
-                        ? "bg-purple-600 text-white"
-                        : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-                    }`}
+                    onClick={() => setIsOpen(!isOpen)}
+                    className="flex items-center justify-between w-40 px-4 py-2 text-sm bg-black-800 text-white border border-gray-800 rounded-lg hover:border-gray-600 transition-colors"
                   >
-                    {lang.charAt(0).toUpperCase() + lang.slice(1)}
+                    <span className="font-medium">
+                      {selectedLanguage.charAt(0).toUpperCase() +
+                        selectedLanguage.slice(1)}
+                    </span>
+                    <ChevronDown
+                      className={`w-4 h-4 transition-transform ${
+                        isOpen ? "rotate-180" : ""
+                      }`}
+                    />
                   </button>
-                ))}
+
+                  {isOpen && (
+                    <div className="absolute top-full left-0 mt-1 w-40 bg-black border border-gray-800 rounded-lg shadow-lg z-10">
+                      {problem.allowedLanguages.map((lang) => (
+                        <button
+                          key={lang}
+                          onClick={() => handleLanguageChange(lang)}
+                          className={`w-full px-4 py-2 text-sm text-left hover:bg-gray-900 transition-colors first:rounded-t-lg last:rounded-b-lg ${
+                            selectedLanguage === lang
+                              ? "bg-gray-900 text-white"
+                              : "text-white"
+                          }`}
+                        >
+                          {lang.charAt(0).toUpperCase() + lang.slice(1)}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Click outside to close */}
+              {isOpen && (
+                <div
+                  className="fixed inset-0 z-0"
+                  onClick={() => setIsOpen(false)}
+                />
+              )}
+            </div>
+            {/* Action Buttons */}
+            <div className=" p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex space-x-3 pr-2">
+                  <button
+                    onClick={handleRunCode}
+                    disabled={isRunning}
+                    className=" h-7 flex items-center space-x-2 px-3 py-4 text-sm bg-gray-700 hover:bg-gray-600 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg transition-colors font-medium "
+                  >
+                    {isRunning ? (
+                      <Loader2 size={13} className="animate-spin" />
+                    ) : (
+                      <Play size={13} />
+                    )}
+                    <span>{isRunning ? "Running..." : "Run"}</span>
+                  </button>
+                  <button
+                    onClick={handleSubmit}
+                    disabled={isSubmitting}
+                    className=" h-7 flex items-center space-x-2 px-3 py-4 text-sm  bg-green-600 hover:bg-green-700 disabled:bg-green-600 disabled:cursor-not-allowed rounded-lg transition-colors font-medium"
+                  >
+                    {isSubmitting ? (
+                      <Loader2 size={13} className="animate-spin" />
+                    ) : (
+                      <Upload size={13} />
+                    )}
+                    <span>{isSubmitting ? "Submitting..." : "Submit"}</span>
+                  </button>
+                  {/* <button className=" h-7 flex items-center space-x-2 px-3 py-4 bg-amber-300 hover:bg-amber-500 text-blue-900  rounded-lg transition-colors font-medium">
+                    Get AI Hint
+                  </button> */}
+                </div>
               </div>
             </div>
           </div>
 
           {/* Monaco Code Editor */}
-          <div className="flex-1 p-4">
+          <div className="flex-1 py-0 ">
             <div className="h-full rounded-lg overflow-hidden border border-gray-700">
               <Editor
                 height="100%"
@@ -600,7 +675,7 @@ const SolveProblemPage = () => {
                 onChange={handleCodeChange}
                 theme="vs-dark"
                 options={{
-                  fontSize: 14,
+                  fontSize: 15,
                   fontFamily: "JetBrains Mono, Consolas, Monaco, monospace",
                   minimap: { enabled: false },
                   scrollBeyondLastLine: false,
@@ -618,42 +693,17 @@ const SolveProblemPage = () => {
                   roundedSelection: false,
                   readOnly: false,
                   cursorStyle: "line",
+                  padding: {
+                    top: 10,
+                  },
                 }}
               />
             </div>
           </div>
-
-          {/* Action Buttons */}
-          <div className="border-t border-gray-700 p-4 bg-gray-800/30">
-            <div className="flex items-center justify-between">
-              <div className="flex space-x-3">
-                <button
-                  onClick={handleRunCode}
-                  disabled={isRunning}
-                  className="flex items-center space-x-2 px-6 py-3 bg-gray-700 hover:bg-gray-600 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg transition-colors font-medium"
-                >
-                  {isRunning ? (
-                    <Loader2 size={16} className="animate-spin" />
-                  ) : (
-                    <Play size={16} />
-                  )}
-                  <span>{isRunning ? "Running..." : "Run Code"}</span>
-                </button>
-                <button
-                  onClick={handleSubmit}
-                  disabled={isSubmitting}
-                  className="flex items-center space-x-2 px-6 py-3 bg-green-600 hover:bg-green-700 disabled:bg-green-600 disabled:cursor-not-allowed rounded-lg transition-colors font-medium"
-                >
-                  {isSubmitting ? (
-                    <Loader2 size={16} className="animate-spin" />
-                  ) : (
-                    <Upload size={16} />
-                  )}
-                  <span>{isSubmitting ? "Submitting..." : "Submit"}</span>
-                </button>
-              </div>
-            </div>
+          <div className="fixed bottom-0 right-0 w-1/2">
+            <ChatWindow />
           </div>
+          {/* Ai chat and guide area */}
 
           {/* Test Results Area */}
           <div className="border-t border-gray-700 p-4 bg-gray-800/30 min-h-[120px]">

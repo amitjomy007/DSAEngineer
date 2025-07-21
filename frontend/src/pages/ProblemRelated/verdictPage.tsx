@@ -201,6 +201,10 @@ const SubmissionResult = () => {
     try {
       console.log("Fetching submission data for ID:", submissionId);
       let userId = Cookies.get("userId");
+      if(!userId){
+        console.log("please login");
+        return;
+      } 
       userId = userId.replace(/^"+|"+$/g, "");
       const allSubmissionResponse = await axios.get(
         `http://localhost:8000/getAllSubmissionsOfProblem/${userId}/${slug}`
