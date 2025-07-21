@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react"; // Add useEffect and useRef
+
 import {
   MessageCircle,
   Bot,
@@ -11,12 +12,9 @@ import {
   ChevronUp,
 } from "lucide-react";
 
-interface Message {
-  id: string;
-  content: string;
-  isUser: boolean;
-  timestamp: Date;
-}
+import { useSelector, useDispatch } from "react-redux";
+import type { AppDispatch,RootState } from "../../store/store";
+import { sendPromptToAI, resetChat } from "../../store/aiChatSlice";
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
@@ -24,7 +22,7 @@ interface ChatInputProps {
 }
 
 interface ChatMessageProps {
-  message: Message;
+  message: { author: "user" | "bot"; content: string };
 }
 
 interface EmptyStateProps {
@@ -32,20 +30,17 @@ interface EmptyStateProps {
 }
 
 const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
+  const isUser = message.author === "user";
   return (
     <div
-      className={`flex ${
-        message.isUser ? "justify-end" : "justify-start"
-      } px-3 pt-2`}
+      className={`flex ${isUser ? "justify-end" : "justify-start"} px-3 pt-2`}
     >
       <div
         className={`relative text-sm text-gray-200 font-medium p-2 rounded-lg max-w-[85%] ${
-          message.isUser
-            ? "bg-gray-800 rounded-br-sm"
-            : "bg-gray-700 rounded-bl-sm"
+          isUser ? "bg-gray-800 rounded-br-sm" : "bg-gray-700 rounded-bl-sm"
         }`}
       >
-        {!message.isUser && (
+        {!isUser && (
           <div className="absolute -top-1 -left-1 w-4 h-4 bg-purple-600 rounded-full flex items-center justify-center">
             <Bot className="w-2 h-2 text-white" />
           </div>
@@ -177,62 +172,21 @@ const LoadingMessage: React.FC = () => {
 };
 
 const ChatWindow: React.FC = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const dispatch: AppDispatch = useDispatch();
+  const { chatHistory, isLoading, promptsRemaining } = useSelector(
+    (state: RootState) => state.chat
+  );
+
   const [showChat, setShowChat] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
-    
-  const simulateAIResponse = async (userMessage: string): Promise<string> => {
-    // Simulate API delay
-    await new Promise((resolve) =>
-      setTimeout(resolve, 1500 + Math.random() * 1000)
-    );
 
-    // Simulate different responses based on user input
-    const responses = [
-      "I've reviewed your code and here are some suggestions: Consider using more descriptive variable names, add error handling, and break down large functions into smaller components.",
-      "Great question! For this issue, I recommend using async/await instead of promises for better readability. Also, make sure to handle edge cases properly.",
-      "Your approach looks good! A few improvements: add type annotations, implement proper error boundaries, and consider memoizing expensive calculations.",
-      "I can help you with that! The issue might be related to state management. Try using useCallback for your event handlers and useEffect for side effects.",
-      "Nice implementation! To optimize further, consider lazy loading components, implementing virtual scrolling for large lists, and using React.memo for preventing unnecessary re-renders.",
-    ];
-
-    return responses[Math.floor(Math.random() * responses.length)];
-  };
-
-  const handleSendMessage = async (content: string) => {
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      content,
-      isUser: true,
-      timestamp: new Date(),
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
-    setIsLoading(true);
-
-    try {
-      const aiResponse = await simulateAIResponse(content);
-      const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: aiResponse,
-        isUser: false,
-        timestamp: new Date(),
-      };
-
-      setMessages((prev) => [...prev, aiMessage]);
-    } catch (error) {
-      console.log("error to rmemove warning", error);
-      const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: "Sorry, I encountered an error. Please try again.",
-        isUser: false,
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
+  const handleSendMessage = (content: string) => {
+    if (promptsRemaining > 0 && !isLoading) {
+      dispatch(sendPromptToAI(content));
     }
+  };
+  const handleResetChat = () => {
+    dispatch(resetChat());
   };
 
   const handleGetStarted = () => {
@@ -242,6 +196,15 @@ const ChatWindow: React.FC = () => {
   const toggleMinimize = () => {
     setIsMinimized(!isMinimized);
   };
+
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop =
+        chatContainerRef.current.scrollHeight;
+    }
+  }, [chatHistory]);
 
   // Minimized view
   if (isMinimized) {
@@ -253,9 +216,9 @@ const ChatWindow: React.FC = () => {
               <MessageCircle className="w-3 h-3 text-white" />
             </div>
             <span className="text-white text-sm font-medium">AI Assistant</span>
-            {messages.length > 0 && (
+            {chatHistory.length > 0 && (
               <span className="bg-purple-600 text-white text-xs px-2 py-0.5 rounded-full">
-                {messages.length}
+                {chatHistory.length}
               </span>
             )}
           </div>
@@ -292,24 +255,40 @@ const ChatWindow: React.FC = () => {
       </div>
 
       <div className="flex-1 flex flex-col min-h-0">
-        {!showChat && messages.length === 0 ? (
+        {!showChat && chatHistory.length === 0 ? (
           <EmptyState onGetStarted={handleGetStarted} />
         ) : (
           <div className="flex-1 flex flex-col min-h-0">
-            <div className="flex-1 overflow-y-auto py-2">
-              {showChat && messages.length === 0 && <ChatIntro />}
-              {messages.map((message) => (
-                <ChatMessage key={message.id} message={message} />
+            <div ref={chatContainerRef} className="flex-1 overflow-y-auto py-2">
+              {showChat && chatHistory.length === 0 && <ChatIntro />}
+              {chatHistory.map((message: { author: 'user' | 'bot', content: string }, index: number) => (
+                <ChatMessage key={index} message={message} />
               ))}
+              
               {isLoading && <LoadingMessage />}
             </div>
           </div>
         )}
       </div>
 
-      {(showChat || messages.length > 0) && (
+      {(showChat || chatHistory.length > 0) && (
         <div className="border-t border-gray-700 p-3 bg-gray-900 rounded-b-lg">
-          <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
+          {promptsRemaining > 0 ? (
+            <ChatInput
+              onSendMessage={handleSendMessage}
+              isLoading={isLoading}
+            />
+          ) : (
+            <div className="text-center p-2 text-xs text-yellow-300 bg-yellow-900/50 rounded-lg">
+              <p>You have reached your prompt limit.</p>
+              <button
+                onClick={handleResetChat}
+                className="mt-2 px-3 py-1 text-sm bg-purple-600 text-white rounded hover:bg-purple-700 font-medium"
+              >
+                Refresh Chat
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

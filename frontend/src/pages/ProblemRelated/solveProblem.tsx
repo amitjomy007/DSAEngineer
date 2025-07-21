@@ -2,7 +2,13 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
-
+import { useDispatch } from "react-redux";
+import useDebounce from "../../lib/useDebounceHook";
+import {
+  updateCode,
+  updateLanguage,
+  setProblemData,
+} from "../../store/aiChatSlice";
 import { useParams, Link } from "react-router-dom";
 import {
   ChevronLeft,
@@ -133,7 +139,9 @@ const SolveProblemPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [voteLoading, setVoteLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-
+  const dispatch = useDispatch();
+  const debouncedCode = useDebounce(code, 500); // 500ms delay
+  const debouncedLanguage = useDebounce(selectedLanguage, 500);
   // Mock data for development
   const mockProblem: ISolveProblem = {
     _id: "686682cecd48d8b19847c954",
@@ -186,6 +194,25 @@ const SolveProblemPage = () => {
     userProblemStatus: "unattempted",
     userVoteStatus: "none",
   };
+  useEffect(() => {
+    dispatch(updateCode(debouncedCode));
+  }, [debouncedCode, dispatch]);
+
+  useEffect(() => {
+    dispatch(updateLanguage(debouncedLanguage));
+  }, [debouncedLanguage, dispatch]);
+
+  useEffect(() => {
+    if (problem) {
+      dispatch(
+        setProblemData({
+          title: problem.title,
+          description: problem.description,
+          examples: problem.examples,
+        })
+      );
+    }
+  }, [problem, dispatch]);
 
   const fetchProblemData = async () => {
     // This will be replaced with actual API call
