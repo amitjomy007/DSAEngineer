@@ -8,9 +8,9 @@ import AddProblemPage from "./pages/ProblemRelated/addProblem";
 import Hero from "./pages/Hero";
 import ProblemsPage from "./pages/ProblemRelated/problems";
 import SubmissionResult from "./pages/ProblemRelated/verdictPage";
+import DSAEngineerLanding from "./pages/landing";
 // temporary pages which has to be replaced
 
-import Home from "./pages/home";
 import NotFoundPage from "./pages/NotFound/notFound";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
@@ -35,7 +35,7 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<DSAEngineerLanding />} />
         <Route path="/Hero" element={<Hero />} />
         <Route path="/problems" element={<ProblemsPage />} />
         <Route path="/problems/:slug" element={<SolveProblemPage />} />

@@ -55,7 +55,7 @@ export const sendPromptToAI = createAsyncThunk(
   async (prompt: string, thunkAPI) => {
     // Use our new, more specific type to cast the state
     const state = thunkAPI.getState() as RootStateWithChat;
-
+    
     // --- FIX #1: Get all required data from the Redux state ---
     // We need problemDescription to send to the backend.
     const {
