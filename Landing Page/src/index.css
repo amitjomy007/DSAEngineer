@@ -1,0 +1,76 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Premium DSAEngineer Design System - Metallic/Glass Theme */
+
+@layer base {
+  :root {
+    /* Core Dark Theme - Premium Engineering Feel */
+    --background: 220 15% 4%;  /* Very dark gray, not pure black */
+    --foreground: 0 0% 98%;    /* Near white for text */
+
+    /* Glass Card System */
+    --glass-bg: 0 0% 100% / 0.05;        /* Subtle white overlay */
+    --glass-border: 0 0% 100% / 0.1;     /* Translucent border */
+    --glass-hover: 0 0% 100% / 0.08;     /* Hover state */
+
+    /* Premium Accent Colors */
+    --primary: 210 100% 70%;             /* Electric blue */
+    --primary-glow: 190 100% 75%;        /* Cyan glow */
+    --secondary: 270 100% 80%;           /* Electric purple */
+    --accent-gold: 45 100% 70%;          /* Premium gold */
+
+    /* Text Hierarchy */
+    --text-primary: 0 0% 98%;            /* Main text */
+    --text-secondary: 0 0% 75%;          /* Secondary text */
+    --text-muted: 0 0% 55%;              /* Muted text */
+
+    /* Interactive Elements */
+    --ring: 210 100% 70%;
+    --ring-glow: 190 100% 75%;
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(210 100% 70%), hsl(190 100% 75%));
+    --gradient-secondary: linear-gradient(135deg, hsl(270 100% 80%), hsl(310 100% 75%));
+    --gradient-accent: linear-gradient(135deg, hsl(190 100% 75%), hsl(270 100% 80%), hsl(210 100% 70%));
+    
+    /* Shadows & Glows */
+    --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.3);
+    --glow-primary: 0 0 30px hsl(210 100% 70% / 0.3);
+    --glow-secondary: 0 0 30px hsl(270 100% 80% / 0.3);
+    
+    /* Animation Timing */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-spring: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    --radius: 0.75rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-glass-border;
+  }
+
+  body {
+    @apply bg-background text-text-primary font-inter antialiased;
+    background-image: 
+      linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 50px 50px;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-text-primary font-semibold tracking-tight;
+  }
+
+  p {
+    @apply text-text-secondary leading-relaxed;
+  }
+}
+
+
+

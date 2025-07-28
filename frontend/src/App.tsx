@@ -8,7 +8,7 @@ import AddProblemPage from "./pages/ProblemRelated/addProblem";
 import Hero from "./pages/Hero";
 import ProblemsPage from "./pages/ProblemRelated/problems";
 import SubmissionResult from "./pages/ProblemRelated/verdictPage";
-import DSAEngineerLanding from "./pages/landing";
+
 // temporary pages which has to be replaced
 
 import NotFoundPage from "./pages/NotFound/notFound";
@@ -35,7 +35,7 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<DSAEngineerLanding />} />
+        <Route path="/" element={<ProblemsPage />} />
         <Route path="/Hero" element={<Hero />} />
         <Route path="/problems" element={<ProblemsPage />} />
         <Route path="/problems/:slug" element={<SolveProblemPage />} />
