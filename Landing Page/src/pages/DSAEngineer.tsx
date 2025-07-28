@@ -9,6 +9,7 @@ import {
   Menu,
   X,
   User,
+  Trophy,
 } from "lucide-react";
 
 const DSAEngineer = () => {
@@ -16,7 +17,6 @@ const DSAEngineer = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Event Handlers
-
 
   const handleGetStarted = (tier: string) => {
     console.log(`Get Started clicked for ${tier}`);
@@ -36,7 +36,7 @@ const DSAEngineer = () => {
     const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
 
     return (
-      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-glass bg-glass-bg/80 border-b border-glass-border">
+      <header className="fixed top-0 py-3 left-0 right-0 z-50 backdrop-blur-glass bg-glass-bg/80 border-b border-glass-border">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -382,14 +382,14 @@ const DSAEngineer = () => {
         role: "Senior Developer at Meta",
         content:
           "The exclusive problem bank was a game-changer. I encountered similar problems in my actual Meta onsite interviews.",
-        rating: 5,
+        rating: 4,
       },
       {
         name: "Michael Rodriguez",
         role: "Principal Engineer at Amazon",
         content:
           "The alumni network connection was invaluable. Having mentors who went through the same process made all the difference.",
-        rating: 5,
+        rating: 4,
       },
       {
         name: "Emily Wang",
@@ -410,7 +410,7 @@ const DSAEngineer = () => {
         role: "Staff Engineer at Uber",
         content:
           "DSAEngineer's system design resources are unmatched. They prepared me for the most challenging technical discussions.",
-        rating: 5,
+        rating: 4,
       },
       {
         name: "James Wilson",
@@ -424,7 +424,7 @@ const DSAEngineer = () => {
         role: "Senior Engineer at Spotify",
         content:
           "The company-specific problem sets were incredibly accurate. I saw almost identical questions in my actual interviews.",
-        rating: 5,
+        rating: 4,
       },
       {
         name: "Tom Anderson",
@@ -445,7 +445,7 @@ const DSAEngineer = () => {
         role: "Senior Engineer at Shopify",
         content:
           "The AI-powered code review feature helped me write cleaner, more efficient code. My interview performance improved dramatically.",
-        rating: 5,
+        rating: 4,
       },
       {
         name: "Anna Kowalski",
@@ -566,8 +566,8 @@ const DSAEngineer = () => {
     );
   };
 
-  // FAQ Section
-  const FAQ = () => {
+  // FAQ Section and CTA
+  const FAQCTA = () => {
     const faqs = [
       {
         question: "How is DSAEngineer different from other coding platforms?",
@@ -599,7 +599,7 @@ const DSAEngineer = () => {
 
     return (
       <section className="py-24 border-t border-glass-border">
-        <div className="max-w-4xl mx-auto px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto px-6 lg:px-8 pb-32">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
               Your Questions,{" "}
@@ -642,56 +642,38 @@ const DSAEngineer = () => {
             ))}
           </div>
         </div>
+
+        {/* <div className="border-t border-glass-border mb-24 "></div> */}
+        {/* --- CTA Section (Unchanged) --- */}
+        <div className="max-w-4xl mx-auto px-6 mb-24 lg:px-8 text-center">
+          <h2 className="text-4xl md:text-6xl font-bold mb-8 leading-tight text-text-primary">
+            Ready to engineer your way to the next{" "}
+            <span className="bg-gradient-accent bg-clip-text text-transparent">
+              FAANG/Dream company?
+            </span>
+          </h2>
+
+          <button
+            onClick={handleEngineerNow}
+            className="btn-premium mt-6 text-xl px-16 py-6"
+          >
+            <Trophy className="inline-block mr-4 h-7 w-7" />
+            Engineer Now
+          </button>
+        </div>
       </section>
     );
   };
 
-  // CTA and Footer
+  // Footer
   const handleEngineerNow = () => {
     console.log("Engineer Now button clicked!");
   };
 
-  const CTAFooter = () => (
+  const FooterComponent = () => (
     <section className="py-24 border-t border-glass-border bg-background">
-      {/* --- CTA Section (Unchanged) --- */}
-      <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
-        <h2 className="text-4xl md:text-6xl font-bold mb-8 leading-tight text-text-primary">
-          Ready to engineer your way to the next{" "}
-          <span className="bg-gradient-accent bg-clip-text text-transparent">
-            FAANG/Dream company?
-          </span>
-        </h2>
-
-            {/* --- The "Flowing Liquid" Premium CTA Button --- */}
-     <button
-  onClick={handleEngineerNow}
-  className="relative inline-flex items-center justify-center group transition-transform duration-200 ease-in-out active:scale-95"
->
-  {/* Layer 1: The Flowing Liquid Border --- THE FIX IS HERE --- */}
-  {/* We are now using an "arbitrary value" to define the complex gradient directly.
-      This requires NO config changes and creates the seamless, multi-color flow. */}
-  <div
-    className="blur-md absolute -inset-1.5 rounded-full transition-all duration-1300 animate-slow-flow bg-[length:300%_300%] opacity-80 group-hover:opacity-100 
-               bg-[linear-gradient(to_right,#ef4444,#eab308,#22c55e,#3b82f6,#8b5cf6,#ef4444)]"
-  ></div>
-
-  {/* Layer 2: The Button Body */}
-  <div className="relative flex items-center justify-center w-full px-10 py-4 text-xl font-bold text-white bg-background rounded-full"
-  style={{
-          backgroundImage: `
-            linear-gradient(rgba(128,128,128, 0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(128,128,128, 0.1) 1px, transparent 1px)
-          `,
-          backgroundSize: "15px 15px",
-        }}
-        >
-    Engineer Now
-  </div>
-</button>
-      </div>
-
       {/* --- New Enhanced Footer --- */}
-      <footer className="mt-24 pt-16 border-t border-glass-border">
+      <footer className=" ">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
             {/* Column 1: Branding and Copyright */}
@@ -790,8 +772,8 @@ const DSAEngineer = () => {
         className="fixed inset-0 opacity-30 z-0"
         style={{
           backgroundImage: `
-            linear-gradient(rgba(59, 130, 246, 0.2) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(59, 130, 246, 0.2) 1px, transparent 1px)
+            linear-gradient(rgba(128,128,128, 0.25) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(128,128,128, 0.25) 1px, transparent 1px)
           `,
           backgroundSize: "50px 50px",
         }}
@@ -806,8 +788,8 @@ const DSAEngineer = () => {
         <WhyDSAEngineer />
         <Pricing />
         <Reviews />
-        <FAQ />
-        <CTAFooter />
+        <FAQCTA />
+        <FooterComponent />
       </div>
     </div>
   );
