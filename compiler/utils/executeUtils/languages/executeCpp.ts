@@ -28,7 +28,8 @@ const runSingleTestCase = (
   outputFileName: string
 ): any => {
   return new Promise((resolve, reject) => {
-    const commmand = `${outputFileName} < ${inputPath}`;
+    //in windows ./ has to be removed (VERY IMPORTANT VERY IMPORTANT)
+    const commmand = `./${outputFileName} < ${inputPath}`;
     exec(
       commmand,
       { cwd: dirOutput, timeout: 2000, maxBuffer: 1024 * 1024 },
@@ -71,7 +72,7 @@ const executeCpp = async (filePath: string, testcaseDir: string) => {
   let testcasesExecutedWithinLimits = 0;
   const lastString = path.basename(filePath);
   const [jobId] = lastString.split(".");
-  const outputFileName = `${jobId}.exe`;
+  const outputFileName = `${jobId}.out`;
   const outPath = path.join(dirOutput, `${outputFileName}`);
   try {
     const files = fs.readdirSync(testcaseDir);

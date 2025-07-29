@@ -4,6 +4,7 @@ dotenv.config();
 
 const CONNECTION_STRING: any = process.env.CONNECTION_STRING;
 
+
 const DBConnection = async () => {
   try {
     mongoose.connect(CONNECTION_STRING);

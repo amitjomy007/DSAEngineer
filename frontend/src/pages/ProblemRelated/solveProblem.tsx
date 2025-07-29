@@ -29,6 +29,9 @@ import {
 import Editor from "@monaco-editor/react";
 import ChatWindow from "../../components/chat/chatWindow";
 
+const PORT = import.meta.env.VITE_BACKEND_PORT || 8000;
+
+
 // Interface for the problem data
 interface ISolveProblem {
   _id: string;

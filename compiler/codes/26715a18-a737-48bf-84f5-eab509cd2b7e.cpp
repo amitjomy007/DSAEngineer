@@ -1,7 +1,7 @@
 #include <iostream>
 using namespace std;
 
-int main() {asdf
+int main() {
     cout<<"hello world";
     return 0;
 }

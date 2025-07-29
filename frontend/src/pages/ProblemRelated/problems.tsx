@@ -175,7 +175,8 @@ const Problems: React.FC = () => {
 
   const fetchResponse = async () => {
     const uId = Cookies.get("userId");
-    const userId = uId.replace(/^"+|"+$/g, "");
+    let userId = undefined;
+    if(uId) userId = uId.replace(/^"+|"+$/g, "");
     return await axios.get(`http://localhost:8000/problems`, {
       headers: {
         "user-id": userId,
@@ -572,7 +573,7 @@ const Problems: React.FC = () => {
           {problems.length === 0 && (
             <div className="text-center py-16">
               <div className="text-gray-400 text-lg">
-                No problems available at the moment.
+                No problems available at the moment. Please Login and try again.
               </div>
             </div>
           )}

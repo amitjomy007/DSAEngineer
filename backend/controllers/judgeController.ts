@@ -6,9 +6,8 @@ import { error } from "console";
 import { response } from "express";
 import { Mongoose } from "mongoose";
 import test, { run } from "node:test";
-const compilerBackendUrl = "localhost:9000/run"; //||
-process.env.COMPILER_BACKEND_URL || "localhost:3000/run";
-
+const compilerBackendUrl =  process.env.COMPILER_BACKEND_URL || "localhost:3000/run";
+console.log("process", process.env.COMPILER_BACKEND_URL)
 type SubmissionData = {
   userId: string;
   problemId: string;
@@ -65,6 +64,9 @@ const addSubmissionToDatabase = async (Arg: SubmissionData) => {
 
   const Submission = require("../models/submissions");
   console.log("data putting in db: ", data);
+  if(data.error && typeof data.error!='string'){
+    data.error = JSON.stringify(error)
+  }
   const submission = new Submission(data);
   await submission.save();
   console.log("saved submission: ", submission);
