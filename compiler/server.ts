@@ -27,7 +27,7 @@ app.post("/run", async (req: any, res: any) => {
     const output = await executeCode(filePath, testcaseDirPath, language);
     res.status(200).json(output);
   } catch (error) {
-    return res.status(500).json({
+    return res.status(200).json({
       status: "internal_error",
       message: error || "Error running code",
     });

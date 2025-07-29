@@ -120,7 +120,7 @@ const DSAEngineer = () => {
 
       <div className="relative z-10 text-center max-w-5xl mx-auto px-6 lg:px-8">
         <div className="animate-fade-in-up">
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight">
+          <h1 className="sm:pt-20 text-5xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight">
             Engineer Your Way to a{" "}
             <span className="bg-gradient-accent bg-clip-text text-transparent animate-gradient-shift bg-300% bg-size-200">
               Dream Career

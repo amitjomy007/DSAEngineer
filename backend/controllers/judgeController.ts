@@ -6,8 +6,8 @@ import { error } from "console";
 import { response } from "express";
 import { Mongoose } from "mongoose";
 import test, { run } from "node:test";
-const compilerBackendUrl =
-  process.env.COMPILER_BACKEND_URL || "localhost:3000/run";
+const compilerBackendUrl = "localhost:9000/run"; //||
+process.env.COMPILER_BACKEND_URL || "localhost:3000/run";
 
 type SubmissionData = {
   userId: string;
