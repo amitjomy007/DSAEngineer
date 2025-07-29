@@ -39,7 +39,7 @@ const addSubmissionToDatabase = async (Arg: SubmissionData) => {
     language: Arg.language,
     status: Arg.responseFromCompiler.status,
     verdict: Arg.verdict,
-    error: Arg.error,
+    error: JSON.stringify(Arg.error),
     totalTestCases: Arg.testcases.length,
     passedTestCases: Arg.correctTestCases,
   };
@@ -98,6 +98,8 @@ export const judgeControl = async (req: any, res: any) => {
     };
 
     // Make request to compiler backend
+    console.log("About to make axios request");
+    
     const response = await axios.post<{
       outputs: string[];
       status: string;
@@ -109,6 +111,7 @@ export const judgeControl = async (req: any, res: any) => {
 
     console.log("response.data is: ", response.data);
     const responseFromCompiler = response.data;
+    console.log( "response from compiler: ", responseFromCompiler)
 
     if (!responseFromCompiler) {
       return res.status(500).json({
@@ -169,6 +172,7 @@ export const judgeControl = async (req: any, res: any) => {
           error: responseFromCompiler.error || "Runtime error occurred",
           verdict: "Runtime Error",
         };
+
         await addSubmissionToDatabase(runtimeErrorData);
         console.log("Submitted to database with Runtime Error");
         return res.status(200).json({

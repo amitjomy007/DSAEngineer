@@ -388,11 +388,11 @@ const SubmissionResult = () => {
           }
 
           {/* // error renderring box  */}
-          {submission.verdict==="Compilation Error" && (
+          { (submission.verdict === "Compilation Error" || submission.verdict === "Runtime Error") && (
             <div>
             <h2 >Error Message</h2>
             <div className = "border-red-500 border-2 p-4 mt-2 mb-6 rounded-sm">
-                <h2 className="text-amber-300">{submission.error}</h2>
+                <h2 className="text-amber-300">{JSON.stringify(submission.error)}</h2>
             </div>
             </div>
          
