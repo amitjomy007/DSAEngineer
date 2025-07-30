@@ -206,6 +206,7 @@ const SubmissionResult = () => {
         return;
       } 
       userId = userId.replace(/^"+|"+$/g, "");
+      
       const allSubmissionResponse = await axios.get(
         `http://localhost:8000/getAllSubmissionsOfProblem/${userId}/${slug}`
       );

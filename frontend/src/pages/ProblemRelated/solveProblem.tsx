@@ -4,6 +4,7 @@ import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import useDebounce from "../../lib/useDebounceHook";
+import SubmissionsListTabComponent from "../../components/tabs/submissionsTab";
 import {
   updateCode,
   updateLanguage,
@@ -25,11 +26,15 @@ import {
   Code,
   FileText,
   Loader2,
+  TrendingUp,
 } from "lucide-react";
 import Editor from "@monaco-editor/react";
 import ChatWindow from "../../components/chat/chatWindow";
+import EditorialTabComponent from "../../components/tabs/editorialTab";
+import CommentsSection from "../../components/tabs/commentTab";
+import StopwatchTimer from "../../components/solveProblem/timerComponent";
 
-const PORT = import.meta.env.VITE_BACKEND_PORT || 8000;
+
 
 
 // Interface for the problem data
@@ -134,6 +139,7 @@ int main() {
 
 const SolveProblemPage = () => {
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<"problem" | "editorial" | "comments" | "submissions">("problem");
   const { slug } = useParams<{ slug: string }>();
   const [problem, setProblem] = useState<ISolveProblem | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState("cpp");
@@ -268,7 +274,7 @@ const SolveProblemPage = () => {
     // Simulate API call
     try {
       const userId = Cookies.get("userId31d6cfe0d16ae931b73c59d7e0c089c0");
-      if(!userId){
+      if (!userId) {
         navigate('/login')
       }
       const payload = {
@@ -321,11 +327,11 @@ const SolveProblemPage = () => {
       setProblem((prev) =>
         prev
           ? {
-              ...prev,
-              upvoteCount: response.data.upvoteCount,
-              downvoteCount: response.data.downvoteCount,
-              userVoteStatus: voteType === "upvote" ? "upvoted" : "downvoted",
-            }
+            ...prev,
+            upvoteCount: response.data.upvoteCount,
+            downvoteCount: response.data.downvoteCount,
+            userVoteStatus: voteType === "upvote" ? "upvoted" : "downvoted",
+          }
           : prev
       );
     } catch (err) {
@@ -363,98 +369,99 @@ const SolveProblemPage = () => {
       </div>
     );
   }
+  const getTabClassName = (tabName: string) => {
+    return `flex items-center px-4 py-2 rounded-lg font-medium transition-colors ${activeTab === tabName
+      ? 'bg-purple-600 text-white'
+      : 'bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white'
+      }`;
+  };
 
   return (
     <div className="min-h-screen bg-gray-900 text-white ">
       {/* Header */}
-      <div className="fixed top-0 w-full border-b border-gray-700 bg-gray-800/50 backdrop-blur-sm">
-        <div className="flex items-center justify-between px-6 py-4 pb-2">
-          <div className="flex items-center space-x-4">
+      <div className="fixed top-0 w-full border-b border-gray-700 bg-gray-900/95 backdrop-blur-md">
+        <div className="flex items-center justify-between px-8 pl-2 py-4">
+          <div className="flex items-center space-x-2">
             <Link
               to="/problems"
-              className="text-gray-400 hover:text-white transition-colors"
+              className="text-gray-400 hover:text-white transition-colors p-1 rounded-lg hover:bg-gray-800/50"
             >
-              <ChevronLeft size={24} />
+              <ChevronLeft size={20} />
             </Link>
             <div className="flex items-center space-x-4">
-              <span className="text-xl font-semibold">
+              <h1 className="text-xl font-bold text-white">
                 {problem.problemNumber}. {problem.title}
-              </span>
-              <span
-                className={`text-sm font-bold px-4 py-1 rounded-lg border-2 ${
-                  problem.difficulty === "Easy"
-                    ? "text-green-400 border-green-400 bg-green-400/10"
-                    : problem.difficulty === "Medium"
-                    ? "text-yellow-400 border-yellow-400 bg-yellow-400/10"
-                    : "text-red-400 border-red-400 bg-red-400/10"
-                }`}
+              </h1>
+              <div
+                className={`inline-flex items-center px-5 py-1 rounded-full text-sm font-mono ${problem.difficulty === "Easy"
+                  ? "text-emerald-300 bg-emerald-500/10 border border-emerald-500/20"
+                  : problem.difficulty === "Medium"
+                    ? "text-amber-300 bg-amber-500/10 border border-amber-500/20"
+                    : "text-rose-300 bg-rose-500/10 border border-rose-500/20"
+                  }`}
               >
                 {problem.difficulty}
-              </span>
+              </div>
             </div>
           </div>
 
-          {/* Stats Section - More Prominent */}
           <div className="flex items-center space-x-6">
-            {/* Upvote Button */}
-            <button
-              disabled={voteLoading}
-              onClick={() => handleVote("upvote")}
-              className={`flex items-center space-x-2 bg-green-600/20 px-4 py-2 rounded-lg border-2 transition-colors ${
-                problem.userVoteStatus === "upvoted"
-                  ? "border-green-400"
-                  : "border-transparent"
-              }`}
-            >
-              <ThumbsUp
-                size={20}
-                className={`${
-                  problem.userVoteStatus === "upvoted"
-                    ? "text-green-400"
-                    : "text-green-300"
-                }`}
-              />
-              <span className="text-sm font-semibold text-green-400">
-                {problem.upvoteCount}
-              </span>
-            </button>
-            {/* Downvote Button */}
-            <button
-              disabled={voteLoading}
-              onClick={() => handleVote("downvote")}
-              className={`flex items-center space-x-2 bg-red-600/20 px-4 py-2 rounded-lg border-2 transition-colors ${
-                problem.userVoteStatus === "downvoted"
-                  ? "border-red-400"
-                  : "border-transparent"
-              }`}
-            >
-              <ThumbsDown
-                size={20}
-                className={`${
-                  problem.userVoteStatus === "downvoted"
-                    ? "text-red-400"
-                    : "text-red-300"
-                }`}
-              />
-              <span className="text-sm font-semibold text-red-400">
-                {problem.downvoteCount}
-              </span>
-            </button>
-            <div className="flex items-center space-x-2 bg-blue-600/20 px-4 py-2 rounded-lg">
-              <Users size={20} className="text-blue-400" />
-              <span className="text-sm font-semibold text-blue-400">
-                {problem.successfulSubmissionCount}
-              </span>
+            <StopwatchTimer />
+
+            <div className="flex items-center space-x-4">
+              <button
+                disabled={voteLoading}
+                onClick={() => handleVote("upvote")}
+                className={`flex items-center space-x-1 px-2 py-1 rounded transition-colors ${problem.userVoteStatus === "upvoted"
+                  ? "text-green-400 hover:text-green-300"
+                  : "text-gray-400 hover:text-green-400"
+                  }`}
+              >
+                <ThumbsUp size={16} />
+                <span className="text-sm">{problem.upvoteCount}</span>
+              </button>
+
+              <button
+                disabled={voteLoading}
+                onClick={() => handleVote("downvote")}
+                className={`flex items-center space-x-1 px-2 py-1 rounded transition-colors ${problem.userVoteStatus === "downvoted"
+                  ? "text-red-400 hover:text-red-300"
+                  : "text-gray-400 hover:text-red-400"
+                  }`}
+              >
+                <ThumbsDown size={16} />
+                <span className="text-sm">{problem.downvoteCount}</span>
+              </button>
             </div>
-            <div className="flex items-center space-x-2 bg-purple-600/20 px-4 py-2 rounded-lg">
-              <span className="text-lg font-semibold text-purple-400">
-                {calculateAcceptanceRate()}%
-              </span>
-              <span className="text-sm text-purple-300">Acceptance</span>
+
+            <div className="flex items-center space-x-4 text-sm">
+              <div className="relative group">
+                <div className="flex items-center space-x-1 text-slate-300 cursor-default">
+                  <Users size={16} className="text-blue-400" />
+                  <span className="font-medium">{problem.successfulSubmissionCount}</span>
+                </div>
+                <div className="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap border border-gray-700">
+                  Submissions
+                </div>
+              </div>
+              <div className="relative group">
+                <div className="flex items-center space-x-1 text-slate-300 cursor-default">
+                  <TrendingUp size={18} className="text-purple-400" />
+                  <span className="font-medium text-purple-400">{calculateAcceptanceRate()}%</span>
+                </div>
+                <div className="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap border border-gray-700">
+                  Accepted
+                </div>
+              </div>
+
+
             </div>
           </div>
         </div>
       </div>
+
+
+
 
       {/* Main Content */}
 
@@ -465,149 +472,159 @@ const SolveProblemPage = () => {
             {/* Navigation Tabs - More Prominent */}
             <div className="px-6 pb-4">
               <div className="flex space-x-2">
-                <div className="px-4 py-2 bg-purple-600 text-white rounded-lg font-medium">
+                <button
+                  onClick={() => setActiveTab("problem")}
+                  className={getTabClassName("problem")}
+                >
                   <Code size={16} className="inline mr-2" />
                   Problem
-                </div>
-                <Link
-                  to={`/problems/${slug}/editorial`}
-                  className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white rounded-lg transition-colors font-medium"
+                </button>
+                <button
+                  onClick={() => setActiveTab("editorial")}
+                  className={getTabClassName("editorial")}
                 >
                   <BookOpen size={16} className="inline mr-2" />
                   Editorial
-                </Link>
-                <Link
-                  to={`/problems/${slug}/comments`}
-                  className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white rounded-lg transition-colors font-medium"
+                </button>
+                <button
+                  onClick={() => setActiveTab("comments")}
+                  className={getTabClassName("comments")}
                 >
                   <MessageSquare size={16} className="inline mr-2" />
                   Comments
-                </Link>
-                <Link
-                  to={`/problems/${slug}/submission`}
-                  className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white rounded-lg transition-colors font-medium"
+                </button>
+                <button
+                  onClick={() => setActiveTab("submissions")}
+                  className={getTabClassName("submissions")}
                 >
                   <FileText size={16} className="inline mr-2" />
                   Submissions
-                </Link>
+                </button>
               </div>
             </div>
-            <div className="prose prose-invert max-w-none">
-              <h1 className="text-2xl font-semibold mb-4">
-                Problem Description
-              </h1>
-              <p className="text-gray-300 leading-relaxed mb-6 text-lg">
-                {problem.description}
-              </p>
+            {/* --- NEW: Conditional Content Rendering --- */}
+            <div className="mt-0">
+              {activeTab === 'problem' && (
+                <div className="prose prose-invert max-w-none">
+                  <h1 className="text-2xl font-semibold mb-4">
+                    Problem Description
+                  </h1>
+                  <p className="text-gray-300 leading-relaxed mb-6 text-lg">
+                    {problem.description}
+                  </p>
 
-              <div className="mb-6">
-                <h3 className="text-xl font-semibold mb-4 text-white">
-                  Examples
-                </h3>
-                {problem.examples.map((example, index) => (
-                  <div
-                    key={index}
-                    className="mb-4 p-4 bg-gray-800/50 rounded-lg border border-gray-700"
-                  >
-                    <div className="mb-2">
-                      <strong className="text-sm text-gray-400">Input:</strong>
-                      <code className="ml-2 text-sm bg-gray-700 px-2 py-1 rounded text-green-300">
-                        {example.input}
-                      </code>
+                  <div className="mb-6">
+                    <h3 className="text-xl font-semibold mb-4 text-white">
+                      Examples
+                    </h3>
+                    {problem.examples.map((example, index) => (
+                      <div
+                        key={index}
+                        className="mb-4 p-4 bg-gray-800/50 rounded-lg border border-gray-700"
+                      >
+                        <div className="mb-2">
+                          <strong className="text-sm text-gray-400">Input:</strong>
+                          <code className="ml-2 text-sm bg-gray-700 px-2 py-1 rounded text-green-300">
+                            {example.input}
+                          </code>
+                        </div>
+                        <div className="mb-2">
+                          <strong className="text-sm text-gray-400">Output:</strong>
+                          <code className="ml-2 text-sm bg-gray-700 px-2 py-1 rounded text-blue-300">
+                            {example.output}
+                          </code>
+                        </div>
+                        {example.explanation && (
+                          <div>
+                            <strong className="text-sm text-gray-400">
+                              Explanation:
+                            </strong>
+                            <span className="ml-2 text-sm text-gray-300">
+                              {example.explanation}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mb-6">
+                    <h3 className="text-xl font-semibold mb-4 text-white">
+                      Constraints
+                    </h3>
+                    <ul className="list-disc list-inside space-y-2 text-gray-300">
+                      {problem.constraints.map((constraint, index) => (
+                        <li key={index} className="text-sm">
+                          {constraint}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {problem.hints.length > 0 && (
+                    <div className="mb-6">
+                      <h3 className="text-xl font-semibold mb-4 text-white">
+                        Hints
+                      </h3>
+                      <div className="space-y-2">
+                        {problem.hints.map((hint, index) => (
+                          <details
+                            key={index}
+                            className="bg-gray-800/30 rounded-lg p-3 border border-gray-700"
+                          >
+                            <summary className="cursor-pointer text-sm font-medium text-purple-300 hover:text-purple-200">
+                              Hint {index + 1}
+                            </summary>
+                            <p className="mt-2 text-sm text-gray-300">{hint}</p>
+                          </details>
+                        ))}
+                      </div>
                     </div>
-                    <div className="mb-2">
-                      <strong className="text-sm text-gray-400">Output:</strong>
-                      <code className="ml-2 text-sm bg-gray-700 px-2 py-1 rounded text-blue-300">
-                        {example.output}
-                      </code>
+                  )}
+
+                  {/* Topics, Tags and Limits at Bottom */}
+                  <div className="mt-8 pt-6 border-t border-gray-700">
+                    <div className="mb-6">
+                      <h3 className="text-lg font-semibold mb-3 text-white">
+                        Topics
+                      </h3>
+                      <div className="flex flex-wrap gap-2">
+                        {problem.tags.map((tag, index) => (
+                          <span
+                            key={index}
+                            className="px-3 py-1 text-sm bg-purple-600/20 text-purple-300 rounded-full border border-purple-600/30"
+                          >
+                            {capitalizeTag(tag)}
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                    {example.explanation && (
-                      <div>
-                        <strong className="text-sm text-gray-400">
-                          Explanation:
-                        </strong>
-                        <span className="ml-2 text-sm text-gray-300">
-                          {example.explanation}
+
+                    <div className="flex items-center space-x-6 text-sm text-gray-400">
+                      <div className="flex items-center space-x-2">
+                        <Clock size={16} className="text-yellow-400" />
+                        <span>
+                          Time Limit:{" "}
+                          <strong className="text-yellow-400">
+                            {problem.timeLimit}s
+                          </strong>
                         </span>
                       </div>
-                    )}
+                      <div className="flex items-center space-x-2">
+                        <MemoryStick size={16} className="text-blue-400" />
+                        <span>
+                          Memory Limit:{" "}
+                          <strong className="text-blue-400">
+                            {problem.memoryLimit}MB
+                          </strong>
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                ))}
-              </div>
-
-              <div className="mb-6">
-                <h3 className="text-xl font-semibold mb-4 text-white">
-                  Constraints
-                </h3>
-                <ul className="list-disc list-inside space-y-2 text-gray-300">
-                  {problem.constraints.map((constraint, index) => (
-                    <li key={index} className="text-sm">
-                      {constraint}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {problem.hints.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="text-xl font-semibold mb-4 text-white">
-                    Hints
-                  </h3>
-                  <div className="space-y-2">
-                    {problem.hints.map((hint, index) => (
-                      <details
-                        key={index}
-                        className="bg-gray-800/30 rounded-lg p-3 border border-gray-700"
-                      >
-                        <summary className="cursor-pointer text-sm font-medium text-purple-300 hover:text-purple-200">
-                          Hint {index + 1}
-                        </summary>
-                        <p className="mt-2 text-sm text-gray-300">{hint}</p>
-                      </details>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Topics, Tags and Limits at Bottom */}
-              <div className="mt-8 pt-6 border-t border-gray-700">
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold mb-3 text-white">
-                    Topics
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {problem.tags.map((tag, index) => (
-                      <span
-                        key={index}
-                        className="px-3 py-1 text-sm bg-purple-600/20 text-purple-300 rounded-full border border-purple-600/30"
-                      >
-                        {capitalizeTag(tag)}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-6 text-sm text-gray-400">
-                  <div className="flex items-center space-x-2">
-                    <Clock size={16} className="text-yellow-400" />
-                    <span>
-                      Time Limit:{" "}
-                      <strong className="text-yellow-400">
-                        {problem.timeLimit}s
-                      </strong>
-                    </span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <MemoryStick size={16} className="text-blue-400" />
-                    <span>
-                      Memory Limit:{" "}
-                      <strong className="text-blue-400">
-                        {problem.memoryLimit}MB
-                      </strong>
-                    </span>
-                  </div>
-                </div>
-              </div>
+                </div>)}
+              {activeTab === 'submissions' && <SubmissionsListTabComponent />}
+              {activeTab === 'editorial' && <EditorialTabComponent />}
+              {activeTab === 'comments' && <CommentsSection />}
             </div>
           </div>
         </div>
@@ -628,9 +645,8 @@ const SolveProblemPage = () => {
                         selectedLanguage.slice(1)}
                     </span>
                     <ChevronDown
-                      className={`w-4 h-4 transition-transform ${
-                        isOpen ? "rotate-180" : ""
-                      }`}
+                      className={`w-4 h-4 transition-transform ${isOpen ? "rotate-180" : ""
+                        }`}
                     />
                   </button>
 
@@ -640,11 +656,10 @@ const SolveProblemPage = () => {
                         <button
                           key={lang}
                           onClick={() => handleLanguageChange(lang)}
-                          className={`w-full px-4 py-2 text-sm text-left hover:bg-gray-900 transition-colors first:rounded-t-lg last:rounded-b-lg ${
-                            selectedLanguage === lang
-                              ? "bg-gray-900 text-white"
-                              : "text-white"
-                          }`}
+                          className={`w-full px-4 py-2 text-sm text-left hover:bg-gray-900 transition-colors first:rounded-t-lg last:rounded-b-lg ${selectedLanguage === lang
+                            ? "bg-gray-900 text-white"
+                            : "text-white"
+                            }`}
                         >
                           {lang.charAt(0).toUpperCase() + lang.slice(1)}
                         </button>
