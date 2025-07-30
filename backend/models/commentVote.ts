@@ -1,17 +1,24 @@
 import mongoose from "mongoose";
+
 const commentVoteSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
+    required: true,
   },
   commentId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Comment",
+    required: true,
   },
   vote: {
     type: Number,
     enum: [1, -1],
-  }, // 1 = up, -1 = down
-});
+    required: true,
+  },
+}, { timestamps: true });
 
-module.exports = mongoose.model("CommentVote", commentVoteSchema);
+// Compound unique index to prevent duplicate votes
+commentVoteSchema.index({ userId: 1, commentId: 1 }, { unique: true });
+
+export default mongoose.model("CommentVote", commentVoteSchema);

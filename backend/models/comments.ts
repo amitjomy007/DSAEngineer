@@ -6,7 +6,7 @@ const commentSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Problem",
       required: true,
-      index: true, // Index for quickly fetching all comments for a problem
+      index: true,
     },
     authorId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -17,13 +17,17 @@ const commentSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    // For nested comments/replies
     parentId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Comment",
-      default: null, // A top-level comment has no parent
+      default: null,
+      index: true, // Index for quickly fetching replies
     },
   },
   { timestamps: true }
 );
-module.exports = mongoose.model("Comment", commentSchema);
+
+// Compound index for efficient querying
+commentSchema.index({ problemId: 1, parentId: 1, createdAt: -1 });
+
+export default mongoose.model("Comment", commentSchema);
