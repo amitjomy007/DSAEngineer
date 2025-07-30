@@ -9,7 +9,7 @@ const AddProblemPage: React.FC = () => {
   const [userId,setUserId] = useState<string >("");
   let gotErrorMessage: string | null = null;
   useEffect(() => {
-      const cookieUserId = Cookies.get("userId");
+      const cookieUserId = Cookies.get("userId31d6cfe0d16ae931b73c59d7e0c089c0");
       if (cookieUserId) {
         setUserId(cookieUserId);
       }

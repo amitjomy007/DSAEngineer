@@ -18,8 +18,8 @@ import SolveProblemPage from "./pages/ProblemRelated/solveProblem";
 function App() {
   const dispatch = useDispatch();
   useEffect(() => {
-    const userEmail = Cookies.get("email");
-    const token = Cookies.get("token");
+    const userEmail = Cookies.get("email31d6cfe0d16ae931b73c59d7e0c089c0");
+    const token = Cookies.get("token31d6cfe0d16ae931b73c59d7e0c089c0");
     let isAuthenticated = false;
     if (token) {
       isAuthenticated = true;

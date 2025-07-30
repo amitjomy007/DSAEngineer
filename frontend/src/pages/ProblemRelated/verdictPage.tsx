@@ -200,7 +200,7 @@ const SubmissionResult = () => {
     // Simulate API call
     try {
       console.log("Fetching submission data for ID:", submissionId);
-      let userId = Cookies.get("userId");
+      let userId = Cookies.get("userId31d6cfe0d16ae931b73c59d7e0c089c0");
       if(!userId){
         console.log("please login");
         return;

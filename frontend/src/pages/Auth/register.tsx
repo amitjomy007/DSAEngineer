@@ -8,7 +8,7 @@ const RegistrationPage = () => {
   const [lastname, setLastname] = useState("test");
   const [email, setEmail] = useState("johndoe@random.com");
   const [password, setPassword] = useState("1234");
-  const isAuthenticated = Cookies.get("token");
+  const isAuthenticated = Cookies.get("token31d6cfe0d16ae931b73c59d7e0c089c0");
   const Navigate = useNavigate();
   const dispatch = useDispatch();
   useEffect(() => {
@@ -29,15 +29,15 @@ const RegistrationPage = () => {
         password,
       });
       dispatch({ type: "auth/login", payload: response.data });
-      await Cookies.set("token", JSON.stringify(response.data.user.token), {
+      await Cookies.set("token31d6cfe0d16ae931b73c59d7e0c089c0", JSON.stringify(response.data.user.token), {
         secure: true,
         expires: 1,
       }); //expires in a day and httpS Cookie
-      await Cookies.set("userId", JSON.stringify(response.data.user._id), {
+      await Cookies.set("userId31d6cfe0d16ae931b73c59d7e0c089c0", JSON.stringify(response.data.user._id), {
         secure: true,
         expires: 1,
       });
-      await Cookies.set("user", JSON.stringify(response.data.user.firstname), {
+      await Cookies.set("user31d6cfe0d16ae931b73c59d7e0c089c0", JSON.stringify(response.data.user.firstname), {
         secure: true,
         expires: 1,
       });

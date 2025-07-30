@@ -66,7 +66,7 @@ export const sendPromptToAI = createAsyncThunk(
       chatHistory,
     } = state.chat;
 
-    const token = Cookies.get("token");
+    const token = Cookies.get("token31d6cfe0d16ae931b73c59d7e0c089c0");
 
     if (!token) {
       return thunkAPI.rejectWithValue("Authentication token not found.");

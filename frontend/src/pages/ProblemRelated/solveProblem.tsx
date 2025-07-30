@@ -220,7 +220,7 @@ const SolveProblemPage = () => {
   const fetchProblemData = async () => {
     // This will be replaced with actual API call
     try {
-      const uId = Cookies.get("userId");
+      const uId = Cookies.get("userId31d6cfe0d16ae931b73c59d7e0c089c0");
       console.log("slug before sending: ", slug);
       const response = await axios.get(
         `http://localhost:8000/getProblem/${slug}`,
@@ -267,7 +267,10 @@ const SolveProblemPage = () => {
     setIsSubmitting(true);
     // Simulate API call
     try {
-      const userId = Cookies.get("userId");
+      const userId = Cookies.get("userId31d6cfe0d16ae931b73c59d7e0c089c0");
+      if(!userId){
+        navigate('/login')
+      }
       const payload = {
         problemId: problem?._id,
         code: code,
@@ -280,7 +283,7 @@ const SolveProblemPage = () => {
         problem?._id,
         code,
         selectedLanguage,
-        Cookies.get("userId")
+        Cookies.get("userId31d6cfe0d16ae931b73c59d7e0c089c0")
       );
       console.log(response);
       navigate(`/problems/${slug}/submission`);
@@ -301,7 +304,7 @@ const SolveProblemPage = () => {
     if (!problem) return;
     setVoteLoading(true);
     try {
-      let userId = Cookies.get("userId");
+      let userId = Cookies.get("userId31d6cfe0d16ae931b73c59d7e0c089c0");
       if (!userId) return;
       userId = userId.replace(/^"+|"+$/g, "");
 
@@ -481,7 +484,7 @@ const SolveProblemPage = () => {
                   Comments
                 </Link>
                 <Link
-                  to={`/problems/${slug}/submissions`}
+                  to={`/problems/${slug}/submission`}
                   className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white rounded-lg transition-colors font-medium"
                 >
                   <FileText size={16} className="inline mr-2" />
@@ -742,8 +745,8 @@ const SolveProblemPage = () => {
             </h4>
             <div className="text-sm text-gray-400">
               {isRunning
-                ? "Running your code..."
-                : "Run your code to see test results here..."}
+                ? "Running your code... (Fake simulation ⚠️)"
+                : "Testcase running under development ⚠️"}
             </div>
           </div>
         </div>

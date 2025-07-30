@@ -174,9 +174,13 @@ const Problems: React.FC = () => {
   const navigate = useNavigate();
 
   const fetchResponse = async () => {
-    const uId = Cookies.get("userId");
+    const uId = Cookies.get("userId31d6cfe0d16ae931b73c59d7e0c089c0");
     let userId = undefined;
     if(uId) userId = uId.replace(/^"+|"+$/g, "");
+    else {
+      console.log("please login")
+      return
+    }
     return await axios.get(`http://localhost:8000/problems`, {
       headers: {
         "user-id": userId,
@@ -185,11 +189,12 @@ const Problems: React.FC = () => {
   };
   useEffect(() => {
   const fetchData = async () => {
-    const userId = Cookies.get("userId");
+    const userId = Cookies.get("userId31d6cfe0d16ae931b73c59d7e0c089c0");
     console.log("User ID: ", userId);
 
     try {
       const response = await fetchResponse();
+      if(!response) return ;
       console.log("Response: ", response);
       console.log("mock problems print to fix error: ", mockProblems);
       setProblems(response.data.problems); 

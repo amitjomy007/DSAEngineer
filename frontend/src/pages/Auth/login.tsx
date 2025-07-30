@@ -8,7 +8,7 @@ const Login = () => {
   const [password, setPassword] = useState('1234');
   const dispatch = useDispatch();
   const Navigate = useNavigate();
-  const isAuthenticated = Cookies.get("token");
+  const isAuthenticated = Cookies.get("token31d6cfe0d16ae931b73c59d7e0c089c0");
   useEffect (()=> {
     if(isAuthenticated){
       Navigate("/problems");
@@ -20,10 +20,10 @@ const Login = () => {
     try{
       const response = await axios.post("http://localhost:8000/login", {email, password});
       dispatch({type:"auth/login", payload:response.data}); //not required
-      await Cookies.set("token", JSON.stringify(response.data.user.token), {secure:true, expires: 1}); //expires in a day and httpS Cookie
-      await Cookies.set("user", JSON.stringify(response.data.user.firstname), {secure:true, expires: 1});
-      await Cookies.set("userId", JSON.stringify(response.data.user._id), {secure:true, expires: 1});
-      await Cookies.set("email", JSON.stringify(response.data.user.email), {secure:true, expires: 1});
+      await Cookies.set("token31d6cfe0d16ae931b73c59d7e0c089c0", JSON.stringify(response.data.user.token), {secure:true, expires: 1}); //expires in a day and httpS Cookie
+      await Cookies.set("user31d6cfe0d16ae931b73c59d7e0c089c0", JSON.stringify(response.data.user.firstname), {secure:true, expires: 1});
+      await Cookies.set("userId31d6cfe0d16ae931b73c59d7e0c089c0", JSON.stringify(response.data.user._id), {secure:true, expires: 1});
+      await Cookies.set("email31d6cfe0d16ae931b73c59d7e0c089c0", JSON.stringify(response.data.user.email), {secure:true, expires: 1});
       Navigate("/problems");
       console.log("Response: ", response);
     }

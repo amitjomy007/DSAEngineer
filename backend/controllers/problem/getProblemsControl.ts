@@ -32,6 +32,7 @@ export const getProblemsControl = async (req: any, res: any) => {
     // If the user is not logged in, we can proceed without user-specific data.
     const userId = req.headers["user-id"];
     console.log("User ID:", userId);
+    if(!userId) return;
     // Sanitize and get pagination parameters from query string
     const page = parseInt(req.query.page, 10) || 1;
     const limit = parseInt(req.query.limit, 10) || 9;

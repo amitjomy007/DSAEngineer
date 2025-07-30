@@ -75,7 +75,17 @@ const addSubmissionToDatabase = async (Arg: SubmissionData) => {
 export const judgeControl = async (req: any, res: any) => {
   const { language, code, problemId } = req.body;
   const userIdNotformatted = req.body.userId;
-  const userId = userIdNotformatted.trim().replace(/^"+|"+$/g, "");
+  let userId = undefined;
+  try{
+    userId = userIdNotformatted.trim().replace(/^"+|"+$/g, "");
+  }
+  catch(err){
+    console.log("errah, no userId received from request, aborting this request...")
+    res.status(400).send({ error: "Missing or invalid userId in request." });
+    res.send()
+    return ;
+  }
+  
 
   try {
     // Find the testcases corresponding to the problem id and get the testcaseOutputs from MongoDB
