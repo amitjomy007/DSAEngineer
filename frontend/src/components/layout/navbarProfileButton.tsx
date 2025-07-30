@@ -181,7 +181,7 @@ const UserMenu: React.FC<UserMenuProps> = () => {
           </div>
 
           {/* Menu Items - Compact */}
-          <div className="py-1">
+          <div className="py-1 z-20">
             <button
               onClick={handleProfile}
               className="flex items-center w-full px-3 py-2 text-xs text-gray-300 hover:text-white hover:bg-gray-700/60 transition-all duration-200 group"

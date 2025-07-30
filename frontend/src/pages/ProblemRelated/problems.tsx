@@ -27,6 +27,7 @@ import {
   Users,
   Filter,
 } from "lucide-react";
+import NavbarNew from "../../components/layout/NavbarNew";
 
 // Interface definitions
 interface ITestCase {
@@ -305,7 +306,9 @@ const Problems: React.FC = () => {
   //const uniqueTags = Array.from(new Set(problems.flatMap(p => p.tags)));
 
   return (
-    <TooltipProvider>
+    <TooltipProvider >
+      
+      <div className="overflow-y-scroll"><NavbarNew/></div>
       <div className="min-h-screen bg-gray-950 relative overflow-hidden">
         {/* Enhanced Background with purple theme */}
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900/30 via-violet-900/20 to-gray-900"></div>

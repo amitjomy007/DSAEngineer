@@ -36,6 +36,7 @@ import EditorialTabComponent from "../../components/tabs/editorialTab";
 import CommentsSection from "../../components/tabs/commentTab";
 import StopwatchTimer from "../../components/solveProblem/timerComponent";
 import UserMenu from "../../components/layout/navbarProfileButton";
+import SpotifyCapsule from "../../components/layout/musicCapsule";
 
 
 
@@ -389,7 +390,7 @@ const SolveProblemPage = () => {
               </div>
             </div>
           </div>
-
+          <SpotifyCapsule/>
           <div className="flex items-center space-x-6">
             <StopwatchTimer />
 
