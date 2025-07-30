@@ -35,6 +35,7 @@ import ChatWindow from "../../components/chat/chatWindow";
 import EditorialTabComponent from "../../components/tabs/editorialTab";
 import CommentsSection from "../../components/tabs/commentTab";
 import StopwatchTimer from "../../components/solveProblem/timerComponent";
+import UserMenu from "../../components/layout/navbarProfileButton";
 
 
 
@@ -416,6 +417,7 @@ const SolveProblemPage = () => {
                 <ThumbsDown size={16} />
                 <span className="text-sm">{problem.downvoteCount}</span>
               </button>
+              <UserMenu/>
             </div>
 
             <div className="flex items-center space-x-4 text-sm">
@@ -453,29 +455,29 @@ const SolveProblemPage = () => {
                 onClick={() => setActiveTab("problem")}
                 className={getTabClassName("problem")}
               >
-                <Code size={16} className="inline mr-2 flex-shrink-0" />
-                <span className="truncate">Problem</span>
+                <Code size={16} className="inline mr-0 flex-shrink-0" />
+                <span className="truncate w-full justify-center">Problem</span>
               </button>
               <button
                 onClick={() => setActiveTab("editorial")}
                 className={getTabClassName("editorial")}
               >
-                <BookOpen size={16} className="inline mr-2 flex-shrink-0" />
-                <span className="truncate">Editorial</span>
+                <BookOpen size={16} className="inline mr-0 flex-shrink-0" />
+                <span className="truncate w-full justify-center">Editorial</span>
               </button>
               <button
                 onClick={() => setActiveTab("comments")}
                 className={getTabClassName("comments")}
               >
-                <MessageSquare size={16} className="inline mr-2 flex-shrink-0" />
-                <span className="truncate">Comments</span>
+                <MessageSquare size={16} className="inline mr-0 flex-shrink-0" />
+                <span className="truncate w-full justify-center">Comments</span>
               </button>
               <button
                 onClick={() => setActiveTab("submissions")}
                 className={getTabClassName("submissions")}
               >
-                <FileText size={16} className="inline mr-2 flex-shrink-0" />
-                <span className="truncate">Submissions</span>
+                <FileText size={16} className="inline mr-0 flex-shrink-0" />
+                <span className="truncate w-full justify-center">Submissions</span>
               </button>
             </div>
           </div>
@@ -499,7 +501,7 @@ const SolveProblemPage = () => {
                     {problem.examples.map((example, index) => (
                       <div
                         key={index}
-                        className="mb-4 p-4 bg-gray-800/50 rounded-lg border border-gray-700"
+                        className="mb-4 p-4 bg-gray-800/50 rounded-sm border border-gray-700"
                       >
                         <div className="mb-2">
                           <strong className="text-sm text-gray-400">Input:</strong>
@@ -549,7 +551,7 @@ const SolveProblemPage = () => {
                         {problem.hints.map((hint, index) => (
                           <details
                             key={index}
-                            className="bg-gray-800/30 rounded-lg p-3 border border-gray-700"
+                            className="bg-gray-800/30 rounded-sm p-3 border border-gray-700"
                           >
                             <summary className="cursor-pointer text-sm font-medium text-purple-300 hover:text-purple-200">
                               Hint {index + 1}
