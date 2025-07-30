@@ -16,6 +16,7 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import SolveProblemPage from "./pages/ProblemRelated/solveProblem";
 import Dashboard from "./pages/dashboard";
+import Contests from "./pages/contests";
 function App() {
   const dispatch = useDispatch();
   useEffect(() => {
@@ -48,6 +49,7 @@ function App() {
           path="/problems/:slug/submission/:submissionId"
           element={<SubmissionResult />}
         />
+        <Route path='/contests' element={<Contests/>}/>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/addProblem" element={<AddProblemPage />} />
