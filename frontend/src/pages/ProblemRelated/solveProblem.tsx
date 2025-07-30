@@ -337,7 +337,7 @@ const SolveProblemPage = () => {
     );
   }
   const getTabClassName = (tabName: string) => {
-    return `flex items-center px-4 py-2 rounded-lg font-medium transition-colors ${activeTab === tabName
+    return `w-full h-10 flex items-center px-4 py-2 rounded-none font-medium transition-colors ${activeTab === tabName
       ? 'bg-purple-600 text-white'
       : 'bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white'
       }`;
@@ -435,42 +435,45 @@ const SolveProblemPage = () => {
       <div className="flex h-screen">
         {/* Left Panel - Problem Description */}
         <div className="w-1/2 border-r border-gray-700 overflow-y-auto no-scrollbar">
-          <div className="p-5">
+          <div className="p-0">
             {/* Navigation Tabs - More Prominent */}
-            <div className="px-6 pb-4">
-              <div className="flex space-x-2">
-                <button
-                  onClick={() => setActiveTab("problem")}
-                  className={getTabClassName("problem")}
-                >
-                  <Code size={16} className="inline mr-2" />
-                  Problem
-                </button>
-                <button
-                  onClick={() => setActiveTab("editorial")}
-                  className={getTabClassName("editorial")}
-                >
-                  <BookOpen size={16} className="inline mr-2" />
-                  Editorial
-                </button>
-                <button
-                  onClick={() => setActiveTab("comments")}
-                  className={getTabClassName("comments")}
-                >
-                  <MessageSquare size={16} className="inline mr-2" />
-                  Comments
-                </button>
-                <button
-                  onClick={() => setActiveTab("submissions")}
-                  className={getTabClassName("submissions")}
-                >
-                  <FileText size={16} className="inline mr-2" />
-                  Submissions
-                </button>
+            <div className="w-full ">
+              <div className="">
+                <div className="grid grid-cols-4">
+                  <button
+                    onClick={() => setActiveTab("problem")}
+                    className={getTabClassName("problem")}
+                  >
+                    <Code size={16} className="inline mr-2 w-1/4" />
+                    Problem
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("editorial")}
+                    className={getTabClassName("editorial")}
+                  >
+                    <BookOpen size={16} className="inline mr-2 w-1/4" />
+                    Editorial
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("comments")}
+                    className={getTabClassName("comments")}
+                  >
+                    <MessageSquare size={20} className="inline mr-2 w-1/4" />
+                    Comments
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("submissions")}
+                    className={getTabClassName("submissions")}
+                  >
+                    <FileText size={16} className="inline mr-2 w-1/4 " />
+                    Submissions
+                  </button>
+                                    
+                </div>
               </div>
             </div>
             {/* --- NEW: Conditional Content Rendering --- */}
-            <div className="mt-0">
+            <div className="mt-0 p-5">
               {activeTab === 'problem' && (
                 <div className="prose prose-invert max-w-none">
                   <h1 className="text-2xl font-semibold mb-4">
@@ -597,20 +600,23 @@ const SolveProblemPage = () => {
         </div>
 
         {/* Right Panel - Code Editor */}
-        <div className="w-1/2 h-4/5 flex  flex-col">
-          <div className="flex items-center justify-between">
+        <div className="w-1/2 h-full flex  flex-col">
+          <div className="flex items-center h-10 justify-between">
             {/* Language Selector */}
             <div className="pr-4 py-0 ">
               <div className="flex items-center justify-between">
                 <div className="relative">
                   <button
                     onClick={() => setIsOpen(!isOpen)}
-                    className="flex items-center justify-between px-2  py-1.5 text-xs bg-gray-900 text-white  rounded-none hover:border-gray-600 transition-colors"
+                    className="h-10 flex items-center justify-between px-2  py-1.5 text-sm font-mono bg-gray-900 text-white  rounded-none hover:border-gray-600 transition-colors"
                   >
-                    <span className="font-medium pl-1 pr-2.5">
-                      {selectedLanguage.charAt(0).toUpperCase() +
-                        selectedLanguage.slice(1)}
+                    <span className="font-mono pl-1 pr-2.5">
+                      {selectedLanguage === 'cpp'
+                        ? 'C++'
+                        : selectedLanguage.charAt(0).toUpperCase() + selectedLanguage.slice(1)
+                      }
                     </span>
+
                     <ChevronDown
                       className={`w-3 h-3 transition-transform ${isOpen ? "rotate-180" : ""
                         }`}
@@ -628,7 +634,7 @@ const SolveProblemPage = () => {
                             : "text-gray-300"
                             }`}
                         >
-                          {lang.charAt(0).toUpperCase() + lang.slice(1)}
+                          {lang === 'cpp' ? 'C++' : lang.charAt(0).toUpperCase() + lang.slice(1)}
                         </button>
                       ))}
                     </div>
@@ -651,7 +657,7 @@ const SolveProblemPage = () => {
                   <button
                     onClick={handleRunCode}
                     disabled={isRunning}
-                    className="flex items-center space-x-1.5 px-3 py-0 text-xs bg-gray-800 hover:bg-gray-700 disabled:bg-gray-700 disabled:cursor-not-allowed rounded-none transition-colors font-medium"
+                    className="w-24 flex items-center justify-center space-x-1.5 px-3 py-0 text-xs bg-gray-800 hover:bg-gray-700 disabled:bg-gray-700 disabled:cursor-not-allowed rounded-none transition-colors font-medium"
                   >
                     {isRunning ? (
                       <Loader2 size={12} className="animate-spin" />
@@ -663,7 +669,7 @@ const SolveProblemPage = () => {
                   <button
                     onClick={handleSubmit}
                     disabled={isSubmitting}
-                    className="flex items-center space-x-1.5 px-3 py-0 text-xs bg-green-700 hover:bg-green-600 disabled:bg-green-700 disabled:cursor-not-allowed rounded-none transition-colors font-medium"
+                    className="w-24 flex items-center justify-center space-x-1.5 px-3 py-0 text-xs bg-green-700 hover:bg-green-600 disabled:bg-green-700 disabled:cursor-not-allowed rounded-none transition-colors font-medium"
                   >
                     {isSubmitting ? (
                       <Loader2 size={12} className="animate-spin" />
@@ -713,13 +719,13 @@ const SolveProblemPage = () => {
               />
             </div>
           </div>
-          <div className="fixed bottom-0 right-0 w-1/2">
+          {/* <div className="fixed bottom-0 right-0 w-1/2">
             <ChatWindow />
-          </div>
+          </div> */}
           {/* Ai chat and guide area */}
 
           {/* Test Results Area */}
-          <div className="border-t border-gray-700 p-4 bg-gray-800/30 min-h-[100px]">
+          <div className="border-t border-gray-700 p-4 bg-gray-800/30 h-full">
             <h4 className="text-lg font-semibold mb-3 text-white">
               Test Results
             </h4>
