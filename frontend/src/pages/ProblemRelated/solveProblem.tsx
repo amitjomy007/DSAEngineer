@@ -104,39 +104,6 @@ int main() {
 `,
 };
 
-// Simple syntax highlighting function
-//commented out since its not used
-// const highlightCode = (code: string, language: string) => {
-//   const keywords = {
-//     javascript: ['function', 'var', 'let', 'const', 'return', 'if', 'else', 'for', 'while', 'class'],
-//     python: ['def', 'class', 'return', 'if', 'else', 'elif', 'for', 'while', 'import', 'from'],
-//     java: ['public', 'private', 'class', 'return', 'if', 'else', 'for', 'while', 'int', 'String'],
-//     cpp: ['public', 'private', 'class', 'return', 'if', 'else', 'for', 'while', 'int', 'vector']
-//   };
-
-//   let highlighted = code;
-
-//   // Highlight keywords
-//   keywords[language as keyof typeof keywords]?.forEach(keyword => {
-//     const regex = new RegExp(`\\b${keyword}\\b`, 'g');
-//     highlighted = highlighted.replace(regex, `<span style="color: #569cd6;">${keyword}</span>`);
-//   });
-
-//   // Highlight strings
-//   highlighted = highlighted.replace(/"([^"]*)"/g, '<span style="color: #ce9178;">"$1"</span>');
-//   highlighted = highlighted.replace(/'([^']*)'/g, '<span style="color: #ce9178;">\'$1\'</span>');
-
-//   // Highlight comments
-//   highlighted = highlighted.replace(/\/\*[\s\S]*?\*\//g, '<span style="color: #6a9955;">$&</span>');
-//   highlighted = highlighted.replace(/\/\/.*$/gm, '<span style="color: #6a9955;">$&</span>');
-//   highlighted = highlighted.replace(/#.*$/gm, '<span style="color: #6a9955;">$&</span>');
-
-//   // Highlight numbers
-//   highlighted = highlighted.replace(/\b\d+\b/g, '<span style="color: #b5cea8;">$&</span>');
-
-//   return highlighted;
-// };
-
 const SolveProblemPage = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"problem" | "editorial" | "comments" | "submissions">("problem");
@@ -379,7 +346,7 @@ const SolveProblemPage = () => {
   return (
     <div className="min-h-screen bg-gray-900 text-white ">
       {/* Header */}
-      <div className="fixed top-0 w-full border-b border-gray-700 bg-gray-900/95 backdrop-blur-md">
+      <div className="sticky z-10 top-0 w-full border-b border-gray-700 bg-gray-900/95 backdrop-blur-md">
         <div className="flex items-center justify-between px-8 pl-2 py-4">
           <div className="flex items-center space-x-2">
             <Link
@@ -465,10 +432,10 @@ const SolveProblemPage = () => {
 
       {/* Main Content */}
 
-      <div className="flex h-screen pt-20">
+      <div className="flex h-screen">
         {/* Left Panel - Problem Description */}
         <div className="w-1/2 border-r border-gray-700 overflow-y-auto no-scrollbar">
-          <div className="p-6">
+          <div className="p-5">
             {/* Navigation Tabs - More Prominent */}
             <div className="px-6 pb-4">
               <div className="flex space-x-2">
@@ -630,35 +597,35 @@ const SolveProblemPage = () => {
         </div>
 
         {/* Right Panel - Code Editor */}
-        <div className="w-1/2 h-2/3 flex  flex-col">
-          <div className=" flex align-center justify-between ">
+        <div className="w-1/2 h-4/5 flex  flex-col">
+          <div className="flex items-center justify-between">
             {/* Language Selector */}
-            <div className="p-4">
+            <div className="pr-4 py-0 ">
               <div className="flex items-center justify-between">
                 <div className="relative">
                   <button
                     onClick={() => setIsOpen(!isOpen)}
-                    className="flex items-center justify-between w-40 px-4 py-2 text-sm bg-black-800 text-white border border-gray-800 rounded-lg hover:border-gray-600 transition-colors"
+                    className="flex items-center justify-between px-2  py-1.5 text-xs bg-gray-900 text-white  rounded-none hover:border-gray-600 transition-colors"
                   >
-                    <span className="font-medium">
+                    <span className="font-medium pl-1 pr-2.5">
                       {selectedLanguage.charAt(0).toUpperCase() +
                         selectedLanguage.slice(1)}
                     </span>
                     <ChevronDown
-                      className={`w-4 h-4 transition-transform ${isOpen ? "rotate-180" : ""
+                      className={`w-3 h-3 transition-transform ${isOpen ? "rotate-180" : ""
                         }`}
                     />
                   </button>
 
                   {isOpen && (
-                    <div className="absolute top-full left-0 mt-1 w-40 bg-black border border-gray-800 rounded-lg shadow-lg z-10">
+                    <div className="absolute top-full left-0 mt-1 w-32 bg-gray-900  rounded-none shadow-lg z-10">
                       {problem.allowedLanguages.map((lang) => (
                         <button
                           key={lang}
                           onClick={() => handleLanguageChange(lang)}
-                          className={`w-full px-4 py-2 text-sm text-left hover:bg-gray-900 transition-colors first:rounded-t-lg last:rounded-b-lg ${selectedLanguage === lang
-                            ? "bg-gray-900 text-white"
-                            : "text-white"
+                          className={`w-full px-3 py-1.5 text-xs text-left hover:bg-gray-800 transition-colors first:rounded-t-md last:rounded-b-md ${selectedLanguage === lang
+                            ? "bg-gray-800 text-white"
+                            : "text-gray-300"
                             }`}
                         >
                           {lang.charAt(0).toUpperCase() + lang.slice(1)}
@@ -678,44 +645,42 @@ const SolveProblemPage = () => {
               )}
             </div>
             {/* Action Buttons */}
-            <div className=" p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex space-x-3 pr-2">
+            <div className="h-full px-4 py-0">
+              <div className="h-full flex items-center justify-between">
+                <div className="h-full flex space-x-0 ">
                   <button
                     onClick={handleRunCode}
                     disabled={isRunning}
-                    className=" h-7 flex items-center space-x-2 px-3 py-4 text-sm bg-gray-700 hover:bg-gray-600 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg transition-colors font-medium "
+                    className="flex items-center space-x-1.5 px-3 py-0 text-xs bg-gray-800 hover:bg-gray-700 disabled:bg-gray-700 disabled:cursor-not-allowed rounded-none transition-colors font-medium"
                   >
                     {isRunning ? (
-                      <Loader2 size={13} className="animate-spin" />
+                      <Loader2 size={12} className="animate-spin" />
                     ) : (
-                      <Play size={13} />
+                      <Play size={12} />
                     )}
                     <span>{isRunning ? "Running..." : "Run"}</span>
                   </button>
                   <button
                     onClick={handleSubmit}
                     disabled={isSubmitting}
-                    className=" h-7 flex items-center space-x-2 px-3 py-4 text-sm  bg-green-600 hover:bg-green-700 disabled:bg-green-600 disabled:cursor-not-allowed rounded-lg transition-colors font-medium"
+                    className="flex items-center space-x-1.5 px-3 py-0 text-xs bg-green-700 hover:bg-green-600 disabled:bg-green-700 disabled:cursor-not-allowed rounded-none transition-colors font-medium"
                   >
                     {isSubmitting ? (
-                      <Loader2 size={13} className="animate-spin" />
+                      <Loader2 size={12} className="animate-spin" />
                     ) : (
-                      <Upload size={13} />
+                      <Upload size={12} />
                     )}
                     <span>{isSubmitting ? "Submitting..." : "Submit"}</span>
                   </button>
-                  {/* <button className=" h-7 flex items-center space-x-2 px-3 py-4 bg-amber-300 hover:bg-amber-500 text-blue-900  rounded-lg transition-colors font-medium">
-                    Get AI Hint
-                  </button> */}
                 </div>
               </div>
             </div>
           </div>
 
+
           {/* Monaco Code Editor */}
           <div className="flex-1 py-0 ">
-            <div className="h-full rounded-lg overflow-hidden border border-gray-700">
+            <div className="h-full rounded-none overflow-hidden border border-gray-700">
               <Editor
                 height="100%"
                 language={selectedLanguage === "cpp" ? "cpp" : selectedLanguage}
@@ -733,7 +698,7 @@ const SolveProblemPage = () => {
                   wordWrap: "on",
                   lineNumbers: "on",
                   glyphMargin: false,
-                  folding: false,
+                  folding: true,
                   lineDecorationsWidth: 0,
                   lineNumbersMinChars: 3,
                   renderLineHighlight: "line",
@@ -754,7 +719,7 @@ const SolveProblemPage = () => {
           {/* Ai chat and guide area */}
 
           {/* Test Results Area */}
-          <div className="border-t border-gray-700 p-4 bg-gray-800/30 min-h-[120px]">
+          <div className="border-t border-gray-700 p-4 bg-gray-800/30 min-h-[100px]">
             <h4 className="text-lg font-semibold mb-3 text-white">
               Test Results
             </h4>
