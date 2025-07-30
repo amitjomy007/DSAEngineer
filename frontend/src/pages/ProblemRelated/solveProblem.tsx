@@ -27,6 +27,8 @@ import {
   FileText,
   Loader2,
   TrendingUp,
+  MessageCircleCode,
+  Lightbulb,
 } from "lucide-react";
 import Editor from "@monaco-editor/react";
 import ChatWindow from "../../components/chat/chatWindow";
@@ -107,6 +109,7 @@ int main() {
 const SolveProblemPage = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"problem" | "editorial" | "comments" | "submissions">("problem");
+  const [activeTabRight, setActiveTabRight] = useState<"chat" | "editor">("editor");
   const { slug } = useParams<{ slug: string }>();
   const [problem, setProblem] = useState<ISolveProblem | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState("cpp");
@@ -227,6 +230,14 @@ const SolveProblemPage = () => {
   const handleCodeChange = (value: string | undefined) => {
     setCode(value || "");
   };
+  const ToggleActiveTabRight = () => {
+    if (activeTabRight == 'chat') {
+      setActiveTabRight('editor');
+    }
+    else {
+      setActiveTabRight('chat');
+    }
+  }
 
   const handleRunCode = async () => {
     setIsRunning(true);
@@ -342,11 +353,17 @@ const SolveProblemPage = () => {
       : 'bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white'
       }`;
   };
+  const getTabClassNameRight = (tabName: string) => {
+    return `w-full h-10  flex items-center px-4 py-2  rounded-none font-medium transition-colors ${tabName === 'editor'
+      ? 'bg-amber-300 text-gray-950 shadow-sm shadow-amber-300'
+      : 'bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white'
+      }`;
+  };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white ">
-      {/* Header */}
-      <div className="sticky z-10 top-0 w-full border-b border-gray-700 bg-gray-900/95 backdrop-blur-md">
+    <div className="min-h-screen bg-gray-900 text-white overflow-hidden">
+      {/* Header - Fixed at top */}
+      <div className="fixed top-0 left-0 right-0 h-18 z-50 w-full  bg-gray-950/30 backdrop-blur-md">
         <div className="flex items-center justify-between px-8 pl-2 py-4">
           <div className="flex items-center space-x-2">
             <Link
@@ -356,11 +373,11 @@ const SolveProblemPage = () => {
               <ChevronLeft size={20} />
             </Link>
             <div className="flex items-center space-x-4">
-              <h1 className="text-xl font-bold text-white">
+              <h1 className="text-xl font-bold text-white truncate">
                 {problem.problemNumber}. {problem.title}
               </h1>
               <div
-                className={`inline-flex items-center px-5 py-1 rounded-full text-sm font-mono ${problem.difficulty === "Easy"
+                className={`inline-flex items-center px-5 py-1 rounded-full text-sm font-mono whitespace-nowrap ${problem.difficulty === "Easy"
                   ? "text-emerald-300 bg-emerald-500/10 border border-emerald-500/20"
                   : problem.difficulty === "Medium"
                     ? "text-amber-300 bg-amber-500/10 border border-amber-500/20"
@@ -420,66 +437,58 @@ const SolveProblemPage = () => {
                   Accepted
                 </div>
               </div>
-
-
             </div>
           </div>
         </div>
       </div>
 
-
-
-
-      {/* Main Content */}
-
-      <div className="flex h-screen">
-        {/* Left Panel - Problem Description */}
-        <div className="w-1/2 border-r border-gray-700 overflow-y-auto no-scrollbar">
-          <div className="p-0">
-            {/* Navigation Tabs - More Prominent */}
-            <div className="w-full ">
-              <div className="">
-                <div className="grid grid-cols-4">
-                  <button
-                    onClick={() => setActiveTab("problem")}
-                    className={getTabClassName("problem")}
-                  >
-                    <Code size={16} className="inline mr-2 w-1/4" />
-                    Problem
-                  </button>
-                  <button
-                    onClick={() => setActiveTab("editorial")}
-                    className={getTabClassName("editorial")}
-                  >
-                    <BookOpen size={16} className="inline mr-2 w-1/4" />
-                    Editorial
-                  </button>
-                  <button
-                    onClick={() => setActiveTab("comments")}
-                    className={getTabClassName("comments")}
-                  >
-                    <MessageSquare size={20} className="inline mr-2 w-1/4" />
-                    Comments
-                  </button>
-                  <button
-                    onClick={() => setActiveTab("submissions")}
-                    className={getTabClassName("submissions")}
-                  >
-                    <FileText size={16} className="inline mr-2 w-1/4 " />
-                    Submissions
-                  </button>
-                                    
-                </div>
-              </div>
+      {/* Main Content - Account for fixed header */}
+      <div className="flex w-full overflow-hidden" style={{ height: 'calc(100vh - 72px)', marginTop: '72px' }}>
+        {/* Left Panel - Problem Description (Scrollable) */}
+        <div className="w-1/2 border-r border-gray-700 flex flex-col overflow-hidden">
+          {/* Navigation Tabs - Fixed */}
+          <div className="flex-shrink-0 w-full border-b border-gray-700">
+            <div className="grid grid-cols-4 min-w-0">
+              <button
+                onClick={() => setActiveTab("problem")}
+                className={getTabClassName("problem")}
+              >
+                <Code size={16} className="inline mr-2 flex-shrink-0" />
+                <span className="truncate">Problem</span>
+              </button>
+              <button
+                onClick={() => setActiveTab("editorial")}
+                className={getTabClassName("editorial")}
+              >
+                <BookOpen size={16} className="inline mr-2 flex-shrink-0" />
+                <span className="truncate">Editorial</span>
+              </button>
+              <button
+                onClick={() => setActiveTab("comments")}
+                className={getTabClassName("comments")}
+              >
+                <MessageSquare size={16} className="inline mr-2 flex-shrink-0" />
+                <span className="truncate">Comments</span>
+              </button>
+              <button
+                onClick={() => setActiveTab("submissions")}
+                className={getTabClassName("submissions")}
+              >
+                <FileText size={16} className="inline mr-2 flex-shrink-0" />
+                <span className="truncate">Submissions</span>
+              </button>
             </div>
-            {/* --- NEW: Conditional Content Rendering --- */}
-            <div className="mt-0 p-5">
+          </div>
+
+          {/* Scrollable Content Area */}
+          <div className="flex-1 overflow-y-auto overflow-x-hidden">
+            <div className="p-5">
               {activeTab === 'problem' && (
                 <div className="prose prose-invert max-w-none">
                   <h1 className="text-2xl font-semibold mb-4">
                     Problem Description
                   </h1>
-                  <p className="text-gray-300 leading-relaxed mb-6 text-lg">
+                  <p className="text-gray-300 leading-relaxed mb-6 text-lg break-words">
                     {problem.description}
                   </p>
 
@@ -494,13 +503,13 @@ const SolveProblemPage = () => {
                       >
                         <div className="mb-2">
                           <strong className="text-sm text-gray-400">Input:</strong>
-                          <code className="ml-2 text-sm bg-gray-700 px-2 py-1 rounded text-green-300">
+                          <code className="ml-2 text-sm bg-gray-700 px-2 py-1 rounded text-green-300 break-all word-wrap">
                             {example.input}
                           </code>
                         </div>
                         <div className="mb-2">
                           <strong className="text-sm text-gray-400">Output:</strong>
-                          <code className="ml-2 text-sm bg-gray-700 px-2 py-1 rounded text-blue-300">
+                          <code className="ml-2 text-sm bg-gray-700 px-2 py-1 rounded text-blue-300 break-all word-wrap">
                             {example.output}
                           </code>
                         </div>
@@ -509,7 +518,7 @@ const SolveProblemPage = () => {
                             <strong className="text-sm text-gray-400">
                               Explanation:
                             </strong>
-                            <span className="ml-2 text-sm text-gray-300">
+                            <span className="ml-2 text-sm text-gray-300 break-words">
                               {example.explanation}
                             </span>
                           </div>
@@ -524,7 +533,7 @@ const SolveProblemPage = () => {
                     </h3>
                     <ul className="list-disc list-inside space-y-2 text-gray-300">
                       {problem.constraints.map((constraint, index) => (
-                        <li key={index} className="text-sm">
+                        <li key={index} className="text-sm break-words">
                           {constraint}
                         </li>
                       ))}
@@ -545,7 +554,7 @@ const SolveProblemPage = () => {
                             <summary className="cursor-pointer text-sm font-medium text-purple-300 hover:text-purple-200">
                               Hint {index + 1}
                             </summary>
-                            <p className="mt-2 text-sm text-gray-300">{hint}</p>
+                            <p className="mt-2 text-sm text-gray-300 break-words">{hint}</p>
                           </details>
                         ))}
                       </div>
@@ -562,7 +571,7 @@ const SolveProblemPage = () => {
                         {problem.tags.map((tag, index) => (
                           <span
                             key={index}
-                            className="px-3 py-1 text-sm bg-purple-600/20 text-purple-300 rounded-full border border-purple-600/30"
+                            className="px-3 py-1 text-sm bg-purple-600/20 text-purple-300 rounded-full border border-purple-600/30 whitespace-nowrap"
                           >
                             {capitalizeTag(tag)}
                           </span>
@@ -570,9 +579,9 @@ const SolveProblemPage = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-center space-x-6 text-sm text-gray-400">
-                      <div className="flex items-center space-x-2">
-                        <Clock size={16} className="text-yellow-400" />
+                    <div className="flex flex-wrap items-center gap-6 text-sm text-gray-400">
+                      <div className="flex items-center space-x-2 whitespace-nowrap">
+                        <Clock size={16} className="text-yellow-400 flex-shrink-0" />
                         <span>
                           Time Limit:{" "}
                           <strong className="text-yellow-400">
@@ -580,8 +589,8 @@ const SolveProblemPage = () => {
                           </strong>
                         </span>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <MemoryStick size={16} className="text-blue-400" />
+                      <div className="flex items-center space-x-2 whitespace-nowrap">
+                        <MemoryStick size={16} className="text-blue-400 flex-shrink-0" />
                         <span>
                           Memory Limit:{" "}
                           <strong className="text-blue-400">
@@ -591,7 +600,8 @@ const SolveProblemPage = () => {
                       </div>
                     </div>
                   </div>
-                </div>)}
+                </div>
+              )}
               {activeTab === 'submissions' && <SubmissionsListTabComponent />}
               {activeTab === 'editorial' && <EditorialTabComponent />}
               {activeTab === 'comments' && <CommentsSection />}
@@ -599,37 +609,37 @@ const SolveProblemPage = () => {
           </div>
         </div>
 
-        {/* Right Panel - Code Editor */}
-        <div className="w-1/2 h-full flex  flex-col">
-          <div className="flex items-center h-10 justify-between">
+        {/* Right Panel - Code Editor (Non-scrollable) */}
+        <div className="w-1/2 h-full flex flex-col overflow-hidden">
+          {/* Language Selector and Action Buttons - Fixed */}
+          <div className="flex-shrink-0 flex items-center h-10  justify-between  bg-gray-900">
             {/* Language Selector */}
-            <div className="pr-4 py-0 ">
+            <div className="flex flex-row items-center px-0 py-0">
               <div className="flex items-center justify-between">
                 <div className="relative">
                   <button
                     onClick={() => setIsOpen(!isOpen)}
-                    className="h-10 flex items-center justify-between px-2  py-1.5 text-sm font-mono bg-gray-900 text-white  rounded-none hover:border-gray-600 transition-colors"
+                    className="h-10 flex items-center justify-between px-3 pl-4 text-sm font-mono text-white hover:bg-gray-800 transition-colors min-w-0"
                   >
-                    <span className="font-mono pl-1 pr-2.5">
+                    <span className="font-mono truncate mr-2">
                       {selectedLanguage === 'cpp'
                         ? 'C++'
                         : selectedLanguage.charAt(0).toUpperCase() + selectedLanguage.slice(1)
                       }
                     </span>
-
                     <ChevronDown
-                      className={`w-3 h-3 transition-transform ${isOpen ? "rotate-180" : ""
+                      className={`w-3 h-3 ml-2 flex-shrink-0 transition-transform ${isOpen ? "rotate-180" : ""
                         }`}
                     />
                   </button>
 
                   {isOpen && (
-                    <div className="absolute top-full left-0 mt-1 w-32 bg-gray-900  rounded-none shadow-lg z-10">
+                    <div className="absolute top-full left-0 mt-1 w-32 bg-gray-900 border border-gray-600 shadow-lg z-20">
                       {problem.allowedLanguages.map((lang) => (
                         <button
                           key={lang}
                           onClick={() => handleLanguageChange(lang)}
-                          className={`w-full px-3 py-1.5 text-xs text-left hover:bg-gray-800 transition-colors first:rounded-t-md last:rounded-b-md ${selectedLanguage === lang
+                          className={`w-full px-3 py-1.5 text-xs text-left hover:bg-gray-800 transition-colors ${selectedLanguage === lang
                             ? "bg-gray-800 text-white"
                             : "text-gray-300"
                             }`}
@@ -645,48 +655,57 @@ const SolveProblemPage = () => {
               {/* Click outside to close */}
               {isOpen && (
                 <div
-                  className="fixed inset-0 z-0"
+                  className="fixed inset-0 z-10"
                   onClick={() => setIsOpen(false)}
                 />
               )}
+              <button
+                onClick={() => ToggleActiveTabRight()}
+                className={getTabClassNameRight(activeTabRight)}
+              >
+
+                {/* <MessageCircleCode  size={16} className="inline mr-2 flex-shrink-0" /> */}
+                <Lightbulb size={16} className="inline mr-2 flex-shrink-0" />
+                <span className="truncate">{activeTabRight == 'chat' ? 'TestCase' : 'AI CHAT'}</span>
+              </button>
             </div>
+
             {/* Action Buttons */}
-            <div className="h-full px-4 py-0">
-              <div className="h-full flex items-center justify-between">
-                <div className="h-full flex space-x-0 ">
-                  <button
-                    onClick={handleRunCode}
-                    disabled={isRunning}
-                    className="w-24 flex items-center justify-center space-x-1.5 px-3 py-0 text-xs bg-gray-800 hover:bg-gray-700 disabled:bg-gray-700 disabled:cursor-not-allowed rounded-none transition-colors font-medium"
-                  >
-                    {isRunning ? (
-                      <Loader2 size={12} className="animate-spin" />
-                    ) : (
-                      <Play size={12} />
-                    )}
-                    <span>{isRunning ? "Running..." : "Run"}</span>
-                  </button>
-                  <button
-                    onClick={handleSubmit}
-                    disabled={isSubmitting}
-                    className="w-24 flex items-center justify-center space-x-1.5 px-3 py-0 text-xs bg-green-700 hover:bg-green-600 disabled:bg-green-700 disabled:cursor-not-allowed rounded-none transition-colors font-medium"
-                  >
-                    {isSubmitting ? (
-                      <Loader2 size={12} className="animate-spin" />
-                    ) : (
-                      <Upload size={12} />
-                    )}
-                    <span>{isSubmitting ? "Submitting..." : "Submit"}</span>
-                  </button>
-                </div>
+            <div className="px-0 py-0 h-full">
+              <div className="flex space-x-0 h-full  ">
+                <button
+                  onClick={handleRunCode}
+                  disabled={isRunning}
+                  className="flex  w-28 items-center justify-center space-x-1.5 px-4 py-0 text-xs bg-gray-800 hover:bg-gray-700 disabled:bg-gray-700 disabled:cursor-not-allowed transition-colors font-medium "
+                >
+                  {isRunning ? (
+                    <Loader2 size={12} className="animate-spin" />
+                  ) : (
+                    <Play size={12} />
+                  )}
+                  <span className="whitespace-nowrap">{isRunning ? "Running..." : "Run"}</span>
+                </button>
+                <button
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                  className="flex w-28 items-center justify-center space-x-1.5 px-4 py-2 text-xs bg-green-700 hover:bg-green-600 disabled:bg-green-700 disabled:cursor-not-allowed transition-colors font-medium"
+                >
+                  {isSubmitting ? (
+                    <Loader2 size={12} className="animate-spin" />
+                  ) : (
+                    <Upload size={12} />
+                  )}
+                  <span className="whitespace-nowrap">{isSubmitting ? "Submitting..." : "Submit"}</span>
+                </button>
               </div>
             </div>
           </div>
 
 
           {/* Monaco Code Editor */}
-          <div className="flex-1 py-0 ">
-            <div className="h-full rounded-none overflow-hidden border border-gray-700">
+
+          <div className="flex-1 overflow-hidden">
+            <div className="h-full overflow-hidden">
               <Editor
                 height="100%"
                 language={selectedLanguage === "cpp" ? "cpp" : selectedLanguage}
@@ -715,30 +734,39 @@ const SolveProblemPage = () => {
                   padding: {
                     top: 10,
                   },
+                  scrollbar: {
+                    vertical: 'visible',
+                    horizontal: 'visible',
+                    verticalScrollbarSize: 12,
+                    horizontalScrollbarSize: 12,
+                  }
                 }}
               />
             </div>
           </div>
-          {/* <div className="fixed bottom-0 right-0 w-1/2">
-            <ChatWindow />
-          </div> */}
-          {/* Ai chat and guide area */}
 
-          {/* Test Results Area */}
-          <div className="border-t border-gray-700 p-4 bg-gray-800/30 h-full">
-            <h4 className="text-lg font-semibold mb-3 text-white">
-              Test Results
-            </h4>
-            <div className="text-sm text-gray-400">
-              {isRunning
-                ? "Running your code... (Fake simulation ⚠️)"
-                : "Testcase running under development ⚠️"}
+          {/* Test Results Area + AI CHAT - Fixed at bottom */}
+          {activeTabRight == 'chat' && <ChatWindow />}
+          {activeTabRight == 'editor' &&
+            <div className="max-h-full flex-shrink-0 border-t border-gray-700 p-4 bg-gray-800/30 h-64 overflow-hidden">
+              <h4 className="text-lg font-semibold mb-3 text-white">
+                Test Results
+              </h4>
+              <div className="text-sm text-gray-400 overflow-y-auto h-16">
+                {isRunning
+                  ? "Running your code... (Fake simulation ⚠️)"
+                  : "Testcase running under development ⚠️"}
+              </div>
+              <div>Meanwhile checkout the AI Chat Feature</div>
+          
             </div>
-          </div>
+          }
         </div>
+
       </div>
     </div>
   );
+
 };
 
 export default SolveProblemPage;

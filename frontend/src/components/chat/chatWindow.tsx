@@ -89,7 +89,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
 
 const EmptyState: React.FC<EmptyStateProps> = ({ onGetStarted }) => {
   return (
-    <div className="flex-1 flex items-center justify-center p-3 ">
+    <div className="flex-1 flex items-center justify-center p-4 ">
       <div className="text-center max-w-xs">
         <div className="flex justify-center mb-4">
           <div className="relative">
