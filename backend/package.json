@@ -8,7 +8,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc",
+    "build": "npx tsc --project ./tsconfig.json --outDir ./dist --rootDir ./",
     "start": "node dist/server.js",
     "dev": "nodemon --exec ts-node ./server.ts"
   },
