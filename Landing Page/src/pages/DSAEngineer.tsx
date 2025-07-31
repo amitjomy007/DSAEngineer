@@ -668,6 +668,8 @@ const DSAEngineer = () => {
   // Footer
   const handleEngineerNow = () => {
     console.log("Engineer Now button clicked!");
+    const VITE_FRONTEND_URL = import.meta.env.VITE_FRONTEND_URL;
+    window.location.href = VITE_FRONTEND_URL;
   };
 
   const FooterComponent = () => (
