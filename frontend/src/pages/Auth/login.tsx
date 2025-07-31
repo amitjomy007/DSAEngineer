@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
+const backendUrl = import.meta.env.VITE_BACKEND_URL || "3000";
+console.log("backendUrl:", backendUrl);
 const Login = () => {
   const [email, setEmail] = useState('johnDoeExample@example.com');
   const [password, setPassword] = useState('1234');
@@ -18,7 +20,7 @@ const Login = () => {
     console.log("Going to handle submit");
     e.preventDefault();
     try{
-      const response = await axios.post("http://localhost:8000/login", {email, password});
+      const response = await axios.post(`${backendUrl}/login`, {email, password});
       dispatch({type:"auth/login", payload:response.data}); //not required
       await Cookies.set("token31d6cfe0d16ae931b73c59d7e0c089c0", JSON.stringify(response.data.user.token), {secure:true, expires: 1}); //expires in a day and httpS Cookie
       await Cookies.set("user31d6cfe0d16ae931b73c59d7e0c089c0", JSON.stringify(response.data.user.firstname), {secure:true, expires: 1});

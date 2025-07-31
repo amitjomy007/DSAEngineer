@@ -3,6 +3,8 @@ import axios from "axios";
 import type { RootState } from "./store"; // --- INTERFACES ---
 import type { PayloadAction } from "@reduxjs/toolkit";
 import Cookies from "js-cookie";
+const backendUrl = import.meta.env.VITE_BACKEND_URL || "3000";
+console.log("backendUrl:", backendUrl);
 interface ChatMessage {
   author: "user" | "bot";
   content: string;
@@ -55,7 +57,7 @@ export const sendPromptToAI = createAsyncThunk(
   async (prompt: string, thunkAPI) => {
     // Use our new, more specific type to cast the state
     const state = thunkAPI.getState() as RootStateWithChat;
-    
+
     // --- FIX #1: Get all required data from the Redux state ---
     // We need problemDescription to send to the backend.
     const {
@@ -89,15 +91,11 @@ export const sendPromptToAI = createAsyncThunk(
     // --- NO CHANGES NEEDED BELOW THIS LINE ---
     try {
       // NOTE: Make sure your backend route is '/aiChat' and not something else.
-      const response = await axios.post(
-        "http://localhost:8000/aiChat",
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axios.post(`${backendUrl}/aiChat`, payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       return response.data.aiResponse as string;
     } catch (error) {
       if (axios.isAxiosError(error)) {

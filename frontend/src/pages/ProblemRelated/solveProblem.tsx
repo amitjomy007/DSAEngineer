@@ -27,7 +27,7 @@ import {
   FileText,
   Loader2,
   TrendingUp,
-  MessageCircleCode,
+
   Lightbulb,
 } from "lucide-react";
 import Editor from "@monaco-editor/react";
@@ -38,7 +38,8 @@ import StopwatchTimer from "../../components/solveProblem/timerComponent";
 import UserMenu from "../../components/layout/navbarProfileButton";
 import SpotifyCapsule from "../../components/layout/musicCapsule";
 
-
+const backendUrl = import.meta.env.VITE_BACKEND_URL || "3000";
+console.log("backendUrl:", backendUrl);
 
 
 // Interface for the problem data
@@ -201,7 +202,7 @@ const SolveProblemPage = () => {
       const uId = Cookies.get("userId31d6cfe0d16ae931b73c59d7e0c089c0");
       console.log("slug before sending: ", slug);
       const response = await axios.get(
-        `http://localhost:8000/getProblem/${slug}`,
+        `${backendUrl}/getProblem/${slug}`,
         {
           headers: {
             "user-id": uId,
@@ -263,7 +264,7 @@ const SolveProblemPage = () => {
         language: selectedLanguage,
         userId: userId,
       };
-      const response = await axios.post("http://localhost:8000/judge", payload);
+      const response = await axios.post(`${backendUrl}/judge`, payload);
       console.log(
         "Submitted payload : ",
         problem?._id,
@@ -300,7 +301,7 @@ const SolveProblemPage = () => {
         voteType,
       };
       const response = await axios.post(
-        "http://localhost:8000/voteProblem",
+        `${backendUrl}/voteProblem`,
         payload
       );
       // Update local state based on response

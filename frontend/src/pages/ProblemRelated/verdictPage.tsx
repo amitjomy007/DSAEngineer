@@ -17,7 +17,8 @@ import {
 import axios from "axios";
 import Cookies from "js-cookie";
 import Editor from "@monaco-editor/react";
-
+const backendUrl = import.meta.env.VITE_BACKEND_URL || "3000";
+console.log("backendUrl:", backendUrl);
 // Interface for submission data
 interface ISubmission {
   _id: string;
@@ -201,14 +202,14 @@ const SubmissionResult = () => {
     try {
       console.log("Fetching submission data for ID:", submissionId);
       let userId = Cookies.get("userId31d6cfe0d16ae931b73c59d7e0c089c0");
-      if(!userId){
+      if (!userId) {
         console.log("please login");
         return;
-      } 
+      }
       userId = userId.replace(/^"+|"+$/g, "");
-      
+
       const allSubmissionResponse = await axios.get(
-        `http://localhost:8000/getAllSubmissionsOfProblem/${userId}/${slug}`
+        `${backendUrl}/getAllSubmissionsOfProblem/${userId}/${slug}`
       );
 
       console.log(
@@ -383,20 +384,23 @@ const SubmissionResult = () => {
               Submitted {formatTimeAgo(submission.createdAt)}
             </div>
           </div>
-          {submission.verdict==="Time Limit Exceeded" && 
-
-          (<h2 className="text-xl pb-8">Time limit exceeded on testcase {submission.passedTestCases+1}</h2>) 
-          }
+          {submission.verdict === "Time Limit Exceeded" && (
+            <h2 className="text-xl pb-8">
+              Time limit exceeded on testcase {submission.passedTestCases + 1}
+            </h2>
+          )}
 
           {/* // error renderring box  */}
-          { (submission.verdict === "Compilation Error" || submission.verdict === "Runtime Error") && (
+          {(submission.verdict === "Compilation Error" ||
+            submission.verdict === "Runtime Error") && (
             <div>
-            <h2 >Error Message</h2>
-            <div className = "border-red-500 border-2 p-4 mt-2 mb-6 rounded-sm">
-                <h2 className="text-amber-300">{JSON.stringify(submission.error)}</h2>
+              <h2>Error Message</h2>
+              <div className="border-red-500 border-2 p-4 mt-2 mb-6 rounded-sm">
+                <h2 className="text-amber-300">
+                  {JSON.stringify(submission.error)}
+                </h2>
+              </div>
             </div>
-            </div>
-         
           )}
 
           {/* Stats Grid */}

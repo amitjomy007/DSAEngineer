@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import type { IProblem } from "../../interfaces/Iproblem";
 import axios from "axios";
 import Cookies from "js-cookie";
+const backendUrl = import.meta.env.VITE_BACKEND_URL || "3000";
+console.log("backendUrl:", backendUrl);
 const AddProblemPage: React.FC = () => {
   const [problemJson, setProblemJson] = useState<string>("");
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -22,7 +24,7 @@ const AddProblemPage: React.FC = () => {
     problem.problemAuthorId = problem.problemAuthorId.replace(/^"|"$/g, ""); // GPT Fix suggestion (wroked)
 
     console.log("problemAuthor ID: ", problem.problemAuthorId);
-    const response = await axios.post("http://localhost:8000/addProblem", problem);
+    const response = await axios.post(`${backendUrl}/addProblem`, problem);
 
     console.log("response when trying to submit: ", response);
     console.log("Response status: ", response.status);

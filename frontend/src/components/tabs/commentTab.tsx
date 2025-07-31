@@ -1,11 +1,11 @@
 // CommentsSection.tsx
-import React, { useState, useEffect, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
-import Cookies from 'js-cookie';
-import axios from 'axios';
-import './CommentsSection.css'; // We'll create this for styling
-const backendPort = import.meta.env.VITE_BACKEND_PORT || "3000";
-const backendUrl = `http://localhost:${backendPort}`;
+import React, { useState, useEffect, useCallback } from "react";
+import { useParams } from "react-router-dom";
+import Cookies from "js-cookie";
+import axios from "axios";
+import "./CommentsSection.css"; // We'll create this for styling
+const backendUrl = import.meta.env.VITE_BACKEND_URL || "3000";
+console.log("backendUrl:", backendUrl);
 
 interface Author {
   _id: string;
@@ -54,9 +54,11 @@ interface RepliesResponse {
 const CommentsSection: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const [comments, setComments] = useState<Comment[]>([]);
-  const [newComment, setNewComment] = useState('');
+  const [newComment, setNewComment] = useState("");
   const [replyTexts, setReplyTexts] = useState<{ [key: string]: string }>({});
-  const [showReplies, setShowReplies] = useState<{ [key: string]: boolean }>({});
+  const [showReplies, setShowReplies] = useState<{ [key: string]: boolean }>(
+    {}
+  );
   const [replies, setReplies] = useState<{ [key: string]: Comment[] }>({});
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -70,40 +72,47 @@ const CommentsSection: React.FC = () => {
   console.log("CommentsSection - User Info:", { userId, username, slug });
 
   // Fetch comments by slug
-  const fetchComments = useCallback(async (page: number = 1) => {
-    if (!slug) {
-      console.log("No slug available for fetching comments");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      console.log("Fetching comments for slug:", slug, "page:", page);
-      // Note: Backend should accept slug instead of problemId
-      const response = await axios.get<CommentResponse>(
-        `${backendUrl}/getCommentsBySlug/${slug}?page=${page}&limit=10`
-      );
-
-      console.log("Comments response:", response.data);
-
-      if (response.data.success) {
-        if (page === 1) {
-          setComments(response.data.comments);
-        } else {
-          setComments(prev => [...prev, ...response.data.comments]);
-        }
-
-        setCurrentPage(response.data.pagination.currentPage);
-        setTotalPages(response.data.pagination.totalPages);
-
-        console.log("Comments updated:", response.data.comments.length, "comments loaded");
+  const fetchComments = useCallback(
+    async (page: number = 1) => {
+      if (!slug) {
+        console.log("No slug available for fetching comments");
+        return;
       }
-    } catch (error) {
-      console.error("Error fetching comments:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [slug]);
+
+      setLoading(true);
+      try {
+        console.log("Fetching comments for slug:", slug, "page:", page);
+        // Note: Backend should accept slug instead of problemId
+        const response = await axios.get<CommentResponse>(
+          `${backendUrl}/getCommentsBySlug/${slug}?page=${page}&limit=10`
+        );
+
+        console.log("Comments response:", response.data);
+
+        if (response.data.success) {
+          if (page === 1) {
+            setComments(response.data.comments);
+          } else {
+            setComments((prev) => [...prev, ...response.data.comments]);
+          }
+
+          setCurrentPage(response.data.pagination.currentPage);
+          setTotalPages(response.data.pagination.totalPages);
+
+          console.log(
+            "Comments updated:",
+            response.data.comments.length,
+            "comments loaded"
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching comments:", error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [slug]
+  );
 
   // Fetch replies for a comment (no change needed here)
   const fetchReplies = async (commentId: string) => {
@@ -116,16 +125,21 @@ const CommentsSection: React.FC = () => {
       console.log("Replies response:", response.data);
 
       if (response.data.success) {
-        setReplies(prev => ({
+        setReplies((prev) => ({
           ...prev,
-          [commentId]: response.data.replies
+          [commentId]: response.data.replies,
         }));
-        setShowReplies(prev => ({
+        setShowReplies((prev) => ({
           ...prev,
-          [commentId]: true
+          [commentId]: true,
         }));
 
-        console.log("Replies loaded for comment:", commentId, response.data.replies.length, "replies");
+        console.log(
+          "Replies loaded for comment:",
+          commentId,
+          response.data.replies.length,
+          "replies"
+        );
       }
     } catch (error) {
       console.error("Error fetching replies:", error);
@@ -149,18 +163,22 @@ const CommentsSection: React.FC = () => {
 
     setSubmitting(true);
     try {
-      console.log("Adding comment:", { slug, authorId: userId, body: newComment.trim() });
+      console.log("Adding comment:", {
+        slug,
+        authorId: userId,
+        body: newComment.trim(),
+      });
 
       const response = await axios.post(`${backendUrl}/comments/addComment`, {
-        slug,          // Send slug instead of problemId
+        slug, // Send slug instead of problemId
         authorId: userId,
-        body: newComment.trim()
+        body: newComment.trim(),
       });
 
       console.log("Add comment response:", response.data);
 
       if (response.data.success) {
-        setNewComment('');
+        setNewComment("");
         // Refresh comments
         await fetchComments(1);
         console.log("Comment added successfully");
@@ -188,22 +206,27 @@ const CommentsSection: React.FC = () => {
     }
 
     try {
-      console.log("Adding reply:", { slug, authorId: userId, body: replyText.trim(), parentId: commentId });
-
-      const response = await axios.post(`${backendUrl}/comments/addComment`, {
-        slug,           // Send slug instead of problemId
+      console.log("Adding reply:", {
+        slug,
         authorId: userId,
         body: replyText.trim(),
-        parentId: commentId
+        parentId: commentId,
+      });
+
+      const response = await axios.post(`${backendUrl}/comments/addComment`, {
+        slug, // Send slug instead of problemId
+        authorId: userId,
+        body: replyText.trim(),
+        parentId: commentId,
       });
 
       console.log("Add reply response:", response.data);
 
       if (response.data.success) {
         // Clear reply text
-        setReplyTexts(prev => ({
+        setReplyTexts((prev) => ({
           ...prev,
-          [commentId]: ''
+          [commentId]: "",
         }));
 
         // Refresh replies for this comment
@@ -230,7 +253,7 @@ const CommentsSection: React.FC = () => {
       const response = await axios.post(`${backendUrl}/comments/voteComment`, {
         userId,
         commentId,
-        vote
+        vote,
       });
 
       console.log("Vote response:", response.data);
@@ -240,12 +263,18 @@ const CommentsSection: React.FC = () => {
         await fetchComments(1);
 
         // Refresh replies if any are shown
-        const repliesShown = Object.keys(showReplies).filter(id => showReplies[id]);
+        const repliesShown = Object.keys(showReplies).filter(
+          (id) => showReplies[id]
+        );
         for (const commentIdWithReplies of repliesShown) {
           await fetchReplies(commentIdWithReplies);
         }
 
-        console.log("Vote processed:", response.data.action, response.data.vote);
+        console.log(
+          "Vote processed:",
+          response.data.action,
+          response.data.vote
+        );
       }
     } catch (error) {
       console.error("Error voting:", error);
@@ -256,9 +285,9 @@ const CommentsSection: React.FC = () => {
   // Toggle replies visibility
   const toggleReplies = (commentId: string) => {
     if (showReplies[commentId]) {
-      setShowReplies(prev => ({
+      setShowReplies((prev) => ({
         ...prev,
-        [commentId]: false
+        [commentId]: false,
       }));
     } else {
       fetchReplies(commentId);
@@ -276,10 +305,14 @@ const CommentsSection: React.FC = () => {
   // Format date helper
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    return (
+      date.toLocaleDateString() +
+      " " +
+      date.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    );
   };
 
   if (!userId) {
@@ -307,7 +340,7 @@ const CommentsSection: React.FC = () => {
           disabled={submitting}
         />
         <button type="submit" disabled={submitting || !newComment.trim()}>
-          {submitting ? 'Posting...' : 'Post Comment'}
+          {submitting ? "Posting..." : "Post Comment"}
         </button>
       </form>
 
@@ -316,7 +349,9 @@ const CommentsSection: React.FC = () => {
         {loading && comments.length === 0 ? (
           <div className="loading">Loading comments...</div>
         ) : comments.length === 0 ? (
-          <div className="no-comments">No comments yet. Be the first to comment!</div>
+          <div className="no-comments">
+            No comments yet. Be the first to comment!
+          </div>
         ) : (
           comments.map((comment) => (
             <div key={comment._id} className="comment-item">
@@ -324,7 +359,9 @@ const CommentsSection: React.FC = () => {
                 <span className="author">
                   {comment.author.firstname} {comment.author.lastname}
                 </span>
-                <span className="timestamp">{formatDate(comment.createdAt)}</span>
+                <span className="timestamp">
+                  {formatDate(comment.createdAt)}
+                </span>
               </div>
 
               <div className="comment-body">{comment.body}</div>
@@ -349,7 +386,8 @@ const CommentsSection: React.FC = () => {
                     onClick={() => toggleReplies(comment._id)}
                     className="toggle-replies-btn"
                   >
-                    {showReplies[comment._id] ? 'Hide' : 'Show'} {comment.replyCount} replies
+                    {showReplies[comment._id] ? "Hide" : "Show"}{" "}
+                    {comment.replyCount} replies
                   </button>
                 )}
               </div>
@@ -357,11 +395,13 @@ const CommentsSection: React.FC = () => {
               {/* Reply Form */}
               <div className="reply-form">
                 <textarea
-                  value={replyTexts[comment._id] || ''}
-                  onChange={(e) => setReplyTexts(prev => ({
-                    ...prev,
-                    [comment._id]: e.target.value
-                  }))}
+                  value={replyTexts[comment._id] || ""}
+                  onChange={(e) =>
+                    setReplyTexts((prev) => ({
+                      ...prev,
+                      [comment._id]: e.target.value,
+                    }))
+                  }
                   placeholder="Write a reply..."
                   rows={2}
                 />
@@ -382,7 +422,9 @@ const CommentsSection: React.FC = () => {
                         <span className="author">
                           {reply.author.firstname} {reply.author.lastname}
                         </span>
-                        <span className="timestamp">{formatDate(reply.createdAt)}</span>
+                        <span className="timestamp">
+                          {formatDate(reply.createdAt)}
+                        </span>
                       </div>
 
                       <div className="comment-body">{reply.body}</div>
@@ -406,11 +448,13 @@ const CommentsSection: React.FC = () => {
                       {/* Reply to Reply Form */}
                       <div className="reply-form">
                         <textarea
-                          value={replyTexts[reply._id] || ''}
-                          onChange={(e) => setReplyTexts(prev => ({
-                            ...prev,
-                            [reply._id]: e.target.value
-                          }))}
+                          value={replyTexts[reply._id] || ""}
+                          onChange={(e) =>
+                            setReplyTexts((prev) => ({
+                              ...prev,
+                              [reply._id]: e.target.value,
+                            }))
+                          }
                           placeholder="Reply to this comment..."
                           rows={2}
                         />
@@ -436,7 +480,7 @@ const CommentsSection: React.FC = () => {
             disabled={loading}
             className="load-more-btn"
           >
-            {loading ? 'Loading...' : 'Load More Comments'}
+            {loading ? "Loading..." : "Load More Comments"}
           </button>
         )}
       </div>

@@ -29,6 +29,9 @@ import {
 } from "lucide-react";
 import NavbarNew from "../../components/layout/NavbarNew";
 
+const backendUrl = import.meta.env.VITE_BACKEND_URL || "3000";
+console.log("backendUrl:", backendUrl);
+
 // Interface definitions
 interface ITestCase {
   input: string;
@@ -182,7 +185,7 @@ const Problems: React.FC = () => {
       console.log("please login")
       return
     }
-    return await axios.get(`http://localhost:8000/problems`, {
+    return await axios.get(`${backendUrl}/problems`, {
       headers: {
         "user-id": userId,
       },

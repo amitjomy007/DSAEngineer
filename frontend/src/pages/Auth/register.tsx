@@ -3,6 +3,8 @@ import Cookies from "js-cookie";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
+const backendUrl = import.meta.env.VITE_BACKEND_URL || "3000";
+console.log("backendUrl:", backendUrl);
 const RegistrationPage = () => {
   const [firstname, setFirstname] = useState("tima");
   const [lastname, setLastname] = useState("test");
@@ -22,7 +24,7 @@ const RegistrationPage = () => {
     // TODO: Implement registration logic
     try {
       setEmail((email) => email.toLowerCase());
-      const response = await axios.post("http://localhost:8000/register", {
+      const response = await axios.post(`${backendUrl}/register`, {
         firstname,
         lastname,
         email,

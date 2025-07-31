@@ -47,6 +47,9 @@ interface ISubmission {
   submittedAt: string;
 }
 
+const backendUrl = import.meta.env.VITE_BACKEND_URL || "3000";
+console.log("backendUrl:", backendUrl);
+
 const SubmissionsListTabComponent = () => {
   const { slug } = useParams<{ slug: string }>();
   const [problem, setProblem] = useState<ISolveProblem | null>(null);
@@ -89,7 +92,7 @@ const SubmissionsListTabComponent = () => {
       try {
         const uId = Cookies.get("userId31d6cfe0d16ae931b73c59d7e0c089c0");
         const response = await axios.get(
-          `http://localhost:8000/getProblem/${slug}`,
+          `${backendUrl}/getProblem/${slug}`,
           { headers: { "user-id": uId } }
         );
         setProblem(response.data.problem);
@@ -107,7 +110,7 @@ const SubmissionsListTabComponent = () => {
           userId = uIdNotFormatted.trim().replace(/^"+|"+$/g, "");
         else return;
         const subsResponse = await axios.get(
-          `http://localhost:8000/getAllSubmissionsOfProblem/${userId}/${slug}`
+          `${backendUrl}/getAllSubmissionsOfProblem/${userId}/${slug}`
         );
         setSubmissions(subsResponse.data);
       } catch (err) {
