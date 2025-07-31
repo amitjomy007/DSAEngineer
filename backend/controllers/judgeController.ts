@@ -6,8 +6,9 @@ import { error } from "console";
 import { response } from "express";
 import { Mongoose } from "mongoose";
 import test, { run } from "node:test";
-const compilerBackendUrl =  process.env.COMPILER_BACKEND_URL || "localhost:3000/run";
-console.log("process", process.env.COMPILER_BACKEND_URL)
+const compilerBackendUrl =
+  process.env.COMPILER_BACKEND_URL || "localhost:3000/run";
+console.log("process", process.env.COMPILER_BACKEND_URL);
 type SubmissionData = {
   userId: string;
   problemId: string;
@@ -64,8 +65,8 @@ const addSubmissionToDatabase = async (Arg: SubmissionData) => {
 
   const Submission = require("../models/submissions");
   console.log("data putting in db: ", data);
-  if(data.error && typeof data.error!='string'){
-    data.error = JSON.stringify(error)
+  if (data.error && typeof data.error != "string") {
+    data.error = JSON.stringify(error);
   }
   const submission = new Submission(data);
   await submission.save();
@@ -76,16 +77,16 @@ export const judgeControl = async (req: any, res: any) => {
   const { language, code, problemId } = req.body;
   const userIdNotformatted = req.body.userId;
   let userId = undefined;
-  try{
+  try {
     userId = userIdNotformatted.trim().replace(/^"+|"+$/g, "");
-  }
-  catch(err){
-    console.log("errah, no userId received from request, aborting this request...")
+  } catch (err) {
+    console.log(
+      "errah, no userId received from request, aborting this request..."
+    );
     res.status(400).send({ error: "Missing or invalid userId in request." });
-    res.send()
-    return ;
+    res.send();
+    return;
   }
-  
 
   try {
     // Find the testcases corresponding to the problem id and get the testcaseOutputs from MongoDB
@@ -109,7 +110,7 @@ export const judgeControl = async (req: any, res: any) => {
 
     // Make request to compiler backend
     console.log("About to make axios request");
-    
+
     const response = await axios.post<{
       outputs: string[];
       status: string;
@@ -117,11 +118,11 @@ export const judgeControl = async (req: any, res: any) => {
       timeTaken: number;
       error: string;
       testcasesExecutedWithinLimits: number;
-    }>(`http://${compilerBackendUrl}`, payload);
+    }>(`${compilerBackendUrl}/run`, payload);
 
     console.log("response.data is: ", response.data);
     const responseFromCompiler = response.data;
-    console.log( "response from compiler: ", responseFromCompiler)
+    console.log("response from compiler: ", responseFromCompiler);
 
     if (!responseFromCompiler) {
       return res.status(500).json({

@@ -15,7 +15,7 @@ const generateExeFile = (codePath: string, outPath: string) => {
     exec(command, (err: any, stdout: any, stderr: any) => {
       if (err) {
         // Compilation failed - syntax errors, missing headers, etc.
-          return reject({
+        return reject({
           status: "CompileError",
           error: stderr.trim() || "Compilation error",
         });
@@ -32,7 +32,7 @@ const runSingleTestCase = (
 ): any => {
   return new Promise((resolve, reject) => {
     //in windows ./ has to be removed (VERY IMPORTANT VERY IMPORTANT)
-    const commmand = `${outputFileName} < ${inputPath}`;
+    const commmand = `./${outputFileName} < ${inputPath}`;
     exec(
       commmand,
       { cwd: dirOutput, timeout: 2000, maxBuffer: 1024 * 1024 },
