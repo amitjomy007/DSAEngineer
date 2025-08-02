@@ -33,7 +33,7 @@ export const registerControl = async (req: any, res: any) => {
       maxAge: 3600000, // 1 hour
       httpOnly: true, // Can't be read by JS (security)
       secure: process.env.NODE_ENV === "production", // HTTPS only in production
-      sameSite: "strict", // CSRF protection
+      sameSite: "lax",
     });
     user.token = token;
     console.log("token was: ", token);
@@ -69,11 +69,11 @@ export const loginControl = async (req: any, res: any) => {
     });
 
     // SET AUTOMATIC HTTP-ONLY COOKIE (for API requests)
-    res.cookie('auth_token', token, {
+    res.cookie("auth_token", token, {
       maxAge: 3600000, // 1 hour
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict'
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
     });
 
     user.token = token;

@@ -18,33 +18,79 @@ import {
 } from "../controllers/comment/commentController";
 import { getProfileDetails } from "../controllers/profile/profileDetailsController";
 import { verifyJWTToken } from "../middlewares/verifyJwtToken";
+import { smartLimiter } from "../middlewares/Rate Limiters/smartLimiter";
+import { spamLimiter } from "../middlewares/Rate Limiters/spamLimiter";
 //Auth Routes
-router.post("/login", loginControl);
-router.post("/register", registerControl);
-router.post("/judge", verifyJWTToken,judgeControl);
-router.post("/addProblem",verifyJWTToken, addProblemControl);
-router.post("/voteProblem",verifyJWTToken, handleVoteControl);
-router.post("/aiChat",verifyJWTToken, AiChatControl);
+router.post("/login", spamLimiter(), smartLimiter(), loginControl);
+router.post("/register", spamLimiter(), smartLimiter(), registerControl);
+router.post(
+  "/judge",
+  spamLimiter(),
+  smartLimiter(),
+  verifyJWTToken,
+  judgeControl
+);
+router.post("/addProblem", smartLimiter(), verifyJWTToken, addProblemControl);
+router.post(
+  "/voteProblem",
+  spamLimiter(),
+  smartLimiter(),
+  verifyJWTToken,
+  handleVoteControl
+);
+router.post(
+  "/aiChat",
+  spamLimiter(),
+  smartLimiter(),
+  verifyJWTToken,
+  AiChatControl
+);
 
-router.get("/problems", getProblemsControl);
-router.get("/getProblem/:slug", getProblemControl);
+router.get("/problems", spamLimiter(), smartLimiter(), getProblemsControl);
+router.get(
+  "/getProblem/:slug",
+  spamLimiter(),
+  smartLimiter(),
+  getProblemControl
+);
 router.get(
   "/getSubmissionDetails/:userId/:submissionId",
+  spamLimiter(),
+  smartLimiter(),
   getSubmissionDetailsControl
 );
 router.get(
   "/getAllSubmissionsOfProblem/:userId/:slug",
+  spamLimiter(),
+  smartLimiter(),
   getAllSubmissionsOfProblem
 );
 
 //comment routes
 // Comment Routes
-router.post("/comments/addComment",verifyJWTToken, addCommentControl);
-router.post("/comments/voteComment",verifyJWTToken, voteCommentControl);
+router.post(
+  "/comments/addComment",
+  spamLimiter(),
+  smartLimiter(),
+  verifyJWTToken,
+  addCommentControl
+);
+router.post(
+  "/comments/voteComment",
+  spamLimiter(),
+  smartLimiter(),
+  verifyJWTToken,
+  voteCommentControl
+);
 router.get("/getCommentsBySlug/:slug", getCommentsControl);
 router.get("/comments/getReplies/:commentId", getRepliesControl);
 
 //profile and dashboard
-router.get("/profile/:userId", getProfileDetails);
+router.get(
+  "/profile/:userId",
+  spamLimiter(),
+  smartLimiter(),
+  getProfileDetails
+);
 
 export default router;

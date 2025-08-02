@@ -9,6 +9,10 @@ import Hero from "./pages/Hero";
 import ProblemsPage from "./pages/ProblemRelated/problems";
 import SubmissionResult from "./pages/ProblemRelated/verdictPage";
 
+//axios ERROR FIX ke liye
+import axios from "axios";
+axios.defaults.withCredentials = true;
+
 // temporary pages which has to be replaced
 
 import NotFoundPage from "./pages/NotFound/notFound";
@@ -51,13 +55,13 @@ function App() {
           path="/problems/:slug/submission/:submissionId"
           element={<SubmissionResult />}
         />
-        <Route path='/contests' element={<Contests/>}/>
+        <Route path="/contests" element={<Contests />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/addProblem" element={<AddProblemPage />} />
-        <Route path='/profile/:userId' element={<ProfileDetails/>} />
-        <Route path='/profile' element={<Profile/>} />
-        <Route path='/dashboard' element={<Dashboard/>} />
+        <Route path="/profile/:userId" element={<ProfileDetails />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         //404 Not found
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
