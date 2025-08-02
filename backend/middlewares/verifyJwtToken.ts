@@ -1,42 +1,49 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from "express";
 const jwt = require("jsonwebtoken");
 
 interface AuthenticatedRequest extends Request {
-  user?: any; // You can make this more specific based on your user type
+  user?: any; //
 }
 
-export const verifyJWTToken = (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+export const verifyJWTToken = (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): void => {
   try {
-    // Only check the automatic HTTP-only cookie
+    console.log("inside jwt verification middleware");
     const token = req.cookies?.auth_token;
-    
+    console.log("token is: ", token);
     if (!token) {
-      res.status(401).json({ 
-        error: 'Authentication required',
-        message: 'No auth token found in cookies'
+      res.status(401).json({
+        error: "Authentication required",
+        message: "No auth token found in cookies",
       });
       return;
     }
-    
-    // Verify the JWT token
-    jwt.verify(token, process.env.SECRET_KEY as string, (err: any, decoded: any) => {
-      if (err) {
-        res.status(403).json({ 
-          error: 'Invalid token',
-          message: 'Token verification failed'
-        });
-        return;
+
+    jwt.verify(
+      token,
+      process.env.SECRET_KEY as string,
+      (err: any, decoded: any) => {
+        if (err) {
+          res.status(403).json({
+            error: "Invalid token",
+            message: "Token verification failed",
+          });
+          console.log("invalid token");
+          return;
+        }
+
+        req.user = decoded.user;
+        next();
       }
-      
-      // Add user info to request object
-      req.user = decoded.user;
-      next(); // Pass control to next middleware
-    });
-    
+    );
   } catch (error) {
-    res.status(500).json({ 
-      error: 'Server error during authentication',
-      message: 'Internal server error'
+    res.status(500).json({
+      error: "Server error during authentication",
+      message: "Internal server error",
     });
+    console.log("server error during authentication");
   }
 };
