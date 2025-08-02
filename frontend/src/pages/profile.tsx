@@ -20,6 +20,7 @@ import {
   Flame,
   BarChart3,
 } from "lucide-react";
+import NavbarNew from "../components/layout/NavbarNew";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
 
@@ -90,6 +91,12 @@ const LeftUserCard: React.FC<{ profileData: ProfileData }> = ({
             {totalSolved}
           </span>
         </div>
+
+        <div className="flex justify-between">
+          <span>Contests Attended:</span>
+          <span className="font-mono text-emerald-400 font-bold">N/A</span>
+        </div>
+
         {profileData.role && (
           <div className="flex justify-between">
             <span>Role:</span>
@@ -147,34 +154,39 @@ const LeftFriends: React.FC = () => {
   }));
 
   return (
-    <div className="bg-gray-900/80 border border-gray-800/50 rounded-lg p-3">
+    <div className="bg-gray-900/80 border border-gray-800/50 rounded-lg p-3 mb-3">
       <h3 className="text-sm font-semibold text-gray-200 mb-2">Friends</h3>
-      {/* Added a unique class 'custom-friends-scrollbar' for specific styling */}
-      <div className="h-20 overflow-y-auto custom-friends-scrollbar">
-        {/* Scoped CSS to the custom class to ensure it applies correctly */}
+      <div
+        className="h-60 overflow-y-auto"
+        style={{
+          scrollbarWidth: "thin",
+          scrollbarColor: "#4b5563 #1f2937",
+        }}
+      >
         <style>
           {`
-            .custom-friends-scrollbar::-webkit-scrollbar {
-              width: 6px; /* Slightly thinner for aesthetics */
+            /* Hide default scrollbar arrows for Firefox */
+            ::-webkit-scrollbar {
+              width: 8px;
+              height: 8px;
             }
-            .custom-friends-scrollbar::-webkit-scrollbar-track {
-              background: #1f2937; /* Tailwind gray-900 */
-              border-radius: 3px;
+            ::-webkit-scrollbar-thumb {
+              background-color: #6b7280; /* Tailwind gray-500 */
+              border-radius: 4px;
             }
-            .custom-friends-scrollbar::-webkit-scrollbar-thumb {
-              background-color: #4b5563; /* Tailwind gray-600 */
-              border-radius: 3px;
+            ::-webkit-scrollbar-track {
+              background-color: #1f2937; /* Tailwind gray-900 */
             }
-            /* Explicitly hide scrollbar buttons/arrows */
-            .custom-friends-scrollbar::-webkit-scrollbar-button {
+            /* Remove scroll buttons/arrows */
+            ::-webkit-scrollbar-button {
               display: none;
+              width: 0;
+              height: 0;
             }
             /* For Firefox */
-            .custom-friends-scrollbar {
-              scrollbar-width: thin;
-              scrollbar-color: #4b5563 #1f2937;
-            }
-        `}
+            scrollbar-width: thin;
+            scrollbar-color: #6b7280 #1f2937;
+          `}
         </style>
         <div className="space-y-0">
           {friends.map((friend, index) => (
@@ -195,7 +207,8 @@ const LeftFriends: React.FC = () => {
     </div>
   );
 };
-// Activity Calendar Component with last 365 days and improved month labels
+
+// New LeetCode Style Activity Calendar Component
 const ActivityCalendar: React.FC<{
   submissionCalendar: Array<{ date: string; count: number }>;
 }> = ({ submissionCalendar }) => {
@@ -212,7 +225,7 @@ const ActivityCalendar: React.FC<{
     count: number;
     month: number;
   }[] = [];
-  
+
   // FIX: Loop now correctly generates exactly 365 days.
   for (let i = 0; i < 365; i++) {
     const currentDate = new Date(oneYearAgo);
@@ -224,23 +237,29 @@ const ActivityCalendar: React.FC<{
       month: currentDate.getMonth(),
     });
   }
-  
+
   // Add padding for the first week to align days correctly (e.g., if it starts on Wednesday)
   const firstDayOfWeek = new Date(calendar[0].date).getDay();
-  const paddedCalendar = [
-      ...Array(firstDayOfWeek).fill(null),
-      ...calendar
-  ];
+  const paddedCalendar = [...Array(firstDayOfWeek).fill(null), ...calendar];
 
-
-  const weeks: (typeof calendar[0] | null)[][] = [];
+  const weeks: ((typeof calendar)[0] | null)[][] = [];
   for (let i = 0; i < paddedCalendar.length; i += 7) {
     weeks.push(paddedCalendar.slice(i, i + 7));
   }
 
   const monthNames = [
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
   ];
 
   const getIntensityColor = (count: number) => {
@@ -284,12 +303,17 @@ const ActivityCalendar: React.FC<{
           {/* Month Labels */}
           <div className="flex mb-1 select-none">
             {weeks.map((week, idx) => {
-              const firstDayOfMonth = week.find(day => day && new Date(day.date).getDate() === 1);
+              const firstDayOfMonth = week.find(
+                (day) => day && new Date(day.date).getDate() === 1
+              );
               const showMonth = firstDayOfMonth;
-              
+
               return (
-                <div key={idx} className="w-3 text-xs text-gray-500 text-left mr-0.5">
-                   {showMonth ? monthNames[firstDayOfMonth.month] : "\u00A0"}
+                <div
+                  key={idx}
+                  className="w-3 text-xs text-gray-500 text-left mr-0.5"
+                >
+                  {showMonth ? monthNames[firstDayOfMonth.month] : "\u00A0"}
                 </div>
               );
             })}
@@ -299,19 +323,22 @@ const ActivityCalendar: React.FC<{
           <div className="flex gap-0.5">
             {weeks.map((week, weekIdx) => (
               <div key={weekIdx} className="flex flex-col gap-0.5">
-                {week.map((day, dayIdx) => (
-                    day ? (
-                  <div
-                    key={day.date}
-                    className={`w-3 h-3 rounded-sm border cursor-pointer ${getIntensityColor(
-                      day.count
-                    )}`}
-                    title={`${day.date}: ${day.count} submissions`}
-                  />
+                {week.map((day, dayIdx) =>
+                  day ? (
+                    <div
+                      key={day.date}
+                      className={`w-3 h-3 rounded-sm  cursor-pointer ${getIntensityColor(
+                        day.count
+                      )}`}
+                      title={`${day.date}: ${day.count} submissions`}
+                    />
                   ) : (
-                    <div key={`empty-${weekIdx}-${dayIdx}`} className="w-3 h-3" />
+                    <div
+                      key={`empty-${weekIdx}-${dayIdx}`}
+                      className="w-3 h-3"
+                    />
                   )
-                ))}
+                )}
               </div>
             ))}
           </div>
@@ -320,11 +347,11 @@ const ActivityCalendar: React.FC<{
           <div className="flex items-center justify-between mt-3 text-xs text-gray-500 select-none">
             <span>Less</span>
             <div className="flex gap-1">
-              <div className="w-3 h-3 rounded-sm bg-gray-800 border border-gray-700"></div>
-              <div className="w-3 h-3 rounded-sm bg-emerald-800/40 border border-emerald-700"></div>
-              <div className="w-3 h-3 rounded-sm bg-emerald-600/60 border border-emerald-500"></div>
-              <div className="w-3 h-3 rounded-sm bg-emerald-500/80 border border-emerald-400"></div>
-              <div className="w-3 h-3 rounded-sm bg-emerald-400 border border-emerald-300"></div>
+              <div className="w-3 h-3 rounded-sm bg-gray-800 "></div>
+              <div className="w-3 h-3 rounded-sm bg-emerald-800/40 "></div>
+              <div className="w-3 h-3 rounded-sm bg-emerald-600/60 "></div>
+              <div className="w-3 h-3 rounded-sm bg-emerald-500/80 "></div>
+              <div className="w-3 h-3 rounded-sm bg-emerald-400 "></div>
             </div>
             <span>More</span>
           </div>
@@ -359,7 +386,7 @@ const LeetCodeProgressRing: React.FC<{
   const hardProgress = totalHard > 0 ? (hardCount / totalHard) * 100 : 0;
 
   return (
-    <div className="bg-gray-900/80 border border-gray-800/50 rounded-lg p-4">
+    <div className=" bg-gray-900/80 border border-gray-800/50 rounded-lg p-4">
       <div className="flex items-center gap-6">
         {/* LeetCode Style Ring */}
         <div className="relative">
@@ -508,14 +535,8 @@ const LeetCodeStatsGrid: React.FC<{ profileData: ProfileData }> = ({
   return (
     <div className="bg-gray-900/80 border border-gray-800/50 rounded-lg p-4">
       <h3 className="text-lg font-bold text-white mb-4">Statistics</h3>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="text-center">
-          <div className="text-2xl font-bold text-emerald-400 font-mono">
-            {totalSolved}
-          </div>
-          <div className="text-xs text-gray-400 mt-1">Problems Solved</div>
-        </div>
-        <div className="text-center">
+      <div className="grid grid-cols-1 md:grid-cols-3  pt-7 gap-4">
+        <div className="text-center  ">
           <div className="text-2xl font-bold text-blue-400 font-mono">
             {acceptanceRate}%
           </div>
@@ -538,26 +559,20 @@ const LeetCodeStatsGrid: React.FC<{ profileData: ProfileData }> = ({
   );
 };
 
-// Main - Skills & Topics (LeetCode Style)
-const SkillsAndTopics: React.FC<{
+const Skills: React.FC<{
   tagStats: Record<string, number>;
   profileData: ProfileData;
-}> = ({ tagStats, profileData }) => {
+}> = ({ tagStats }) => {
   const topTags = Object.entries(tagStats)
     .sort(([, a], [, b]) => b - a)
     .slice(0, 10);
 
-  const formatAverage = (value: number | null, unit: string) => {
-    if (!value) return "N/A";
-    return `${Math.round(value * 100) / 100}${unit}`;
-  };
-
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
       {/* Skills */}
       <div className="bg-gray-900/80 border border-gray-800/50 rounded-lg p-4">
         <h3 className="text-lg font-bold text-white mb-3">Skills</h3>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid  gap-2">
           {topTags.length > 0 ? (
             topTags.map(([tag, count]) => (
               <div
@@ -579,7 +594,25 @@ const SkillsAndTopics: React.FC<{
           )}
         </div>
       </div>
+    </div>
+  );
+};
+// Main - Skills & Topics (LeetCode Style)
+const Performance: React.FC<{
+  tagStats: Record<string, number>;
+  profileData: ProfileData;
+}> = ({ tagStats, profileData }) => {
+  const topTags = Object.entries(tagStats)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 10);
 
+  const formatAverage = (value: number | null, unit: string) => {
+    if (!value) return "N/A";
+    return `${Math.round(value * 100) / 100}${unit}`;
+  };
+
+  return (
+    <div className="flex w-full flex-col">
       {/* Additional Stats */}
       <div className="bg-gray-900/80 border border-gray-800/50 rounded-lg p-4">
         <h3 className="text-lg font-bold text-white mb-3">Performance</h3>
@@ -621,7 +654,7 @@ const SkillsAndTopics: React.FC<{
 // Main - Contest Section
 const ContestSection: React.FC = () => {
   return (
-    <div className="bg-gray-900/80 border border-gray-800/50 rounded-lg p-4">
+    <div className=" bg-gray-900/80 border border-gray-800/50 rounded-lg p-4">
       <h3 className="text-lg font-bold text-white mb-3">Contest</h3>
       <div className="text-center py-6 text-gray-400">
         <Crown className="w-8 h-8 mx-auto mb-2 opacity-50" />
@@ -817,6 +850,7 @@ const ProfilePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-950">
+        <NavbarNew/>
       {/* Subtle Background - Your Original Theme */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-900/10 via-violet-900/5 to-gray-900"></div>
 
@@ -824,27 +858,31 @@ const ProfilePage: React.FC = () => {
         <div className="container mx-auto px-4 py-4 max-w-7xl">
           <div className="grid grid-cols-12 gap-4">
             {/* Left Sidebar */}
-            <div className="col-span-3">
+            <div className="flex flex-col   col-span-3 ">
               <LeftUserCard profileData={profileData} />
               <LeftLanguages languageStats={profileData.languageStats} />
               <LeftFriends />
+              <Skills tagStats={tagStats} profileData={profileData} />
             </div>
 
             {/* Main Content - LeetCode Layout */}
             <div className="col-span-9 space-y-4">
               {/* Progress Ring - LeetCode Style with Progress Bars */}
-              <LeetCodeProgressRing difficultyStats={difficultyStats} />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <LeetCodeProgressRing difficultyStats={difficultyStats} />
+                <ContestSection />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <LeetCodeStatsGrid profileData={profileData} />
+
+                {/* Skills & Performance - LeetCode Style */}
+
+                <Performance tagStats={tagStats} profileData={profileData} />
+              </div>
               <ActivityCalendar
                 submissionCalendar={profileData.submissionCalendar}
               />
-              {/* Stats Grid - LeetCode Style */}
-              <LeetCodeStatsGrid profileData={profileData} />
-
-              {/* Skills & Performance - LeetCode Style */}
-              <SkillsAndTopics tagStats={tagStats} profileData={profileData} />
-
-              {/* Contest Section */}
-              <ContestSection />
 
               {/* Submissions Table - LeetCode Style with Alternating Colors */}
               <RecentSubmissionsTable
