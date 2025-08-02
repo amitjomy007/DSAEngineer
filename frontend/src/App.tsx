@@ -17,6 +17,8 @@ import { useDispatch } from "react-redux";
 import SolveProblemPage from "./pages/ProblemRelated/solveProblem";
 import Dashboard from "./pages/dashboard";
 import Contests from "./pages/contests";
+import ProfileDetails from "./pages/profile";
+import Profile from "./pages/ProblemRelated/profileStatic";
 function App() {
   const dispatch = useDispatch();
   useEffect(() => {
@@ -53,6 +55,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/addProblem" element={<AddProblemPage />} />
+        <Route path='/profile/:userId' element={<ProfileDetails/>} />
+        <Route path='/profile' element={<Profile/>} />
         <Route path='/dashboard' element={<Dashboard/>} />
         //404 Not found
         <Route path="*" element={<NotFoundPage />} />

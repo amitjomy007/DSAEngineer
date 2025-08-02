@@ -10,21 +10,21 @@ import { getSubmissionDetailsControl } from "../controllers/getSubmissionDetails
 import { getAllSubmissionsOfProblem } from "../controllers/getAllSubmissionsOfProblem";
 import { handleVoteControl } from "../controllers/problem/handleVoteControl";
 import { AiChatControl } from "../controllers/ai/aiChatcontroller";
-import { 
+import {
   addCommentControl,
   getCommentsControl,
   getRepliesControl,
-  voteCommentControl
+  voteCommentControl,
 } from "../controllers/comment/commentController";
 import { get } from "axios";
+import { getProfileDetails } from "../controllers/profile/profileDetailsController";
 //Auth Routes
 router.post("/login", loginControl);
 router.post("/register", registerControl);
 router.post("/judge", judgeControl);
 router.post("/addProblem", addProblemControl);
 router.post("/voteProblem", handleVoteControl);
-router.post(
-  "/aiChat", AiChatControl);
+router.post("/aiChat", AiChatControl);
 
 router.get("/problems", getProblemsControl);
 router.get("/getProblem/:slug", getProblemControl);
@@ -39,11 +39,12 @@ router.get(
 
 //comment routes
 // Comment Routes
-router.post("/comments/addComment", addCommentControl);  
-router.post("/comments/voteComment", voteCommentControl);  
-router.get("/getCommentsBySlug/:slug", getCommentsControl);  
-router.get("/comments/getReplies/:commentId", getRepliesControl); 
+router.post("/comments/addComment", addCommentControl);
+router.post("/comments/voteComment", voteCommentControl);
+router.get("/getCommentsBySlug/:slug", getCommentsControl);
+router.get("/comments/getReplies/:commentId", getRepliesControl);
 
-
+//profile and dashboard
+router.get("/profile/:userId", getProfileDetails);
 
 export default router;
