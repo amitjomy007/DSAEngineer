@@ -16,15 +16,15 @@ import {
   getRepliesControl,
   voteCommentControl,
 } from "../controllers/comment/commentController";
-import { get } from "axios";
 import { getProfileDetails } from "../controllers/profile/profileDetailsController";
+import { verifyJWTToken } from "../middlewares/verifyJwtToken";
 //Auth Routes
 router.post("/login", loginControl);
 router.post("/register", registerControl);
-router.post("/judge", judgeControl);
-router.post("/addProblem", addProblemControl);
-router.post("/voteProblem", handleVoteControl);
-router.post("/aiChat", AiChatControl);
+router.post("/judge", verifyJWTToken,judgeControl);
+router.post("/addProblem",verifyJWTToken, addProblemControl);
+router.post("/voteProblem",verifyJWTToken, handleVoteControl);
+router.post("/aiChat",verifyJWTToken, AiChatControl);
 
 router.get("/problems", getProblemsControl);
 router.get("/getProblem/:slug", getProblemControl);
@@ -39,8 +39,8 @@ router.get(
 
 //comment routes
 // Comment Routes
-router.post("/comments/addComment", addCommentControl);
-router.post("/comments/voteComment", voteCommentControl);
+router.post("/comments/addComment",verifyJWTToken, addCommentControl);
+router.post("/comments/voteComment",verifyJWTToken, voteCommentControl);
 router.get("/getCommentsBySlug/:slug", getCommentsControl);
 router.get("/comments/getReplies/:commentId", getRepliesControl);
 
