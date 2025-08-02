@@ -23,6 +23,7 @@ import Dashboard from "./pages/dashboard";
 import Contests from "./pages/contests";
 import ProfileDetails from "./pages/profile";
 import Profile from "./pages/ProblemRelated/profileStatic";
+import DashboardRBAC from "./pages/dashboard/dashboardRBAC";
 function App() {
   const dispatch = useDispatch();
   useEffect(() => {
@@ -62,6 +63,7 @@ function App() {
         <Route path="/profile/:userId" element={<ProfileDetails />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/rbacdashboard" element={<DashboardRBAC />} />
         //404 Not found
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

@@ -28,7 +28,7 @@ const userSchema = new mongoose.Schema({
   
   },
   role: {
-    type: String,
+    type: String,     //super_admin" | "admin" | "problem_setter" | "user";
     default: "user",
     required: true,
   },

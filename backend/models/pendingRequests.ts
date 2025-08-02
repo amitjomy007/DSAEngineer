@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 // New schema for pending requests
 const pendingRequestSchema = new mongoose.Schema({
   requestType: {

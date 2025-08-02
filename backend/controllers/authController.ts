@@ -30,10 +30,16 @@ export const registerControl = async (req: any, res: any) => {
       expiresIn: "1h",
     });
     res.cookie("auth_token", token, {
-      maxAge: 3600000, // 1 hour
+      maxAge: 3600000*24, // 1 *24hour
       httpOnly: true, // Can't be read by JS (security)
       secure: process.env.NODE_ENV === "production", // HTTPS only in production
       sameSite: "lax",
+    });
+    res.cookie("user_id", user._id.toString(), {
+      maxAge: 3600000*24,
+      httpOnly: false, // Frontend can read this
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
     });
     user.token = token;
     console.log("token was: ", token);
@@ -70,10 +76,16 @@ export const loginControl = async (req: any, res: any) => {
 
     // SET AUTOMATIC HTTP-ONLY COOKIE (for API requests)
     res.cookie("auth_token", token, {
-      maxAge: 3600000, // 1 hour
+      maxAge: 3600000*24, // 1*24 hour
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
+    });
+    res.cookie("user_id", user._id.toString(), {
+      maxAge: 3600000*24,
+      httpOnly: false, // Frontend can read this
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
     });
 
     user.token = token;

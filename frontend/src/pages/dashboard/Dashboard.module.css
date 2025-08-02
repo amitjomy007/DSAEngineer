@@ -1,0 +1,496 @@
+/* Dashboard.module.css - Enhanced version */
+.dashboard {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+.dashboardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.dashboardHeader h1 {
+  color: #333;
+  margin: 0;
+  font-size: 28px;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.roleBadge {
+  padding: 8px 16px;
+  border-radius: 25px;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.roleBadge.super_admin {
+  background: #dc3545;
+  color: white;
+}
+
+.roleBadge.admin {
+  background: #007bff;
+  color: white;
+}
+
+.roleBadge.problem_setter {
+  background: #28a745;
+  color: white;
+}
+
+.roleBadge.user {
+  background: #6f42c1;
+  color: white;
+}
+
+/* Tabs Navigation */
+.tabs {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 30px;
+  background: white;
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.tab {
+  padding: 12px 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #666;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.tab:hover {
+  color: #333;
+  background: #f8f9fa;
+}
+
+.tab.active {
+  color: #007bff;
+  background: #e3f2fd;
+  font-weight: 600;
+}
+
+/* Tab Content */
+.tabContent {
+  background: white;
+  border-radius: 10px;
+  padding: 30px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.tabHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.tabHeader h3 {
+  margin: 0;
+  color: #333;
+  font-size: 24px;
+}
+
+.quickStats {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.statBadge {
+  padding: 6px 12px;
+  background: #e9ecef;
+  color: #495057;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Grid Layout */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 25px;
+  margin-top: 20px;
+}
+
+.card {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 25px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.cardHeader h4 {
+  margin: 0;
+  color: #333;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.cardContent {
+  margin-bottom: 20px;
+}
+
+.cardContent p {
+  margin: 8px 0;
+  color: #666;
+  font-size: 14px;
+}
+
+/* Status and Role Badges */
+.status {
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.status.pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status.approved {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status.rejected {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.difficulty {
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.difficulty.easy {
+  background: #d4edda;
+  color: #155724;
+}
+
+.difficulty.medium {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.difficulty.hard {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.role {
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.role.admin {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.role.problem_setter {
+  background: #e8f5e8;
+  color: #2e7d32;
+}
+
+.role.user {
+  background: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.role.super_admin {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.reversibleBadge {
+  background: #28a745;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+/* User Role Section */
+.userRoleSection {
+  margin: 15px 0;
+  padding: 15px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.roleLabel {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #495057;
+  font-size: 13px;
+}
+
+.roleSelect {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 14px;
+  background: white;
+}
+
+.roleSelect:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+}
+
+/* Action Buttons */
+.actionButtons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn.primary {
+  background: #007bff;
+  color: white;
+}
+
+.btn.primary:hover:not(:disabled) {
+  background: #0056b3;
+}
+
+.btn.success {
+  background: #28a745;
+  color: white;
+}
+
+.btn.success:hover:not(:disabled) {
+  background: #1e7e34;
+}
+
+.btn.danger {
+  background: #dc3545;
+  color: white;
+}
+
+.btn.danger:hover:not(:disabled) {
+  background: #c82333;
+}
+
+.btn.warning {
+  background: #ffc107;
+  color: #212529;
+}
+
+.btn.warning:hover:not(:disabled) {
+  background: #e0a800;
+}
+
+/* Metadata Section */
+.metadataSection {
+  margin-top: 15px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border-left: 4px solid #007bff;
+}
+
+.metadata {
+  background: #343a40;
+  color: #f8f9fa;
+  padding: 12px;
+  border-radius: 4px;
+  font-size: 11px;
+  margin-top: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  font-family: 'Courier New', monospace;
+}
+
+/* Loading and Error States */
+.loading, .dashboardLoading {
+  text-align: center;
+  padding: 60px;
+  color: #666;
+  font-size: 16px;
+}
+
+.error {
+  text-align: center;
+  padding: 60px;
+  color: #dc3545;
+  background: #f8d7da;
+  border-radius: 8px;
+  margin: 20px 0;
+  font-size: 16px;
+}
+
+.noData, .emptyState {
+  text-align: center;
+  padding: 60px;
+  color: #666;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 2px dashed #dee2e6;
+}
+
+.emptyState p {
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+.paginationInfo {
+  margin-top: 30px;
+  padding: 20px;
+  background: #e9ecef;
+  border-radius: 8px;
+  text-align: center;
+  color: #495057;
+  font-weight: 500;
+}
+
+.statsInfo {
+  margin-top: 30px;
+  padding: 25px;
+  background: #e3f2fd;
+  border-radius: 8px;
+  border-left: 4px solid #007bff;
+}
+
+.statsInfo h4 {
+  margin: 0 0 15px 0;
+  color: #1976d2;
+  font-size: 18px;
+}
+
+.statsInfo p {
+  margin: 8px 0;
+  font-size: 14px;
+  color: #495057;
+}
+
+.dashboardContent {
+  padding: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .dashboard {
+    padding: 10px;
+  }
+  
+  .dashboardHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .tabs {
+    flex-wrap: wrap;
+  }
+  
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .quickStats {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .actionButtons {
+    flex-direction: column;
+  }
+  
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .tabContent {
+    padding: 20px;
+  }
+  
+  .card {
+    padding: 20px;
+  }
+  
+  .cardHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}

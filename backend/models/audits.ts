@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 // New schema for comprehensive audit logging
 const auditLogSchema = new mongoose.Schema({
   action: {

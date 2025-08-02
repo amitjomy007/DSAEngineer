@@ -1,24 +1,24 @@
 // pages/ProfilePage.tsx
 import React, { useState, useEffect, useMemo } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams} from "react-router-dom";
 import Cookies from "js-cookie";
 import axios from "axios";
 import {
   User,
-  Calendar,
-  Trophy,
-  Code,
-  Target,
-  Clock,
-  Users,
-  Brain,
-  Star,
-  Medal,
-  UserPlus,
+  // Calendar,
+  // Trophy,
+  // Code,
+  // Target,
+  // Clock,
+  // Users,
+  // Brain,
+  // Star,
+  // Medal,
+  // UserPlus,
   Crown,
   CheckCircle,
-  Flame,
-  BarChart3,
+  // Flame,
+  // BarChart3,
 } from "lucide-react";
 import NavbarNew from "../components/layout/NavbarNew";
 
