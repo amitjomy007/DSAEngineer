@@ -574,7 +574,7 @@ const DashboardRBAC: React.FC = () => {
       case "add-problems":
      
         Navigate("/addProblem");
-        return renderAddProblemsTab();
+        return ;
       case "users":
         return renderUsersTab();
       case "logs":
