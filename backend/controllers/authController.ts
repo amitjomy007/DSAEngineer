@@ -27,7 +27,7 @@ export const registerControl = async (req: any, res: any) => {
       password: hashedPassword,
     });
     const token = jwt.sign({ user: user }, process.env.SECRET_KEY, {
-      expiresIn: "1h",
+      expiresIn: "24h",
     });
     res.cookie("auth_token", token, {
       maxAge: 3600000*24, // 1 *24hour
@@ -71,7 +71,7 @@ export const loginControl = async (req: any, res: any) => {
       return res.status(401).send("Invalid email or password");
     }
     const token = await jwt.sign({ user: user }, process.env.SECRET_KEY, {
-      expiresIn: "1h",
+      expiresIn: "24h",
     });
 
     // SET AUTOMATIC HTTP-ONLY COOKIE (for API requests)

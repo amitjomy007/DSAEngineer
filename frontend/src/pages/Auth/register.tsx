@@ -6,10 +6,10 @@ import { useDispatch } from "react-redux";
 const backendUrl = import.meta.env.VITE_BACKEND_URL || "3000";
 console.log("backendUrl:", backendUrl);
 const RegistrationPage = () => {
-  const [firstname, setFirstname] = useState("tima");
-  const [lastname, setLastname] = useState("test");
-  const [email, setEmail] = useState("johndoe@random.com");
-  const [password, setPassword] = useState("1234");
+  const [firstname, setFirstname] = useState("");
+  const [lastname, setLastname] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const isAuthenticated = Cookies.get("token31d6cfe0d16ae931b73c59d7e0c089c0");
   const Navigate = useNavigate();
   const dispatch = useDispatch();

@@ -6,8 +6,8 @@ import { useNavigate } from 'react-router-dom';
 const backendUrl = import.meta.env.VITE_BACKEND_URL || "3000";
 console.log("backendUrl:", backendUrl);
 const Login = () => {
-  const [email, setEmail] = useState('johnDoeExample@example.com');
-  const [password, setPassword] = useState('1234');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const dispatch = useDispatch();
   const Navigate = useNavigate();
   const isAuthenticated = Cookies.get("token31d6cfe0d16ae931b73c59d7e0c089c0");
