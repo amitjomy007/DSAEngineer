@@ -137,6 +137,7 @@ const DashboardRBAC: React.FC = () => {
 
     try {
       setLoading(true);
+      if(tabName=="add-problems") navigate("/addProblem");
       const response = await axios.get(`${backendUrl}/dashboard/${tabName}`, {
         headers: {
           "Content-Type": "application/json",
