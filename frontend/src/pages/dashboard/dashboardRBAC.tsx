@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import styles from "./Dashboard.module.css";
-import ProblemEditModal from "../../components/layout/problemEditModal";
 
 interface User {
   _id: string;
@@ -85,34 +84,6 @@ interface DashboardData {
   defaultTabData: any;
 }
 
-// RBAC Types
-type Role = 'user' | 'problem_setter' | 'admin' | 'super_admin';
-type Action = 
-  | 'view_dashboard'
-  | 'create_problem' 
-  | 'edit_own_problem'
-  | 'edit_any_problem'
-  | 'approve_problem'
-  | 'reject_problem'
-  | 'delete_problem'
-  | 'manage_users'
-  | 'set_user_role'
-  | 'promote_user'
-  | 'demote_user'
-  | 'delete_user'
-  | 'view_audit_logs'
-  | 'approve_requests'
-  | 'reject_requests'
-  | 'revert_actions'
-  | 'request_promotion';
-
-interface RBACContext {
-  targetRole?: Role;
-  targetUserId?: string;
-  currentUserId?: string;
-  [key: string]: any;
-}
-
 const DashboardRBAC: React.FC = () => {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(
     null
@@ -122,59 +93,9 @@ const DashboardRBAC: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>("");
   const [actionLoading, setActionLoading] = useState<string>(""); // Track which action is loading
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [editingProblemId, setEditingProblemId] = useState<string>("");
 
   const backendUrl =
     import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
-
-  // ✅ Frontend RBAC Permission Checker
-  const checkDashboardPermission = (userRole: Role, action: Action, context: RBACContext = {}): boolean => {
-    const roleHierarchy: Role[] = ['user', 'problem_setter', 'admin', 'super_admin'];
-    const currentRoleIndex = roleHierarchy.indexOf(userRole);
-    
-    if (currentRoleIndex === -1) return false;
-
-    // Define base permissions for each role (mirrors backend)
-    const rolePermissions: Record<Role, Action[]> = {
-      user: ['view_dashboard', 'request_promotion'],
-      
-      problem_setter: [
-        'view_dashboard', 'create_problem', 'edit_own_problem', 'request_promotion'
-      ],
-      
-      admin: [
-        'view_dashboard', 'create_problem', 'edit_own_problem', 'edit_any_problem',
-        'approve_problem', 'reject_problem', 'delete_problem', 'manage_users',
-        'set_user_role', 'promote_user', 'demote_user', 'delete_user', 
-        'view_audit_logs', 'approve_requests', 'reject_requests', 'request_promotion'
-      ],
-      
-      super_admin: [
-        'view_dashboard', 'create_problem', 'edit_own_problem', 'edit_any_problem',
-        'approve_problem', 'reject_problem', 'delete_problem', 'manage_users',
-        'set_user_role', 'promote_user', 'demote_user', 'delete_user',
-        'view_audit_logs', 'approve_requests', 'reject_requests', 'revert_actions'
-      ]
-    };
-
-    // Special case: promotion requests with role ceiling
-    if (action === 'request_promotion') {
-      if (userRole === 'super_admin') return false;
-      if (userRole === 'admin' && context.targetRole === 'super_admin') return false;
-      return true;
-    }
-
-    // Permission inheritance logic
-    const inheritedPermissions = new Set<Action>();
-    for (let i = 0; i <= currentRoleIndex; i++) {
-      const role = roleHierarchy[i];
-      const permissions = rolePermissions[role] || [];
-      permissions.forEach(permission => inheritedPermissions.add(permission));
-    }
-
-    return inheritedPermissions.has(action);
-  };
 
   // Initial dashboard load
   useEffect(() => {
@@ -292,9 +213,7 @@ const DashboardRBAC: React.FC = () => {
       if (response.data.success) {
         // For now, just show the data - you can create an edit modal later
         console.log("Problem edit data:", response.data.data);
-        setEditingProblemId(problemId);
-        setEditModalOpen(true);
-        //showSuccess("Problem edit data loaded (check console)");
+        showSuccess("Problem edit data loaded (check console)");
       }
     } catch (error: any) {
       showError(
@@ -303,9 +222,6 @@ const DashboardRBAC: React.FC = () => {
     } finally {
       setActionLoading("");
     }
-  };
-  const handleEditSuccess = () => {
-    loadTabData(activeTab); // Reload the current tab data
   };
 
   const handleProblemApprove = async (
@@ -717,35 +633,30 @@ const DashboardRBAC: React.FC = () => {
                 )}
               </div>
 
-              {/* ✅ RBAC: Only show buttons if user has permissions */}
               {request.status === "pending" && (
                 <div className={styles.actionButtons}>
-                  {checkDashboardPermission(dashboardData!.user.role as Role, 'approve_requests') && (
-                    <button
-                      className={`${styles.btn} ${styles.success}`}
-                      onClick={() =>
-                        handleRequestApprove(request._id, request.requestType)
-                      }
-                      disabled={isActionLoading(`approve-request-${request._id}`)}
-                    >
-                      {isActionLoading(`approve-request-${request._id}`)
-                        ? "Approving..."
-                        : "Approve"}
-                    </button>
-                  )}
-                  {checkDashboardPermission(dashboardData!.user.role as Role, 'reject_requests') && (
-                    <button
-                      className={`${styles.btn} ${styles.danger}`}
-                      onClick={() =>
-                        handleRequestReject(request._id, request.requestType)
-                      }
-                      disabled={isActionLoading(`reject-request-${request._id}`)}
-                    >
-                      {isActionLoading(`reject-request-${request._id}`)
-                        ? "Rejecting..."
-                        : "Reject"}
-                    </button>
-                  )}
+                  <button
+                    className={`${styles.btn} ${styles.success}`}
+                    onClick={() =>
+                      handleRequestApprove(request._id, request.requestType)
+                    }
+                    disabled={isActionLoading(`approve-request-${request._id}`)}
+                  >
+                    {isActionLoading(`approve-request-${request._id}`)
+                      ? "Approving..."
+                      : "Approve"}
+                  </button>
+                  <button
+                    className={`${styles.btn} ${styles.danger}`}
+                    onClick={() =>
+                      handleRequestReject(request._id, request.requestType)
+                    }
+                    disabled={isActionLoading(`reject-request-${request._id}`)}
+                  >
+                    {isActionLoading(`reject-request-${request._id}`)
+                      ? "Rejecting..."
+                      : "Reject"}
+                  </button>
                 </div>
               )}
             </div>
@@ -824,71 +735,58 @@ const DashboardRBAC: React.FC = () => {
               </div>
 
               <div className={styles.actionButtons}>
-                {/* ✅ RBAC: Check if user can edit problems */}
-                {(checkDashboardPermission(dashboardData!.user.role as Role, 'edit_any_problem') || 
-                  (checkDashboardPermission(dashboardData!.user.role as Role, 'edit_own_problem') && 
-                   problem.problemAuthorId?._id === dashboardData!.user._id)) && (
-                  <button
-                    className={`${styles.btn} ${styles.primary}`}
-                    onClick={() => handleProblemEdit(problem._id)}
-                    disabled={isActionLoading(`edit-problem-${problem._id}`)}
-                  >
-                    {isActionLoading(`edit-problem-${problem._id}`)
-                      ? "Loading..."
-                      : "Edit"}
-                  </button>
-                )}
+                <button
+                  className={`${styles.btn} ${styles.primary}`}
+                  onClick={() => handleProblemEdit(problem._id)}
+                  disabled={isActionLoading(`edit-problem-${problem._id}`)}
+                >
+                  {isActionLoading(`edit-problem-${problem._id}`)
+                    ? "Loading..."
+                    : "Edit"}
+                </button>
 
-                {/* ✅ RBAC: Check if user can approve/reject problems */}
-                {!problem.isApproved && (
+                {!problem.isApproved ? (
                   <>
-                    {checkDashboardPermission(dashboardData!.user.role as Role, 'approve_problem') && (
-                      <button
-                        className={`${styles.btn} ${styles.success}`}
-                        onClick={() =>
-                          handleProblemApprove(problem._id, problem.title)
-                        }
-                        disabled={isActionLoading(
-                          `approve-problem-${problem._id}`
-                        )}
-                      >
-                        {isActionLoading(`approve-problem-${problem._id}`)
-                          ? "Approving..."
-                          : "Approve"}
-                      </button>
-                    )}
-                    {checkDashboardPermission(dashboardData!.user.role as Role, 'reject_problem') && (
-                      <button
-                        className={`${styles.btn} ${styles.warning}`}
-                        onClick={() =>
-                          handleProblemReject(problem._id, problem.title)
-                        }
-                        disabled={isActionLoading(
-                          `reject-problem-${problem._id}`
-                        )}
-                      >
-                        {isActionLoading(`reject-problem-${problem._id}`)
-                          ? "Rejecting..."
-                          : "Reject"}
-                      </button>
-                    )}
+                    <button
+                      className={`${styles.btn} ${styles.success}`}
+                      onClick={() =>
+                        handleProblemApprove(problem._id, problem.title)
+                      }
+                      disabled={isActionLoading(
+                        `approve-problem-${problem._id}`
+                      )}
+                    >
+                      {isActionLoading(`approve-problem-${problem._id}`)
+                        ? "Approving..."
+                        : "Approve"}
+                    </button>
+                    <button
+                      className={`${styles.btn} ${styles.warning}`}
+                      onClick={() =>
+                        handleProblemReject(problem._id, problem.title)
+                      }
+                      disabled={isActionLoading(
+                        `reject-problem-${problem._id}`
+                      )}
+                    >
+                      {isActionLoading(`reject-problem-${problem._id}`)
+                        ? "Rejecting..."
+                        : "Reject"}
+                    </button>
                   </>
-                )}
+                ) : null}
 
-                {/* ✅ RBAC: Check if user can delete problems */}
-                {checkDashboardPermission(dashboardData!.user.role as Role, 'delete_problem') && (
-                  <button
-                    className={`${styles.btn} ${styles.danger}`}
-                    onClick={() =>
-                      handleProblemDelete(problem._id, problem.title)
-                    }
-                    disabled={isActionLoading(`delete-problem-${problem._id}`)}
-                  >
-                    {isActionLoading(`delete-problem-${problem._id}`)
-                      ? "Deleting..."
-                      : "Delete"}
-                  </button>
-                )}
+                <button
+                  className={`${styles.btn} ${styles.danger}`}
+                  onClick={() =>
+                    handleProblemDelete(problem._id, problem.title)
+                  }
+                  disabled={isActionLoading(`delete-problem-${problem._id}`)}
+                >
+                  {isActionLoading(`delete-problem-${problem._id}`)
+                    ? "Deleting..."
+                    : "Delete"}
+                </button>
               </div>
             </div>
           ))}
@@ -911,29 +809,7 @@ const DashboardRBAC: React.FC = () => {
     </div>
   );
 
- const renderUsersTab = () => {
-  // ✅ Frontend calculation function
-  const calculateUserStats = (userId: string) => {
-    if (!tabData.allProblems) {
-      return { authored: 0, solved: 0, attempted: 0, bookmarked: 0 };
-    }
-
-    // Count problems authored by this user
-    const authored = tabData.allProblems.filter(
-      (problem: any) => problem.problemAuthorId === userId
-    ).length;
-
-    // For now, since solved/attempted/bookmarked arrays are empty,
-    // we'll show 0. Later when your system starts maintaining these fields,
-    // this will automatically work
-    const solved = 0; // Could be: user.solvedProblems?.length || 0
-    const attempted = 0; // Could be: user.attemptedProblems?.length || 0  
-    const bookmarked = 0; // Could be: user.bookmarkedProblems?.length || 0
-
-    return { authored, solved, attempted, bookmarked };
-  };
-
-  return (
+  const renderUsersTab = () => (
     <div className={styles.tabContent}>
       <div className={styles.tabHeader}>
         <h3>Users Management</h3>
@@ -957,282 +833,231 @@ const DashboardRBAC: React.FC = () => {
 
       {tabData.users?.length > 0 ? (
         <div className={styles.grid}>
-          {tabData.users.map((user: User) => {
-            // ✅ Calculate stats for each user in frontend
-            const userStats = calculateUserStats(user._id);
-
-            return (
-              <div key={user._id} className={styles.card}>
-                <div className={styles.cardHeader}>
-                  <h4>
-                    {user.firstname} {user.lastname}
-                  </h4>
-                  <span className={`${styles.role} ${styles[user.role]}`}>
-                    {user.role.replace("_", " ").toUpperCase()}
-                  </span>
-                </div>
-
-                <div className={styles.cardContent}>
-                  <p>
-                    <strong>Email:</strong> {user.email}
-                  </p>
-                  <p>
-                    <strong>Joined:</strong>{" "}
-                    {new Date(user.createdAt).toLocaleDateString()}
-                  </p>
-
-                  {/* ✅ Use frontend-calculated statistics */}
-                  <div className={styles.userStats}>
-                    <div className={styles.statItem}>
-                      <span className={styles.statLabel}>Solved:</span>
-                      <span className={styles.statValue}>{userStats.solved}</span>
-                    </div>
-                    <div className={styles.statItem}>
-                      <span className={styles.statLabel}>Attempted:</span>
-                      <span className={styles.statValue}>{userStats.attempted}</span>
-                    </div>
-                    <div className={styles.statItem}>
-                      <span className={styles.statLabel}>Bookmarked:</span>
-                      <span className={styles.statValue}>{userStats.bookmarked}</span>
-                    </div>
-                    <div className={styles.statItem}>
-                      <span className={styles.statLabel}>Problems Set:</span>
-                      <span className={styles.statValue}>{userStats.authored}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* ✅ RBAC: Only show role section if user can set roles */}
-                {checkDashboardPermission(dashboardData!.user.role as Role, 'set_user_role') && (
-                  <div className={styles.userRoleSection}>
-                    <label className={styles.roleLabel}>Change Role:</label>
-                    <select
-                      className={styles.roleSelect}
-                      value={user.role}
-                      onChange={(e) =>
-                        handleUserSetRole(
-                          user._id,
-                          e.target.value,
-                          `${user.firstname} ${user.lastname}`
-                        )
-                      }
-                      disabled={isActionLoading(`setrole-user-${user._id}`)}
-                    >
-                      <option value="user">User</option>
-                      <option value="problem_setter">Problem Setter</option>
-                      <option value="admin">Admin</option>
-                      <option value="super_admin">Super Admin</option>
-                    </select>
-                  </div>
-                )}
-
-                <div className={styles.actionButtons}>
-                  {/* ✅ RBAC: Check each user action permission */}
-                  {checkDashboardPermission(dashboardData!.user.role as Role, 'manage_users') && (
-                    <button
-                      className={`${styles.btn} ${styles.primary}`}
-                      onClick={() => handleUserEdit(user._id)}
-                      disabled={isActionLoading(`edit-user-${user._id}`)}
-                    >
-                      {isActionLoading(`edit-user-${user._id}`)
-                        ? "Loading..."
-                        : "Edit"}
-                    </button>
-                  )}
-
-                  {checkDashboardPermission(dashboardData!.user.role as Role, 'promote_user') && user.role !== "super_admin" && (
-                    <button
-                      className={`${styles.btn} ${styles.success}`}
-                      onClick={() =>
-                        handleUserPromote(
-                          user._id,
-                          `${user.firstname} ${user.lastname}`
-                        )
-                      }
-                      disabled={isActionLoading(`promote-user-${user._id}`)}
-                    >
-                      {isActionLoading(`promote-user-${user._id}`)
-                        ? "Promoting..."
-                        : "Promote"}
-                    </button>
-                  )}
-
-                  {checkDashboardPermission(dashboardData!.user.role as Role, 'demote_user') && user.role !== "user" && (
-                    <button
-                      className={`${styles.btn} ${styles.warning}`}
-                      onClick={() =>
-                        handleUserDemote(
-                          user._id,
-                          `${user.firstname} ${user.lastname}`
-                        )
-                      }
-                      disabled={isActionLoading(`demote-user-${user._id}`)}
-                    >
-                      {isActionLoading(`demote-user-${user._id}`)
-                        ? "Demoting..."
-                        : "Demote"}
-                    </button>
-                  )}
-
-                  {checkDashboardPermission(dashboardData!.user.role as Role, 'delete_user') && (
-                    <button
-                      className={`${styles.btn} ${styles.danger}`}
-                      onClick={() =>
-                        handleUserDelete(
-                          user._id,
-                          `${user.firstname} ${user.lastname}`
-                        )
-                      }
-                      disabled={isActionLoading(`delete-user-${user._id}`)}
-                    >
-                      {isActionLoading(`delete-user-${user._id}`)
-                        ? "Deleting..."
-                        : "Delete"}
-                    </button>
-                  )}
-                </div>
+          {tabData.users.map((user: User) => (
+            <div key={user._id} className={styles.card}>
+              <div className={styles.cardHeader}>
+                <h4>
+                  {user.firstname} {user.lastname}
+                </h4>
+                <span className={`${styles.role} ${styles[user.role]}`}>
+                  {user.role.replace("_", " ").toUpperCase()}
+                </span>
               </div>
-            );
-          })}
+
+              <div className={styles.cardContent}>
+                <p>
+                  <strong>Email:</strong> {user.email}
+                </p>
+                <p>
+                  <strong>Joined:</strong>{" "}
+                  {new Date(user.createdAt).toLocaleDateString()}
+                </p>
+                <p>
+                  <strong>Solved Problems:</strong>{" "}
+                  {user.solvedProblems?.length || 0}
+                </p>
+                <p>
+                  <strong>Attempted Problems:</strong>{" "}
+                  {user.attemptedProblems?.length || 0}
+                </p>
+                <p>
+                  <strong>Bookmarked:</strong>{" "}
+                  {user.bookmarkedProblems?.length || 0}
+                </p>
+              </div>
+
+              <div className={styles.userRoleSection}>
+                <label className={styles.roleLabel}>Change Role:</label>
+                <select
+                  className={styles.roleSelect}
+                  value={user.role}
+                  onChange={(e) =>
+                    handleUserSetRole(
+                      user._id,
+                      e.target.value,
+                      `${user.firstname} ${user.lastname}`
+                    )
+                  }
+                  disabled={isActionLoading(`setrole-user-${user._id}`)}
+                >
+                  <option value="user">User</option>
+                  <option value="problem_setter">Problem Setter</option>
+                  <option value="admin">Admin</option>
+                  <option value="super_admin">Super Admin</option>
+                </select>
+              </div>
+
+              <div className={styles.actionButtons}>
+                <button
+                  className={`${styles.btn} ${styles.primary}`}
+                  onClick={() => handleUserEdit(user._id)}
+                  disabled={isActionLoading(`edit-user-${user._id}`)}
+                >
+                  {isActionLoading(`edit-user-${user._id}`)
+                    ? "Loading..."
+                    : "Edit"}
+                </button>
+
+                <button
+                  className={`${styles.btn} ${styles.success}`}
+                  onClick={() =>
+                    handleUserPromote(
+                      user._id,
+                      `${user.firstname} ${user.lastname}`
+                    )
+                  }
+                  disabled={
+                    isActionLoading(`promote-user-${user._id}`) ||
+                    user.role === "super_admin"
+                  }
+                >
+                  {isActionLoading(`promote-user-${user._id}`)
+                    ? "Promoting..."
+                    : "Promote"}
+                </button>
+
+                <button
+                  className={`${styles.btn} ${styles.warning}`}
+                  onClick={() =>
+                    handleUserDemote(
+                      user._id,
+                      `${user.firstname} ${user.lastname}`
+                    )
+                  }
+                  disabled={
+                    isActionLoading(`demote-user-${user._id}`) ||
+                    user.role === "user"
+                  }
+                >
+                  {isActionLoading(`demote-user-${user._id}`)
+                    ? "Demoting..."
+                    : "Demote"}
+                </button>
+
+                <button
+                  className={`${styles.btn} ${styles.danger}`}
+                  onClick={() =>
+                    handleUserDelete(
+                      user._id,
+                      `${user.firstname} ${user.lastname}`
+                    )
+                  }
+                  disabled={isActionLoading(`delete-user-${user._id}`)}
+                >
+                  {isActionLoading(`delete-user-${user._id}`)
+                    ? "Deleting..."
+                    : "Delete"}
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       ) : (
         <div className={styles.emptyState}>
           <p>No users found</p>
         </div>
       )}
+
+      {tabData.pagination && (
+        <div className={styles.paginationInfo}>
+          <p>
+            Page {tabData.pagination.currentPage} of{" "}
+            {tabData.pagination.totalPages}({tabData.pagination.totalItems}{" "}
+            total users)
+          </p>
+        </div>
+      )}
     </div>
   );
-};
 
-  const renderLogsTab = () => {
-    const getTimeAgo = (timestamp: string) => {
-      const now = new Date();
-      const logTime = new Date(timestamp);
-      const diffMs = now.getTime() - logTime.getTime();
-
-      const minutes = Math.floor(diffMs / 60000);
-      const hours = Math.floor(diffMs / 3600000);
-      const days = Math.floor(diffMs / 86400000);
-
-      if (days > 0) return `${days} day${days > 1 ? "s" : ""} ago`;
-      if (hours > 0) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
-      if (minutes > 0) return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
-      return "Just now";
-    };
-
-    const isDeletionAction = (action: string) => {
-      return (
-        action.includes("delete") ||
-        action.includes("removed") ||
-        action.includes("permanent")
-      );
-    };
-
-    return (
-      <div className={styles.tabContent}>
-        <div className={styles.tabHeader}>
-          <h3>Audit Logs</h3>
-          {tabData.statistics && (
-            <div className={styles.quickStats}>
-              <span className={styles.statBadge}>
-                Today: {tabData.statistics.todaysLogs}
-              </span>
-              <span className={styles.statBadge}>
-                This Week: {tabData.statistics.thisWeekLogs}
-              </span>
-              <span className={styles.statBadge}>
-                Reversible: {tabData.statistics.reversibleActions}
-              </span>
-            </div>
-          )}
-        </div>
-
-        {tabData.logs?.length > 0 ? (
-          <div className={styles.grid}>
-            {tabData.logs.map((log: AuditLog) => (
-              <div
-                key={log._id}
-                className={`${styles.card} ${
-                  isDeletionAction(log.action) ? styles.deletionCard : ""
-                }`}
-              >
-                <div className={styles.cardHeader}>
-                  <h4>{log.action.replace("_", " ").toUpperCase()}</h4>
-                  <div className={styles.cardBadges}>
-                    {isDeletionAction(log.action) && (
-                      <span className={styles.deletionBadge}>⚠️ DELETION</span>
-                    )}
-                    {log.reversible && (
-                      <span className={styles.reversibleBadge}>Reversible</span>
-                    )}
-                  </div>
-                </div>
-
-                <div className={styles.cardContent}>
-                  <p>
-                    <strong>Performed by:</strong> {log.performedBy?.firstname}{" "}
-                    {log.performedBy?.lastname}
-                  </p>
-                  <p>
-                    <strong>Role:</strong> {log.performedBy?.role}
-                  </p>
-                  <p>
-                    <strong>Target:</strong> {log.targetType}
-                  </p>
-                  <p>
-                    <strong>Time:</strong>{" "}
-                    <span className={styles.timeAgo}>
-                      {getTimeAgo(log.timestamp)}
-                    </span>
-                  </p>
-
-                  {log.metadata && Object.keys(log.metadata).length > 0 && (
-                    <div className={styles.metadataSection}>
-                      <strong>Details:</strong>
-                      <pre className={styles.metadata}>
-                        {JSON.stringify(log.metadata, null, 2)}
-                      </pre>
-                    </div>
-                  )}
-                </div>
-
-                {/* ✅ RBAC: Only show revert button if user has permission */}
-                {log.reversible && checkDashboardPermission(dashboardData!.user.role as Role, 'revert_actions') && (
-                  <div className={styles.actionButtons}>
-                    <button
-                      className={`${styles.btn} ${styles.warning}`}
-                      onClick={() => handleAuditRevert(log._id, log.action)}
-                      disabled={isActionLoading(`revert-audit-${log._id}`)}
-                    >
-                      {isActionLoading(`revert-audit-${log._id}`)
-                        ? "Reverting..."
-                        : "Revert Action"}
-                    </button>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className={styles.emptyState}>
-            <p>No audit logs found</p>
+  const renderLogsTab = () => (
+    <div className={styles.tabContent}>
+      <div className={styles.tabHeader}>
+        <h3>Audit Logs</h3>
+        {tabData.statistics && (
+          <div className={styles.quickStats}>
+            <span className={styles.statBadge}>
+              Today: {tabData.statistics.todaysLogs}
+            </span>
+            <span className={styles.statBadge}>
+              This Week: {tabData.statistics.thisWeekLogs}
+            </span>
+            <span className={styles.statBadge}>
+              Reversible: {tabData.statistics.reversibleActions}
+            </span>
           </div>
         )}
       </div>
-    );
-  };
+
+      {tabData.logs?.length > 0 ? (
+        <div className={styles.grid}>
+          {tabData.logs.map((log: AuditLog) => (
+            <div key={log._id} className={styles.card}>
+              <div className={styles.cardHeader}>
+                <h4>{log.action.replace("_", " ").toUpperCase()}</h4>
+                {log.reversible && (
+                  <span className={styles.reversibleBadge}>Reversible</span>
+                )}
+              </div>
+
+              <div className={styles.cardContent}>
+                <p>
+                  <strong>Performed by:</strong> {log.performedBy?.firstname}{" "}
+                  {log.performedBy?.lastname}
+                </p>
+                <p>
+                  <strong>Role:</strong> {log.performedBy?.role}
+                </p>
+                <p>
+                  <strong>Target:</strong> {log.targetType}
+                </p>
+                <p>
+                  <strong>Date:</strong>{" "}
+                  {new Date(log.timestamp).toLocaleString()}
+                </p>
+
+                {log.metadata && Object.keys(log.metadata).length > 0 && (
+                  <div className={styles.metadataSection}>
+                    <strong>Details:</strong>
+                    <pre className={styles.metadata}>
+                      {JSON.stringify(log.metadata, null, 2)}
+                    </pre>
+                  </div>
+                )}
+              </div>
+
+              {log.reversible && (
+                <div className={styles.actionButtons}>
+                  <button
+                    className={`${styles.btn} ${styles.warning}`}
+                    onClick={() => handleAuditRevert(log._id, log.action)}
+                    disabled={isActionLoading(`revert-audit-${log._id}`)}
+                  >
+                    {isActionLoading(`revert-audit-${log._id}`)
+                      ? "Reverting..."
+                      : "Revert Action"}
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className={styles.emptyState}>
+          <p>No audit logs found</p>
+        </div>
+      )}
+    </div>
+  );
 
   const renderAddProblemsTab = () => (
     <div className={styles.tabContent}>
       <h3>Add New Problem</h3>
       <div className={styles.emptyState}>
         <p>Problem creation form will be implemented here</p>
-        {/* ✅ RBAC: Only show create button if user can create problems */}
-        {checkDashboardPermission(dashboardData!.user.role as Role, 'create_problem') && (
-          <button className={`${styles.btn} ${styles.primary}`}>
-            + Create New Problem
-          </button>
-        )}
+        <button className={`${styles.btn} ${styles.primary}`}>
+          + Create New Problem
+        </button>
       </div>
     </div>
   );
@@ -1281,12 +1106,6 @@ const DashboardRBAC: React.FC = () => {
       </nav>
 
       <main className={styles.dashboardContent}>{renderTabContent()}</main>
-      <ProblemEditModal
-        isOpen={editModalOpen}
-        onClose={() => setEditModalOpen(false)}
-        problemId={editingProblemId}
-        onSuccess={handleEditSuccess}
-      />
     </div>
   );
 };
