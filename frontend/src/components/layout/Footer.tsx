@@ -14,7 +14,7 @@ const Footer: React.FC = () => {
                 <Code className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-                CodeForge
+                DSAEngineer
               </span>
             </div>
             <p className="text-gray-400 text-sm mb-4 max-w-md">
@@ -86,7 +86,7 @@ const Footer: React.FC = () => {
         {/* Bottom Section */}
         <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col sm:flex-row items-center justify-between">
           <p className="text-gray-500 text-sm">
-            © 2024 CodeForge. All rights reserved.
+            © 2024 DSAEngineer. All rights reserved.
           </p>
           
           {/* Social Links */}

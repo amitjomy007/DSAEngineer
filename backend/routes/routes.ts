@@ -95,7 +95,7 @@ router.post(
 router.post("/addProblem", 
   smartLimiter(), 
   verifyJWTToken, 
-  requirePermission('create_problem'),
+  // requirePermission('create_problem'),
   addProblemControl
 );
 
