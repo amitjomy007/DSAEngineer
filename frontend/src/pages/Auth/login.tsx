@@ -38,6 +38,7 @@ const Login = () => {
 
   const navigateToRegister = () => {
     // TODO: Implement navigation to register page
+    Navigate("/register");
     console.log('Navigate to register page');
   };
 

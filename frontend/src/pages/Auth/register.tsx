@@ -79,6 +79,7 @@ const RegistrationPage = () => {
 
   const navigateToLogin = () => {
     // TODO: Implement navigation to login page
+    Navigate("/login");
     console.log("Navigate to login page");
   };
 
