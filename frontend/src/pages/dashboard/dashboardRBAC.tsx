@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import styles from "./Dashboard.module.css";
+import { useNavigate } from "react-router-dom";
 
 interface User {
   _id: string;
@@ -85,6 +86,7 @@ interface DashboardData {
 }
 
 const DashboardRBAC: React.FC = () => {
+  const Navigate = useNavigate();
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(
     null
   );
@@ -563,13 +565,15 @@ const DashboardRBAC: React.FC = () => {
     if (!tabData) {
       return <div className={styles.noData}>No data available</div>;
     }
-
+  
     switch (activeTab) {
       case "requests":
         return renderRequestsTab();
       case "problems":
         return renderProblemsTab();
       case "add-problems":
+     
+        Navigate("/addProblem");
         return renderAddProblemsTab();
       case "users":
         return renderUsersTab();
