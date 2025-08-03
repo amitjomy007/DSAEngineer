@@ -106,15 +106,12 @@ const UserMenu: React.FC<UserMenuProps> = () => {
       userId = userId.trim().replace(/^"+|"+$/g, "");
       console.log("userId before dashboard route", userId);
       // Make API call to get user profile data (which includes role)
-      const response = await axios.get(
-        `${backendUrl}/api/user/profile/${userId}`,
-        {
-          withCredentials: true,
-          headers: {
-            "user-id": userId,
-          },
-        }
-      );
+      const response = await axios.get(`${backendUrl}/profile/${userId}`, {
+        withCredentials: true,
+        headers: {
+          "user-id": userId,
+        },
+      });
 
       // Extract role from response
       const userRole = response.data.data.role;
