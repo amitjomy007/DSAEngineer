@@ -45,6 +45,20 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Problem',
   }],
+   deleted: {
+    type: Boolean,
+    default: false,
+    required: false
+  },
+  deletedAt: {
+    type: Date,
+    required: false
+  },
+  deletedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: false
+  },
 
 }, { timestamps: true } );
 

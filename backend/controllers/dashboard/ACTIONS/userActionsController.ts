@@ -2,6 +2,10 @@ const User = require("../../../models/user");
 const AuditLog = require("../../../models/audits");
 const PendingRequest = require("../../../models/pendingRequests");
 
+// ✅ FIX 1: Use consistent import syntax for TypeScript
+const { checkDashboardPermission } = require("../../../middlewares/RBAC/rbac");
+import type { Role } from "../../../middlewares/RBAC/rbac";
+
 // DELETE /dashboard/user/delete - Delete user
 export const deleteUser = async (req: any, res: any) => {
   try {
@@ -14,6 +18,17 @@ export const deleteUser = async (req: any, res: any) => {
       });
     }
 
+    // Get current user info
+    const currentUser = req.user;
+    
+    // ✅ FIX 2: Add RBAC permission check
+    if (!checkDashboardPermission(currentUser.role as Role, 'delete_user')) {
+      return res.status(403).json({
+        success: false,
+        message: 'You do not have permission to delete users'
+      });
+    }
+
     // Find the target user
     const targetUser = await User.findById(targetUserId);
     if (!targetUser) {
@@ -23,8 +38,13 @@ export const deleteUser = async (req: any, res: any) => {
       });
     }
 
-    // Get current user info
-    const currentUser = req.user;
+    // Check if already deleted
+    if (targetUser.deleted) {
+      return res.status(400).json({
+        success: false,
+        message: 'User is already deleted'
+      });
+    }
     
     // Prevent self-deletion
     if (targetUserId === (currentUser.id || currentUser._id).toString()) {
@@ -34,19 +54,7 @@ export const deleteUser = async (req: any, res: any) => {
       });
     }
 
-    // Role hierarchy check - can only delete users with lower or equal roles
-    const roleHierarchy = ['user', 'problem_setter', 'admin', 'super_admin'];
-    const currentUserRoleLevel = roleHierarchy.indexOf(currentUser.role);
-    const targetUserRoleLevel = roleHierarchy.indexOf(targetUser.role);
-    
-    if (currentUserRoleLevel <= targetUserRoleLevel && currentUser.role !== 'super_admin') {
-      return res.status(403).json({
-        success: false,
-        message: 'You can only delete users with lower roles than yours'
-      });
-    }
-
-    // Store user data before deletion for audit log
+    // Store user data before soft deletion
     const userData = {
       firstname: targetUser.firstname,
       lastname: targetUser.lastname,
@@ -56,10 +64,14 @@ export const deleteUser = async (req: any, res: any) => {
       attemptedProblems: targetUser.attemptedProblems?.length || 0
     };
 
-    // Delete the user
-    await User.findByIdAndDelete(targetUserId);
+    // Soft delete the user instead of permanent deletion
+    await User.findByIdAndUpdate(targetUserId, {
+      deleted: true,
+      deletedAt: new Date(),
+      deletedBy: currentUser.id || currentUser._id
+    });
 
-    // Log the action in audit logs
+    // Log the action as REVERSIBLE
     await new AuditLog({
       action: 'user_deleted',
       performedBy: currentUser.id || currentUser._id,
@@ -67,17 +79,19 @@ export const deleteUser = async (req: any, res: any) => {
       targetId: targetUserId,
       metadata: {
         deletedUser: userData,
-        reason: 'Admin deletion'
+        reason: 'Admin deletion',
+        softDelete: true
       },
-      reversible: false // User deletions are permanent
+      reversible: true
     }).save();
 
     res.status(200).json({
       success: true,
-      message: 'User deleted successfully',
+      message: 'User deleted successfully (can be reverted)',
       data: {
         deletedUserId: targetUserId,
-        deletedUserInfo: userData
+        deletedUserInfo: userData,
+        reversible: true
       }
     });
 
@@ -103,6 +117,17 @@ export const getEditUser = async (req: any, res: any) => {
       });
     }
 
+    // Get current user info
+    const currentUser = req.user;
+
+    // ✅ FIX 3: Add RBAC permission check
+    if (!checkDashboardPermission(currentUser.role as Role, 'view_all_users')) {
+      return res.status(403).json({
+        success: false,
+        message: 'You do not have permission to view user details'
+      });
+    }
+
     // Find the target user
     const targetUser = await User.findById(userId).select('-password -token -__v');
     if (!targetUser) {
@@ -112,15 +137,12 @@ export const getEditUser = async (req: any, res: any) => {
       });
     }
 
-    // Get current user info
-    const currentUser = req.user;
-
     // Get user statistics
     const userStats = {
       totalSolvedProblems: targetUser.solvedProblems?.length || 0,
       totalAttemptedProblems: targetUser.attemptedProblems?.length || 0,
       totalBookmarkedProblems: targetUser.bookmarkedProblems?.length || 0,
-      accountAge: Math.floor((Date.now() - new Date(targetUser.createdAt).getTime()) / (1000 * 60 * 60 * 24)) // days
+      accountAge: Math.floor((Date.now() - new Date(targetUser.createdAt).getTime()) / (1000 * 60 * 60 * 24))
     };
 
     // Get available roles based on current user's permissions
@@ -129,9 +151,9 @@ export const getEditUser = async (req: any, res: any) => {
     
     let availableRoles = [];
     if (currentUser.role === 'super_admin') {
-      availableRoles = roleHierarchy; // Super admin can set any role
+      availableRoles = roleHierarchy;
     } else {
-      availableRoles = roleHierarchy.slice(0, currentUserRoleLevel); // Can only assign lower roles
+      availableRoles = roleHierarchy.slice(0, currentUserRoleLevel);
     }
 
     res.status(200).json({
@@ -145,10 +167,10 @@ export const getEditUser = async (req: any, res: any) => {
           currentUserRole: currentUser.role
         },
         userPermissions: {
-          canEditRole: true,
-          canDelete: currentUser.role === 'super_admin' || currentUser.role === 'admin',
-          canPromote: currentUserRoleLevel > roleHierarchy.indexOf(targetUser.role),
-          canDemote: currentUserRoleLevel > roleHierarchy.indexOf(targetUser.role)
+          canEditRole: checkDashboardPermission(currentUser.role as Role, 'set_user_role'),
+          canDelete: checkDashboardPermission(currentUser.role as Role, 'delete_user'),
+          canPromote: checkDashboardPermission(currentUser.role as Role, 'promote_user'),
+          canDemote: checkDashboardPermission(currentUser.role as Role, 'demote_user')
         }
       }
     });
@@ -175,6 +197,17 @@ export const setUserRole = async (req: any, res: any) => {
       });
     }
 
+    // Get current user info
+    const currentUser = req.user;
+
+    // ✅ FIX 4: Add RBAC permission check
+    if (!checkDashboardPermission(currentUser.role as Role, 'set_user_role')) {
+      return res.status(403).json({
+        success: false,
+        message: 'You do not have permission to set user roles'
+      });
+    }
+
     // Validate role
     const validRoles = ['user', 'problem_setter', 'admin', 'super_admin'];
     if (!validRoles.includes(newRole)) {
@@ -192,9 +225,6 @@ export const setUserRole = async (req: any, res: any) => {
         message: 'User not found'
       });
     }
-
-    // Get current user info
-    const currentUser = req.user;
     
     // Prevent self-role change
     if (targetUserId === (currentUser.id || currentUser._id).toString()) {
@@ -221,7 +251,6 @@ export const setUserRole = async (req: any, res: any) => {
     // If promoting to admin, create a pending request for super admin approval
     let requiresApproval = false;
     if (newRole === 'admin' && currentUser.role === 'admin') {
-      // Admin trying to make someone else admin - requires Super Admin approval
       await new PendingRequest({
         requestType: 'user_role_change',
         requestedBy: currentUser.id || currentUser._id,
@@ -233,7 +262,6 @@ export const setUserRole = async (req: any, res: any) => {
       
       requiresApproval = true;
     } else {
-      // Direct role change
       await User.findByIdAndUpdate(targetUserId, { role: newRole });
     }
 
@@ -253,7 +281,7 @@ export const setUserRole = async (req: any, res: any) => {
         newRole: newRole,
         requiresApproval: requiresApproval
       },
-      reversible: !requiresApproval // Direct changes are reversible, pending requests are not
+      reversible: !requiresApproval
     }).save();
 
     res.status(200).json({
@@ -280,6 +308,18 @@ export const setUserRole = async (req: any, res: any) => {
   }
 };
 
+// Helper function
+function getNextRole(currentRole: Role): Role | null {
+  const promotionMap: Record<Role, Role | null> = {
+    'user': 'problem_setter',
+    'problem_setter': 'admin', 
+    'admin': 'super_admin',
+    'super_admin': null
+  };
+  
+  return promotionMap[currentRole] || null;
+}
+
 // PUT /dashboard/user/promote - Promote user
 export const promoteUser = async (req: any, res: any) => {
   try {
@@ -292,6 +332,17 @@ export const promoteUser = async (req: any, res: any) => {
       });
     }
 
+    // Get current user info
+    const currentUser = req.user;
+
+    // ✅ FIX 5: Check if current user can promote OTHER users, not self-promote
+    if (!checkDashboardPermission(currentUser.role as Role, 'promote_user')) {
+      return res.status(403).json({
+        success: false,
+        message: 'You do not have permission to promote users'
+      });
+    }
+
     // Find the target user
     const targetUser = await User.findById(targetUserId);
     if (!targetUser) {
@@ -300,9 +351,6 @@ export const promoteUser = async (req: any, res: any) => {
         message: 'User not found'
       });
     }
-
-    // Get current user info
-    const currentUser = req.user;
     
     // Define promotion hierarchy
     const promotionMap = {
@@ -347,6 +395,17 @@ export const demoteUser = async (req: any, res: any) => {
       });
     }
 
+    // Get current user info
+    const currentUser = req.user;
+
+    // ✅ FIX 6: Add RBAC permission check
+    if (!checkDashboardPermission(currentUser.role as Role, 'demote_user')) {
+      return res.status(403).json({
+        success: false,
+        message: 'You do not have permission to demote users'
+      });
+    }
+
     // Find the target user
     const targetUser = await User.findById(targetUserId);
     if (!targetUser) {
@@ -355,9 +414,6 @@ export const demoteUser = async (req: any, res: any) => {
         message: 'User not found'
       });
     }
-
-    // Get current user info
-    const currentUser = req.user;
     
     // Define demotion hierarchy
     const demotionMap = {
@@ -378,7 +434,6 @@ export const demoteUser = async (req: any, res: any) => {
 
     // Special case: Admin trying to demote another Admin requires Super Admin approval
     if (currentRole === 'admin' && currentUser.role === 'admin') {
-      // Create pending request instead of direct demotion
       await new PendingRequest({
         requestType: 'user_demotion',
         requestedBy: currentUser.id || currentUser._id,
@@ -388,7 +443,6 @@ export const demoteUser = async (req: any, res: any) => {
         status: 'pending'
       }).save();
 
-      // Log the action
       await new AuditLog({
         action: 'user_demotion_requested',
         performedBy: currentUser.id || currentUser._id,

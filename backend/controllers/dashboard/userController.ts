@@ -1,5 +1,5 @@
 const User = require("../../models/user");
-
+const Problem = require("../../models/problem");
 interface UsersQuery {
   page?: string;
   limit?: string;
@@ -22,13 +22,19 @@ export const getUsersData = async (req: any, res: any) => {
       sort = '-createdAt'
     } = req.query as UsersQuery;
 
+    const allProblems = await Problem.find({})
+      .select('_id title problemAuthorId difficulty isApproved')
+      .lean(); 
+    
     // Convert and validate pagination parameters
     const pageNum = Math.max(1, parseInt(page));
     const limitNum = Math.min(50, Math.max(1, parseInt(limit)));
     const skip = (pageNum - 1) * limitNum;
 
-    // Build query filter - Super Admin sees ALL users
-    const filter: any = {};
+    // Build query filter - exclude deleted users
+    const filter: any = {
+      deleted: { $ne: true }
+    };
     
     if (role) {
       filter.role = role;
@@ -42,7 +48,6 @@ export const getUsersData = async (req: any, res: any) => {
       ];
     }
 
-    // Date range filter for user registration
     if (dateFrom || dateTo) {
       filter.createdAt = {};
       if (dateFrom) {
@@ -61,45 +66,101 @@ export const getUsersData = async (req: any, res: any) => {
         .sort(sort)
         .skip(skip)
         .limit(limitNum)
-        .select('-password -token -__v'), // Exclude sensitive fields
+        .select('-password -token -__v'),
       
       User.countDocuments(filter)
     ]);
- 
 
-    // Calculate pagination metadata
-    const pagination = {
-      currentPage: pageNum,
-      totalPages: Math.ceil(totalUsers / limitNum),
-      totalItems: totalUsers,
-      itemsPerPage: limitNum,
-      hasNextPage: pageNum < Math.ceil(totalUsers / limitNum),
-      hasPrevPage: pageNum > 1,
-      nextPage: pageNum < Math.ceil(totalUsers / limitNum) ? pageNum + 1 : null,
-      prevPage: pageNum > 1 ? pageNum - 1 : null
-    };
+    // ✅ NEW: Get problem statistics for each user
+    const usersWithProblemStats = await Promise.all(
+      users.map(async (user:any) => {
+        const [
+          problemsAuthored,
+          problemsSolved, 
+          problemsAttempted,
+          problemsBookmarked
+        ] = await Promise.all([
+          // Count problems authored by this user
+          Problem.countDocuments({ problemAuthorId: user._id }),
+          
+          // Count problems in user's solvedProblems array (if it has data)
+          user.solvedProblems?.length || 0,
+          
+          // Count problems in user's attemptedProblems array (if it has data)  
+          user.attemptedProblems?.length || 0,
+          
+          // Count problems in user's bookmarkedProblems array (if it has data)
+          user.bookmarkedProblems?.length || 0
+        ]);
 
-    // Get user statistics - Super Admin sees all user stats
+        return {
+          ...user.toObject(),
+          problemsAuthored,
+          actualSolvedCount: problemsSolved,
+          actualAttemptedCount: problemsAttempted,
+          actualBookmarkedCount: problemsBookmarked
+        };
+      })
+    );
+
+    // Calculate user statistics
     const stats = {
       totalUsers: totalUsers,
-      superAdmins: await User.countDocuments({ role: 'super_admin' }),
-      admins: await User.countDocuments({ role: 'admin' }),
-      problemSetters: await User.countDocuments({ role: 'problem_setter' }),
-      regularUsers: await User.countDocuments({ role: 'user' }),
+      superAdmins: await User.countDocuments({ role: 'super_admin', deleted: { $ne: true } }),
+      admins: await User.countDocuments({ role: 'admin', deleted: { $ne: true } }),
+      problemSetters: await User.countDocuments({ role: 'problem_setter', deleted: { $ne: true } }),
+      regularUsers: await User.countDocuments({ role: 'user', deleted: { $ne: true } }),
       newUsersThisMonth: await User.countDocuments({
         createdAt: {
           $gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1)
-        }
+        },
+        deleted: { $ne: true }
       }),
-      allRoles: await User.distinct('role')
+      allRoles: await User.distinct('role', { deleted: { $ne: true } })
     };
 
+    const printuu = {
+      success: true,
+      message: 'Users data fetched successfully for Super Admin',
+      data: {
+        users: usersWithProblemStats, // ✅ Now includes problem statistics
+        allProblems: allProblems, 
+        pagination: {
+          currentPage: pageNum,
+          totalPages: Math.ceil(totalUsers / limitNum),
+          totalItems: totalUsers,
+          itemsPerPage: limitNum,
+          hasNextPage: pageNum < Math.ceil(totalUsers / limitNum),
+          hasPrevPage: pageNum > 1,
+          nextPage: pageNum < Math.ceil(totalUsers / limitNum) ? pageNum + 1 : null,
+          prevPage: pageNum > 1 ? pageNum - 1 : null
+        },
+        statistics: stats,
+        filters: {
+          role,
+          search,
+          dateFrom,
+          dateTo,
+          sort
+        }
+      }
+    }
     res.status(200).json({
       success: true,
       message: 'Users data fetched successfully for Super Admin',
       data: {
-        users: users,
-        pagination: pagination,
+        users: usersWithProblemStats, // ✅ Now includes problem statistics
+        allProblems: allProblems, 
+        pagination: {
+          currentPage: pageNum,
+          totalPages: Math.ceil(totalUsers / limitNum),
+          totalItems: totalUsers,
+          itemsPerPage: limitNum,
+          hasNextPage: pageNum < Math.ceil(totalUsers / limitNum),
+          hasPrevPage: pageNum > 1,
+          nextPage: pageNum < Math.ceil(totalUsers / limitNum) ? pageNum + 1 : null,
+          prevPage: pageNum > 1 ? pageNum - 1 : null
+        },
         statistics: stats,
         filters: {
           role,

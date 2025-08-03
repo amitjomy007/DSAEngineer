@@ -284,3 +284,58 @@ export const rejectProblem = async (req: any, res: any) => {
     });
   }
 };
+
+// Add to problemActionsController.ts
+export const updateProblem = async (req: any, res: any) => {
+  try {
+    const { problemId, updateData } = req.body;
+    
+    if (!problemId || !updateData) {
+      return res.status(400).json({
+        success: false,
+        message: 'Problem ID and update data are required'
+      });
+    }
+
+    const updatedProblem = await Problem.findByIdAndUpdate(
+      problemId, 
+      { ...updateData, problemLastModifiedDate: new Date() }, 
+      { new: true }
+    );
+
+    if (!updatedProblem) {
+      return res.status(404).json({
+        success: false,
+        message: 'Problem not found'
+      });
+    }
+
+    // Log the update
+    const currentUser = req.user;
+    await new AuditLog({
+      action: 'problem_updated',
+      performedBy: currentUser.id || currentUser._id,
+      targetType: 'problem',
+      targetId: problemId,
+      metadata: {
+        updatedFields: Object.keys(updateData),
+        problemTitle: updatedProblem.title
+      },
+      reversible: false
+    }).save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Problem updated successfully',
+      data: updatedProblem
+    });
+
+  } catch (error: any) {
+    console.error('Update problem error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update problem',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+};
