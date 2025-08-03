@@ -33,7 +33,7 @@ export const registerControl = async (req: any, res: any) => {
       maxAge: 3600000*24, // 1 *24hour
       httpOnly: true, // Can't be read by JS (security)
       secure: process.env.NODE_ENV === "production", // HTTPS only in production
-      sameSite: "lax",
+      sameSite: "none",
     });
     res.cookie("user_id", user._id.toString(), {
       maxAge: 3600000*24,
