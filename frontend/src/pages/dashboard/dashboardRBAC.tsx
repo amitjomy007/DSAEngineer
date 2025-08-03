@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import styles from "./Dashboard.module.css";
 import { useNavigate } from "react-router-dom";
+import NavbarNew from "../../components/layout/NavbarNew";
 
 interface User {
   _id: string;
@@ -86,7 +87,7 @@ interface DashboardData {
 }
 
 const DashboardRBAC: React.FC = () => {
-  const Navigate = useNavigate();
+  const navigate = useNavigate();
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(
     null
   );
@@ -565,16 +566,15 @@ const DashboardRBAC: React.FC = () => {
     if (!tabData) {
       return <div className={styles.noData}>No data available</div>;
     }
-  
+
     switch (activeTab) {
       case "requests":
         return renderRequestsTab();
       case "problems":
         return renderProblemsTab();
       case "add-problems":
-     
-        Navigate("/addProblem");
-        return ;
+        navigate("/addProblem");
+        return null;
       case "users":
         return renderUsersTab();
       case "logs":
@@ -1080,6 +1080,7 @@ const DashboardRBAC: React.FC = () => {
 
   return (
     <div className={styles.dashboard}>
+      <NavbarNew />
       <header className={styles.dashboardHeader}>
         <h1>Super Admin Dashboard</h1>
         <div className={styles.userInfo}>
