@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
-
+import axios from "axios";
 interface UserMenuProps {}
 
 const UserMenu: React.FC<UserMenuProps> = () => {
@@ -91,10 +91,42 @@ const UserMenu: React.FC<UserMenuProps> = () => {
     }
   };
 
-  const handleDashboard = () => {
-    navigate("/rbacdashboard");
-    setIsMenuOpen(false);
-  };
+const handleDashboard = async () => {
+  try {
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+
+    // Get userId from cookies
+    const userId = Cookies.get('userId31d6cfe0d16ae931b73c59d7e0c089c0');
+    
+    if (!userId) {
+      console.error('User ID not found in cookies');
+      return;
+    }
+
+    // Make API call to get user profile data (which includes role)
+    const response = await axios.get(`${backendUrl}/api/user/profile/${userId}`, {
+      withCredentials: true,
+      headers: {
+        'user-id': userId
+      }
+    });
+
+    // Extract role from response
+    const userRole = response.data.data.role;
+
+    // Role-based redirection
+    if (userRole === 'user' || userRole === undefined) {
+      window.location.href = '/dashboard';
+    } else {
+      window.location.href = '/rbacdashboard';
+    }
+
+  } catch (error) {
+    console.error('Error handling dashboard redirect:', error);
+    // Handle error - maybe redirect to login or show error message
+  }
+};
+
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
