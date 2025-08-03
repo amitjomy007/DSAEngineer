@@ -39,7 +39,7 @@ export const registerControl = async (req: any, res: any) => {
       maxAge: 3600000*24,
       httpOnly: false, // Frontend can read this
       secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+      sameSite: "none",
     });
     user.token = token;
     console.log("token was: ", token);
@@ -79,13 +79,13 @@ export const loginControl = async (req: any, res: any) => {
       maxAge: 3600000*24, // 1*24 hour
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: "none",
     });
     res.cookie("user_id", user._id.toString(), {
       maxAge: 3600000*24,
       httpOnly: false, // Frontend can read this
       secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+      sameSite: "none",
     });
 
     user.token = token;
