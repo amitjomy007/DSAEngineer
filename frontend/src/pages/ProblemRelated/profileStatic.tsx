@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { User, Trophy, Calendar, Code, Target, Users, Award } from 'lucide-react';
 
 const Profile = () => {

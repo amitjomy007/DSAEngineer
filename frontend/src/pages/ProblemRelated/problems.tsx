@@ -1,3 +1,5 @@
+/// <reference types="styled-jsx" />
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
@@ -94,23 +96,29 @@ interface UserStats {
 const Problems: React.FC = () => {
   const [problems, setProblems] = useState<ProblemPreview[]>([]);
   const [hasFetchedProblems, setHasFetchedProblems] = useState(false);
-  const [filteredProblems, setFilteredProblems] = useState<ProblemPreview[]>([]);
+  const [filteredProblems, setFilteredProblems] = useState<ProblemPreview[]>(
+    []
+  );
   const [difficultyFilter, setDifficultyFilter] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<string>("number");
   const [viewMode, setViewMode] = useState<"list" | "card">(() => {
-    return (Cookies.get("viewModeId31d6cfe0d16ae931b73c59d7e0c089c0") as "list" | "card") || "list";
+    return (
+      (Cookies.get("viewModeId31d6cfe0d16ae931b73c59d7e0c089c0") as
+        | "list"
+        | "card") || "list"
+    );
   });
   const navigate = useNavigate();
 
   const fetchResponse = async () => {
     const uId = Cookies.get("userId31d6cfe0d16ae931b73c59d7e0c089c0");
     let userId = undefined;
-    if(uId) userId = uId.replace(/^"+|"+$/g, "");
+    if (uId) userId = uId.replace(/^"+|"+$/g, "");
     else {
-      console.log("please login")
-      return
+      console.log("please login");
+      return;
     }
     return await axios.get(`${backendUrl}/problems`, {
       headers: {
@@ -118,7 +126,7 @@ const Problems: React.FC = () => {
       },
     });
   };
-  
+
   useEffect(() => {
     const fetchData = async () => {
       const userId = Cookies.get("userId31d6cfe0d16ae931b73c59d7e0c089c0");
@@ -126,10 +134,10 @@ const Problems: React.FC = () => {
 
       try {
         const response = await fetchResponse();
-        if(!response) return ;
+        if (!response) return;
         console.log("Response: ", response);
-        
-        setProblems(response.data.problems); 
+
+        setProblems(response.data.problems);
         setHasFetchedProblems(true);
         console.log("Problem before setting: ", response.data);
       } catch (error) {
@@ -145,47 +153,60 @@ const Problems: React.FC = () => {
   // Calculate user statistics
   const getUserStats = (): UserStats => {
     const totalProblems = problems.length;
-    const solvedProblems = problems.filter(p => p.userProblemStatus === "solved").length;
-    const attemptedProblems = problems.filter(p => p.userProblemStatus === "attempted").length;
-    const upvotedProblems = problems.filter(p => p.userVoteStatus === "upvoted").length;
-    
+    const solvedProblems = problems.filter(
+      (p) => p.userProblemStatus === "solved"
+    ).length;
+    const attemptedProblems = problems.filter(
+      (p) => p.userProblemStatus === "attempted"
+    ).length;
+    const upvotedProblems = problems.filter(
+      (p) => p.userVoteStatus === "upvoted"
+    ).length;
+
     // Calculate top topics
     const topicCounts: Record<string, number> = {};
-    problems.forEach(problem => {
+    problems.forEach((problem) => {
       if (problem.userProblemStatus === "solved") {
-        problem.tags.forEach(tag => {
+        problem.tags.forEach((tag) => {
           topicCounts[tag] = (topicCounts[tag] || 0) + 1;
         });
       }
     });
-    
+
     const topTopics = Object.entries(topicCounts)
-      .sort(([,a], [,b]) => b - a)
+      .sort(([, a], [, b]) => b - a)
       .slice(0, 5)
       .map(([topic, count]) => ({ topic, count }));
 
-    return { totalProblems, solvedProblems, attemptedProblems, upvotedProblems, topTopics };
+    return {
+      totalProblems,
+      solvedProblems,
+      attemptedProblems,
+      upvotedProblems,
+      topTopics,
+    };
   };
 
   // Get all unique topics for filtering
   const getAllTopics = () => {
     const topicCounts: Record<string, number> = {};
-    problems.forEach(problem => {
-      problem.tags.forEach(tag => {
+    problems.forEach((problem) => {
+      problem.tags.forEach((tag) => {
         topicCounts[tag] = (topicCounts[tag] || 0) + 1;
       });
     });
-    
+
     return Object.entries(topicCounts)
-      .sort(([,a], [,b]) => b - a)
+      .sort(([, a], [, b]) => b - a)
       .map(([topic]) => topic);
   };
 
   // Convert to Title Case
   const toTitleCase = (str: string) => {
-    return str.split(/[\s-_]+/).map(word => 
-      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-    ).join(' ');
+    return str
+      .split(/[\s-_]+/)
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
   };
 
   useEffect(() => {
@@ -193,18 +214,22 @@ const Problems: React.FC = () => {
 
     // Filter by difficulty
     if (difficultyFilter && difficultyFilter !== "") {
-      filtered = filtered.filter(problem => problem.difficulty === difficultyFilter);
+      filtered = filtered.filter(
+        (problem) => problem.difficulty === difficultyFilter
+      );
     }
 
     // Filter by status
     if (statusFilter && statusFilter !== "") {
-      filtered = filtered.filter(problem => problem.userProblemStatus === statusFilter);
+      filtered = filtered.filter(
+        (problem) => problem.userProblemStatus === statusFilter
+      );
     }
 
     // Filter by selected topics (multi-select)
     if (selectedTopics.length > 0) {
-      filtered = filtered.filter(problem => 
-        selectedTopics.some(topic => problem.tags.includes(topic))
+      filtered = filtered.filter((problem) =>
+        selectedTopics.some((topic) => problem.tags.includes(topic))
       );
     }
 
@@ -214,8 +239,14 @@ const Problems: React.FC = () => {
       switch (sortBy) {
         case "acceptance":
           return (
-            calculateAcceptanceRate(a.successfulSubmissionCount, a.failedSubmissionCount) -
-            calculateAcceptanceRate(b.successfulSubmissionCount, b.failedSubmissionCount)
+            calculateAcceptanceRate(
+              a.successfulSubmissionCount,
+              a.failedSubmissionCount
+            ) -
+            calculateAcceptanceRate(
+              b.successfulSubmissionCount,
+              b.failedSubmissionCount
+            )
           );
         case "difficulty":
           return difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
@@ -242,10 +273,8 @@ const Problems: React.FC = () => {
   };
 
   const toggleTopicSelection = (topic: string) => {
-    setSelectedTopics(prev => 
-      prev.includes(topic) 
-        ? prev.filter(t => t !== topic)
-        : [...prev, topic]
+    setSelectedTopics((prev) =>
+      prev.includes(topic) ? prev.filter((t) => t !== topic) : [...prev, topic]
     );
   };
 
@@ -371,8 +400,12 @@ const Problems: React.FC = () => {
                       <div className="flex items-center gap-2">
                         <BookOpen className="w-4 h-4 text-blue-400" />
                         <div>
-                          <div className="text-lg font-bold text-white font-mono">{userStats.totalProblems}</div>
-                          <div className="text-xs text-gray-400 font-['Inter',_'system-ui',_sans-serif]">Total</div>
+                          <div className="text-lg font-bold text-white font-mono">
+                            {userStats.totalProblems}
+                          </div>
+                          <div className="text-xs text-gray-400 font-['Inter',_'system-ui',_sans-serif]">
+                            Total
+                          </div>
                         </div>
                       </div>
                     </CardContent>
@@ -383,8 +416,12 @@ const Problems: React.FC = () => {
                       <div className="flex items-center gap-2">
                         <Trophy className="w-4 h-4 text-emerald-400" />
                         <div>
-                          <div className="text-lg font-bold text-emerald-400 font-mono">{userStats.solvedProblems}</div>
-                          <div className="text-xs text-gray-400 font-['Inter',_'system-ui',_sans-serif]">Solved</div>
+                          <div className="text-lg font-bold text-emerald-400 font-mono">
+                            {userStats.solvedProblems}
+                          </div>
+                          <div className="text-xs text-gray-400 font-['Inter',_'system-ui',_sans-serif]">
+                            Solved
+                          </div>
                         </div>
                       </div>
                     </CardContent>
@@ -395,8 +432,12 @@ const Problems: React.FC = () => {
                       <div className="flex items-center gap-2">
                         <Target className="w-4 h-4 text-amber-400" />
                         <div>
-                          <div className="text-lg font-bold text-amber-400 font-mono">{userStats.attemptedProblems}</div>
-                          <div className="text-xs text-gray-400 font-['Inter',_'system-ui',_sans-serif]">Attempted</div>
+                          <div className="text-lg font-bold text-amber-400 font-mono">
+                            {userStats.attemptedProblems}
+                          </div>
+                          <div className="text-xs text-gray-400 font-['Inter',_'system-ui',_sans-serif]">
+                            Attempted
+                          </div>
                         </div>
                       </div>
                     </CardContent>
@@ -407,8 +448,12 @@ const Problems: React.FC = () => {
                       <div className="flex items-center gap-2">
                         <Heart className="w-4 h-4 text-red-400" />
                         <div>
-                          <div className="text-lg font-bold text-red-400 font-mono">{userStats.upvotedProblems}</div>
-                          <div className="text-xs text-gray-400 font-['Inter',_'system-ui',_sans-serif]">Upvoted</div>
+                          <div className="text-lg font-bold text-red-400 font-mono">
+                            {userStats.upvotedProblems}
+                          </div>
+                          <div className="text-xs text-gray-400 font-['Inter',_'system-ui',_sans-serif]">
+                            Upvoted
+                          </div>
                         </div>
                       </div>
                     </CardContent>
@@ -420,9 +465,13 @@ const Problems: React.FC = () => {
                         <BarChart3 className="w-4 h-4 text-purple-400" />
                         <div>
                           <div className="text-lg font-bold text-purple-400 font-mono">
-                            {userStats.topTopics[0]?.topic ? toTitleCase(userStats.topTopics[0].topic) : "None"}
+                            {userStats.topTopics[0]?.topic
+                              ? toTitleCase(userStats.topTopics[0].topic)
+                              : "None"}
                           </div>
-                          <div className="text-xs text-gray-400 font-['Inter',_'system-ui',_sans-serif]">Top Topic</div>
+                          <div className="text-xs text-gray-400 font-['Inter',_'system-ui',_sans-serif]">
+                            Top Topic
+                          </div>
                         </div>
                       </div>
                     </CardContent>
@@ -436,17 +485,30 @@ const Problems: React.FC = () => {
                   <CardContent className="p-3">
                     <div className="flex items-center gap-4">
                       {/* Topics Container - Left Side */}
-                      <div className="flex-1 overflow-x-auto overflow-y-hidden" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
-                        <div className="flex gap-2 pb-1" style={{width: 'max-content'}}>
-                          {allTopics.map(topic => (
+                      <div
+                        className="flex-1 overflow-x-auto overflow-y-hidden"
+                        style={{
+                          scrollbarWidth: "none",
+                          msOverflowStyle: "none",
+                        }}
+                      >
+                        <div
+                          className="flex gap-2 pb-1"
+                          style={{ width: "max-content" }}
+                        >
+                          {allTopics.map((topic) => (
                             <Button
                               key={topic}
                               size="sm"
-                              variant={selectedTopics.includes(topic) ? "default" : "outline"}
+                              variant={
+                                selectedTopics.includes(topic)
+                                  ? "default"
+                                  : "outline"
+                              }
                               onClick={() => toggleTopicSelection(topic)}
                               className={`h-7 px-3 text-xs whitespace-nowrap flex-shrink-0 font-['Inter',_'system-ui',_sans-serif] min-w-[80px] border-0 ${
-                                selectedTopics.includes(topic) 
-                                  ? "bg-purple-600 hover:bg-purple-700 text-white" 
+                                selectedTopics.includes(topic)
+                                  ? "bg-purple-600 hover:bg-purple-700 text-white"
                                   : "bg-gray-800/80 text-gray-300 hover:bg-gray-700/80"
                               }`}
                             >
@@ -458,7 +520,10 @@ const Problems: React.FC = () => {
 
                       {/* Standard Filters - Right Side */}
                       <div className="flex items-center gap-3">
-                        <Select value={difficultyFilter} onValueChange={setDifficultyFilter}>
+                        <Select
+                          value={difficultyFilter}
+                          onValueChange={setDifficultyFilter}
+                        >
                           <SelectTrigger className="w-28 h-8 bg-gray-800/80 border-0 text-white text-sm font-['Inter',_'system-ui',_sans-serif]">
                             <SelectValue placeholder="Difficulty" />
                           </SelectTrigger>
@@ -469,14 +534,19 @@ const Problems: React.FC = () => {
                           </SelectContent>
                         </Select>
 
-                        <Select value={statusFilter} onValueChange={setStatusFilter}>
+                        <Select
+                          value={statusFilter}
+                          onValueChange={setStatusFilter}
+                        >
                           <SelectTrigger className="w-28 h-8 bg-gray-800/80 border-0 text-white text-sm font-['Inter',_'system-ui',_sans-serif]">
                             <SelectValue placeholder="Status" />
                           </SelectTrigger>
                           <SelectContent className="bg-gray-800 border-gray-700">
                             <SelectItem value="solved">Solved</SelectItem>
                             <SelectItem value="attempted">Attempted</SelectItem>
-                            <SelectItem value="unattempted">Not Attempted</SelectItem>
+                            <SelectItem value="unattempted">
+                              Not Attempted
+                            </SelectItem>
                           </SelectContent>
                         </Select>
 
@@ -487,8 +557,12 @@ const Problems: React.FC = () => {
                           <SelectContent className="bg-gray-800 border-gray-700">
                             <SelectItem value="number">Number</SelectItem>
                             <SelectItem value="title">Title</SelectItem>
-                            <SelectItem value="difficulty">Difficulty</SelectItem>
-                            <SelectItem value="acceptance">Acceptance</SelectItem>
+                            <SelectItem value="difficulty">
+                              Difficulty
+                            </SelectItem>
+                            <SelectItem value="acceptance">
+                              Acceptance
+                            </SelectItem>
                           </SelectContent>
                         </Select>
 
@@ -516,8 +590,8 @@ const Problems: React.FC = () => {
                             variant="ghost"
                             size="sm"
                             className={`h-6 w-6 p-0 ${
-                              viewMode === "list" 
-                                ? "bg-purple-600 text-white" 
+                              viewMode === "list"
+                                ? "bg-purple-600 text-white"
                                 : "text-gray-400 hover:text-white hover:bg-gray-700"
                             }`}
                           >
@@ -528,8 +602,8 @@ const Problems: React.FC = () => {
                             variant="ghost"
                             size="sm"
                             className={`h-6 w-6 p-0 ${
-                              viewMode === "card" 
-                                ? "bg-purple-600 text-white" 
+                              viewMode === "card"
+                                ? "bg-purple-600 text-white"
                                 : "text-gray-400 hover:text-white hover:bg-gray-700"
                             }`}
                           >
@@ -560,11 +634,15 @@ const Problems: React.FC = () => {
                   </div>
                 )}
 
-                <div 
-                  className={`flex-1 overflow-y-scroll ${viewMode === "list" ? "border-gray-800/50 border border-t-0 rounded-b-lg" : ""} bg-gray-900/20`}
+                <div
+                  className={`flex-1 overflow-y-scroll ${
+                    viewMode === "list"
+                      ? "border-gray-800/50 border border-t-0 rounded-b-lg"
+                      : ""
+                  } bg-gray-900/20`}
                   style={{
-                    scrollbarWidth: 'thin',
-                    scrollbarColor: '#4B5563 #1F2937'
+                    scrollbarWidth: "thin",
+                    scrollbarColor: "#4B5563 #1F2937",
                   }}
                 >
                   {viewMode === "list" ? (
@@ -574,7 +652,9 @@ const Problems: React.FC = () => {
                         <div
                           key={problem._id}
                           className={`flex items-center p-3 transition-all duration-200 hover:bg-gray-800/60 cursor-pointer border-b border-gray-800/30 last:border-b-0 ${
-                            index % 2 === 0 ? "bg-gray-800/20" : "bg-gray-900/30"
+                            index % 2 === 0
+                              ? "bg-gray-800/20"
+                              : "bg-gray-900/30"
                           }`}
                           onClick={() => handleSolveProblem(problem.titleSlug)}
                         >
@@ -584,7 +664,9 @@ const Problems: React.FC = () => {
                                 {getStatusIcon(problem.userProblemStatus)}
                               </TooltipTrigger>
                               <TooltipContent>
-                                <p>{getStatusTooltip(problem.userProblemStatus)}</p>
+                                <p>
+                                  {getStatusTooltip(problem.userProblemStatus)}
+                                </p>
                               </TooltipContent>
                             </Tooltip>
                             <span className="text-sm font-medium text-gray-400 w-12 font-mono">
@@ -596,12 +678,20 @@ const Problems: React.FC = () => {
                           </div>
                           <div className="flex items-center gap-4">
                             <div className="w-20">
-                              <Badge className={`${getDifficultyColor(problem.difficulty)} font-medium text-xs font-['Inter',_'system-ui',_sans-serif]`}>
+                              <Badge
+                                className={`${getDifficultyColor(
+                                  problem.difficulty
+                                )} font-medium text-xs font-['Inter',_'system-ui',_sans-serif]`}
+                              >
                                 {problem.difficulty}
                               </Badge>
                             </div>
                             <span className="text-sm text-gray-400 w-16 text-right font-mono">
-                              {calculateAcceptanceRate(problem.successfulSubmissionCount, problem.failedSubmissionCount)}%
+                              {calculateAcceptanceRate(
+                                problem.successfulSubmissionCount,
+                                problem.failedSubmissionCount
+                              )}
+                              %
                             </span>
                           </div>
                         </div>
@@ -614,7 +704,9 @@ const Problems: React.FC = () => {
                         <Card
                           key={problem._id}
                           className={`border-gray-800/50 backdrop-blur-sm hover:bg-gray-900/80 transition-all duration-300 hover:border-purple-500/30 hover:shadow-xl hover:shadow-purple-500/10 group mb-1 ${
-                            index % 2 === 0 ? "bg-gray-800/20" : "bg-gray-900/30"
+                            index % 2 === 0
+                              ? "bg-gray-800/20"
+                              : "bg-gray-900/30"
                           }`}
                         >
                           <CardContent className="p-4">
@@ -626,10 +718,16 @@ const Problems: React.FC = () => {
                                   <div className="flex items-center gap-2 mt-1">
                                     <Tooltip>
                                       <TooltipTrigger>
-                                        {getStatusIcon(problem.userProblemStatus)}
+                                        {getStatusIcon(
+                                          problem.userProblemStatus
+                                        )}
                                       </TooltipTrigger>
                                       <TooltipContent>
-                                        <p>{getStatusTooltip(problem.userProblemStatus)}</p>
+                                        <p>
+                                          {getStatusTooltip(
+                                            problem.userProblemStatus
+                                          )}
+                                        </p>
                                       </TooltipContent>
                                     </Tooltip>
                                     <span className="text-sm font-medium text-gray-400 font-mono">
@@ -637,9 +735,11 @@ const Problems: React.FC = () => {
                                     </span>
                                   </div>
                                   <div className="flex-1">
-                                    <h3 
+                                    <h3
                                       className="text-lg font-semibold text-white hover:text-purple-400 transition-colors cursor-pointer group-hover:text-purple-300 font-['Inter',_'system-ui',_sans-serif]"
-                                      onClick={() => handleSolveProblem(problem.titleSlug)}
+                                      onClick={() =>
+                                        handleSolveProblem(problem.titleSlug)
+                                      }
                                     >
                                       {problem.title}
                                     </h3>
@@ -648,30 +748,46 @@ const Problems: React.FC = () => {
 
                                 {/* Difficulty and Acceptance Rate */}
                                 <div className="flex flex-wrap items-center gap-3">
-                                  <Badge className={`${getDifficultyColor(problem.difficulty)} font-medium text-xs font-['Inter',_'system-ui',_sans-serif]`}>
+                                  <Badge
+                                    className={`${getDifficultyColor(
+                                      problem.difficulty
+                                    )} font-medium text-xs font-['Inter',_'system-ui',_sans-serif]`}
+                                  >
                                     {problem.difficulty}
                                   </Badge>
                                   <div className="flex items-center gap-2 text-sm text-gray-400 font-['Inter',_'system-ui',_sans-serif]">
                                     <span className="w-2 h-2 bg-purple-400 rounded-full"></span>
                                     <span>
-                                      <span className="font-mono">{calculateAcceptanceRate(problem.successfulSubmissionCount, problem.failedSubmissionCount)}%</span> Acceptance
+                                      <span className="font-mono">
+                                        {calculateAcceptanceRate(
+                                          problem.successfulSubmissionCount,
+                                          problem.failedSubmissionCount
+                                        )}
+                                        %
+                                      </span>{" "}
+                                      Acceptance
                                     </span>
                                   </div>
                                 </div>
 
                                 {/* Tags */}
                                 <div className="flex flex-wrap gap-1">
-                                  {problem.tags.slice(0, 4).map((tag, tagIndex) => (
-                                    <Badge
-                                      key={tagIndex}
-                                      variant="outline"
-                                      className="text-xs border-0 bg-gray-800/60 text-gray-300 hover:bg-purple-500/20 hover:text-purple-400 transition-colors font-['Inter',_'system-ui',_sans-serif]"
-                                    >
-                                      {toTitleCase(tag)}
-                                    </Badge>
-                                  ))}
+                                  {problem.tags
+                                    .slice(0, 4)
+                                    .map((tag, tagIndex) => (
+                                      <Badge
+                                        key={tagIndex}
+                                        variant="outline"
+                                        className="text-xs border-0 bg-gray-800/60 text-gray-300 hover:bg-purple-500/20 hover:text-purple-400 transition-colors font-['Inter',_'system-ui',_sans-serif]"
+                                      >
+                                        {toTitleCase(tag)}
+                                      </Badge>
+                                    ))}
                                   {problem.tags.length > 4 && (
-                                    <Badge variant="outline" className="text-xs border-0 bg-gray-800/60 text-gray-400 font-mono">
+                                    <Badge
+                                      variant="outline"
+                                      className="text-xs border-0 bg-gray-800/60 text-gray-400 font-mono"
+                                    >
                                       +{problem.tags.length - 4}
                                     </Badge>
                                   )}
@@ -686,7 +802,9 @@ const Problems: React.FC = () => {
                                     <TooltipTrigger>
                                       <div className="flex items-center gap-1 text-emerald-400 hover:text-emerald-300 transition-colors">
                                         <ThumbsUp className="w-3 h-3" />
-                                        <span className="font-mono">{problem.upvoteCount}</span>
+                                        <span className="font-mono">
+                                          {problem.upvoteCount}
+                                        </span>
                                       </div>
                                     </TooltipTrigger>
                                     <TooltipContent>
@@ -698,7 +816,9 @@ const Problems: React.FC = () => {
                                     <TooltipTrigger>
                                       <div className="flex items-center gap-1 text-red-400 hover:text-red-300 transition-colors">
                                         <ThumbsDown className="w-3 h-3" />
-                                        <span className="font-mono">{problem.downvoteCount}</span>
+                                        <span className="font-mono">
+                                          {problem.downvoteCount}
+                                        </span>
                                       </div>
                                     </TooltipTrigger>
                                     <TooltipContent>
@@ -710,7 +830,9 @@ const Problems: React.FC = () => {
                                     <TooltipTrigger>
                                       <div className="flex items-center gap-1 text-blue-400 hover:text-blue-300 transition-colors">
                                         <Users className="w-3 h-3" />
-                                        <span className="font-mono">{problem.successfulSubmissionCount}</span>
+                                        <span className="font-mono">
+                                          {problem.successfulSubmissionCount}
+                                        </span>
                                       </div>
                                     </TooltipTrigger>
                                     <TooltipContent>
@@ -721,7 +843,9 @@ const Problems: React.FC = () => {
 
                                 {/* Solve Button */}
                                 <Button
-                                  onClick={() => handleSolveProblem(problem.titleSlug)}
+                                  onClick={() =>
+                                    handleSolveProblem(problem.titleSlug)
+                                  }
                                   className="bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 hover:shadow-lg hover:shadow-purple-500/25 hover:scale-105 text-sm font-['Inter',_'system-ui',_sans-serif]"
                                 >
                                   Solve Problem
@@ -755,7 +879,8 @@ const Problems: React.FC = () => {
               {problems.length === 0 && (
                 <div className="text-center py-12">
                   <div className="text-gray-400 text-lg font-['Inter',_'system-ui',_sans-serif]">
-                    No problems available at the moment. Please Login and try again.
+                    No problems available at the moment. Please Login and try
+                    again.
                   </div>
                 </div>
               )}
