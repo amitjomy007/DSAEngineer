@@ -137,7 +137,7 @@ const DashboardRBAC: React.FC = () => {
 
     try {
       setLoading(true);
-      if(tabName=="add-problems") navigate("/addProblem");
+      if (tabName == "add-problems") navigate("/addProblem");
       const response = await axios.get(`${backendUrl}/dashboard/${tabName}`, {
         headers: {
           "Content-Type": "application/json",
@@ -1052,18 +1052,6 @@ const DashboardRBAC: React.FC = () => {
           <p>No audit logs found</p>
         </div>
       )}
-    </div>
-  );
-
-  const renderAddProblemsTab = () => (
-    <div className={styles.tabContent}>
-      <h3>Add New Problem</h3>
-      <div className={styles.emptyState}>
-        <p>Problem creation form will be implemented here</p>
-        <button className={`${styles.btn} ${styles.primary}`}>
-          + Create New Problem
-        </button>
-      </div>
     </div>
   );
 
