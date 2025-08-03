@@ -10,7 +10,7 @@ dotenv.config();
 const PORT = process.env.PORT || 8000;
 
 const app = express();
-
+console.log("COrs frontend URL: " , process.env.FRONTEND_URL);
 // Environment-based CORS configuration
 const corsOptions = {
   origin: process.env.FRONTEND_URL || "http://localhost:5173",
