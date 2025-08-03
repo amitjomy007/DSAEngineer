@@ -21,6 +21,7 @@ const backendUrl = import.meta.env.VITE_BACKEND_URL || "3000";
 console.log("backendUrl:", backendUrl);
 // Interface for submission data
 interface ISubmission {
+  error: any;
   _id: string;
   userId: string;
   problemId: string;
@@ -386,7 +387,8 @@ const SubmissionResult = () => {
           </div>
           {submission.verdict === "Time Limit Exceeded" && (
             <h2 className="text-xl pb-8">
-              Time limit exceeded on testcase {submission.passedTestCases + 1}
+              Time limit exceeded on testcase{" "}
+              {submission.passedTestCases ? +1 : 0}
             </h2>
           )}
 
@@ -477,13 +479,13 @@ const SubmissionResult = () => {
                 <div className="bg-gray-900/50 rounded-lg p-4">
                   <div className="text-sm text-gray-400 mb-2">Input:</div>
                   <code className="text-green-300 font-mono text-lg">
-                    {submission.failedTestCase.input}
+                    {submission.failedTestCase?.input}
                   </code>
                 </div>
                 <div className="bg-gray-900/50 rounded-lg p-4">
                   <div className="text-sm text-gray-400 mb-2">Your Output:</div>
                   <code className="text-red-300 font-mono text-lg">
-                    {submission.failedTestCase.output}
+                    {submission.failedTestCase?.output}
                   </code>
                 </div>
                 <div className="bg-gray-900/50 rounded-lg p-4">
@@ -491,7 +493,7 @@ const SubmissionResult = () => {
                     Expected Output:
                   </div>
                   <code className="text-blue-300 font-mono text-lg">
-                    {submission.failedTestCase.expectedOutput}
+                    {submission.failedTestCase?.expectedOutput}
                   </code>
                 </div>
               </div>

@@ -1,7 +1,7 @@
 import React from 'react';
-import FooterComponent from '../components/layout/FooterNew';
-import Footer from '../components/layout/Footer';
-import Navbar from '../components/layout/Navbar';
+// import FooterComponent from '../components/layout/FooterNew';
+// import Footer from '../components/layout/Footer';
+// import Navbar from '../components/layout/Navbar';
 import NavbarNew from '../components/layout/NavbarNew';
 
 const Dashboard: React.FC = () => {

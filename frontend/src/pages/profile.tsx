@@ -493,7 +493,7 @@ const LeetCodeProgressRing: React.FC<{
 const LeetCodeStatsGrid: React.FC<{ profileData: ProfileData }> = ({
   profileData,
 }) => {
-  const totalSolved = profileData.solvedProblemsDetails.length;
+  //const totalSolved = profileData.solvedProblemsDetails.length;
   const acceptanceRate =
     profileData.totalSubmissions > 0
       ? (
@@ -601,10 +601,11 @@ const Skills: React.FC<{
 const Performance: React.FC<{
   tagStats: Record<string, number>;
   profileData: ProfileData;
-}> = ({ tagStats, profileData }) => {
-  const topTags = Object.entries(tagStats)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 10);
+}> = ({  profileData }) => {
+    
+  // const topTags = Object.entries(tagStats)
+  //   .sort(([, a], [, b]) => b - a)
+  //   .slice(0, 10);
 
   const formatAverage = (value: number | null, unit: string) => {
     if (!value) return "N/A";
