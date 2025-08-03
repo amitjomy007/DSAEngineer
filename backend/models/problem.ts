@@ -11,6 +11,9 @@ const problemSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
     required: true,
+    // true = Active (visible to users)
+    // false = Deleted/Hidden (recoverable by Super Admin)
+    // We'll use this instead of separate "deleted" state
   },
   problemAuthorId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -68,7 +71,7 @@ const problemSchema = new mongoose.Schema({
     },
   ],
   constraints: [String],
-  
+
   hints: [String],
   testcases: [
     {
@@ -92,11 +95,10 @@ const problemSchema = new mongoose.Schema({
     required: false,
   },
   editorialId: {
-  type: mongoose.Schema.Types.ObjectId,
-  ref: "Editorial",
-  required: false,
-},
-
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Editorial",
+    required: false,
+  },
 });
 
 module.exports = mongoose.model("Problem", problemSchema);
