@@ -103,7 +103,7 @@ const UserMenu: React.FC<UserMenuProps> = () => {
         console.error("User ID not found in cookies");
         return;
       }
-      userId.trim().replace(/^"+|"+$/g, "");
+      userId = userId.trim().replace(/^"+|"+$/g, "");
 
       // Make API call to get user profile data (which includes role)
       const response = await axios.get(
