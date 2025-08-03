@@ -92,7 +92,7 @@ const UserMenu: React.FC<UserMenuProps> = () => {
   };
 
   const handleDashboard = () => {
-    navigate("/dashboard");
+    navigate("/rbacdashboard");
     setIsMenuOpen(false);
   };
 
