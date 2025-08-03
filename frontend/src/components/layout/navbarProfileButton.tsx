@@ -91,42 +91,45 @@ const UserMenu: React.FC<UserMenuProps> = () => {
     }
   };
 
-const handleDashboard = async () => {
-  try {
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+  const handleDashboard = async () => {
+    try {
+      const backendUrl =
+        import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
 
-    // Get userId from cookies
-    const userId = Cookies.get('userId31d6cfe0d16ae931b73c59d7e0c089c0');
-    
-    if (!userId) {
-      console.error('User ID not found in cookies');
-      return;
-    }
+      // Get userId from cookies
+      let userId = Cookies.get("userId31d6cfe0d16ae931b73c59d7e0c089c0");
 
-    // Make API call to get user profile data (which includes role)
-    const response = await axios.get(`${backendUrl}/api/user/profile/${userId}`, {
-      withCredentials: true,
-      headers: {
-        'user-id': userId
+      if (!userId) {
+        console.error("User ID not found in cookies");
+        return;
       }
-    });
+      userId.trim().replace(/^"+|"+$/g, "");
 
-    // Extract role from response
-    const userRole = response.data.data.role;
+      // Make API call to get user profile data (which includes role)
+      const response = await axios.get(
+        `${backendUrl}/api/user/profile/${userId}`,
+        {
+          withCredentials: true,
+          headers: {
+            "user-id": userId,
+          },
+        }
+      );
 
-    // Role-based redirection
-    if (userRole === 'user' || userRole === undefined) {
-      window.location.href = '/dashboard';
-    } else {
-      window.location.href = '/rbacdashboard';
+      // Extract role from response
+      const userRole = response.data.data.role;
+
+      // Role-based redirection
+      if (userRole === "user" || userRole === undefined) {
+        window.location.href = "/dashboard";
+      } else {
+        window.location.href = "/rbacdashboard";
+      }
+    } catch (error) {
+      console.error("Error handling dashboard redirect:", error);
+      // Handle error - maybe redirect to login or show error message
     }
-
-  } catch (error) {
-    console.error('Error handling dashboard redirect:', error);
-    // Handle error - maybe redirect to login or show error message
-  }
-};
-
+  };
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
