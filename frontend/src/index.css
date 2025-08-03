@@ -28,3 +28,32 @@ body{
     scrollbar-width: none;
   }
 }
+
+
+/* //scrollbar related */
+
+/* index.css or tailwind.css */
+.custom-friends-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #4b5563 #1f2937;
+}
+
+.custom-friends-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-friends-scrollbar::-webkit-scrollbar-track {
+  background: #1f2937;
+  border-radius: 3px;
+}
+
+.custom-friends-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #4b5563;
+  border-radius: 3px;
+}
+
+.custom-friends-scrollbar::-webkit-scrollbar-button {
+  display: none !important;
+  height: 0 !important;
+  width: 0 !important;
+}

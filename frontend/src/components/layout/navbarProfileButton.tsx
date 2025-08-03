@@ -1,41 +1,48 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Cookies from 'js-cookie';
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 
 interface UserMenuProps {}
 
 const UserMenu: React.FC<UserMenuProps> = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userName, setUserName] = useState('');
-  const [userEmail, setUserEmail] = useState('');
+  const [userName, setUserName] = useState("");
+  const [userEmail, setUserEmail] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     // Check if user is logged in by checking cookies
-    const userCookie = Cookies.get('user31d6cfe0d16ae931b73c59d7e0c089c0');
-    const tokenCookie = Cookies.get('token31d6cfe0d16ae931b73c59d7e0c089c0');
-    
+    const userCookie = Cookies.get("user31d6cfe0d16ae931b73c59d7e0c089c0");
+    const tokenCookie = Cookies.get("token31d6cfe0d16ae931b73c59d7e0c089c0");
+
     if (userCookie && tokenCookie) {
       setIsLoggedIn(true);
       // Parse username from cookie (remove quotes and convert to camelCase)
-      const parsedUsername = userCookie.replace(/['"]/g, '');
-      const camelCaseUsername = parsedUsername.charAt(0).toUpperCase() + parsedUsername.slice(1).toLowerCase();
+      const parsedUsername = userCookie.replace(/['"]/g, "");
+      const camelCaseUsername =
+        parsedUsername.charAt(0).toUpperCase() +
+        parsedUsername.slice(1).toLowerCase();
       setUserName(camelCaseUsername);
-      
+
       // Extract email from token (you might need to decode JWT properly)
       try {
-        const token = tokenCookie.replace(/['"]/g, '');
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
+        const token = tokenCookie.replace(/['"]/g, "");
+        const base64Url = token.split(".")[1];
+        const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+        const jsonPayload = decodeURIComponent(
+          atob(base64)
+            .split("")
+            .map(function (c) {
+              return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+            })
+            .join("")
+        );
         const decoded = JSON.parse(jsonPayload);
-        setUserEmail(decoded.user?.email || 'user@example.com');
+        setUserEmail(decoded.user?.email || "user@example.com");
       } catch (error) {
-        setUserEmail('user@example.com');
+        setUserEmail("user@example.com");
       }
     }
   }, []);
@@ -48,39 +55,44 @@ const UserMenu: React.FC<UserMenuProps> = () => {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
   const handleLogin = () => {
-    navigate('/login');
+    navigate("/login");
   };
 
   const handleLogout = () => {
     // Remove all user-related cookies
-    Cookies.remove('user31d6cfe0d16ae931b73c59d7e0c089c0');
-    Cookies.remove('token31d6cfe0d16ae931b73c59d7e0c089c0');
-    Cookies.remove('userId31d6cfe0d16ae931b73c59d7e0c089c0');
-    Cookies.remove('stopwatch_running');
-    Cookies.remove('stopwatch_start_time');
-    Cookies.remove('stopwatch_time');
-    
+    Cookies.remove("user31d6cfe0d16ae931b73c59d7e0c089c0");
+    Cookies.remove("token31d6cfe0d16ae931b73c59d7e0c089c0");
+    Cookies.remove("userId31d6cfe0d16ae931b73c59d7e0c089c0");
+    Cookies.remove("stopwatch_running");
+    Cookies.remove("stopwatch_start_time");
+    Cookies.remove("stopwatch_time");
+
     setIsLoggedIn(false);
-    setUserName('');
-    setUserEmail('');
+    setUserName("");
+    setUserEmail("");
     setIsMenuOpen(false);
-    navigate('/');
+    navigate("/");
   };
 
   const handleProfile = () => {
-    navigate('/profile');
-    setIsMenuOpen(false);
+    const userId = Cookies.get("userId31d6cfe0d16ae931b73c59d7e0c089c0");
+    if (!userId) return;
+    else {
+      const formattedUserId = userId.trim().replace(/^"+|"+$/g, "");
+      navigate(`/profile/${formattedUserId}`);
+      setIsMenuOpen(false);
+    }
   };
 
   const handleDashboard = () => {
-    navigate('/dashboard');
+    navigate("/dashboard");
     setIsMenuOpen(false);
   };
 
@@ -138,7 +150,7 @@ const UserMenu: React.FC<UserMenuProps> = () => {
         <span className="mr-1.5 font-medium text-xs">{userName}</span>
         <svg
           className={`w-3 h-3 transition-transform duration-200 text-[#3bb96a] ${
-            isMenuOpen ? 'rotate-180' : ''
+            isMenuOpen ? "rotate-180" : ""
           }`}
           fill="none"
           stroke="currentColor"
@@ -203,7 +215,7 @@ const UserMenu: React.FC<UserMenuProps> = () => {
               </div>
               <span className="font-medium">Profile</span>
             </button>
-            
+
             <button
               onClick={handleDashboard}
               className="flex items-center w-full px-3 py-2 text-xs text-gray-300 hover:text-white hover:bg-gray-700/60 transition-all duration-200 group"
@@ -225,9 +237,9 @@ const UserMenu: React.FC<UserMenuProps> = () => {
               </div>
               <span className="font-medium">Dashboard</span>
             </button>
-            
+
             <hr className="my-1 border-gray-600/50" />
-            
+
             <button
               onClick={handleLogout}
               className="flex items-center w-full px-3 py-2 text-xs text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all duration-200 group"
