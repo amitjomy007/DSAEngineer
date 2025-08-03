@@ -374,7 +374,7 @@ const Problems: React.FC = () => {
           <div className="relative z-10 flex-1 flex flex-col overflow-hidden">
             <div className="container mx-auto px-4 py-4 flex-1 flex flex-col overflow-hidden">
               {/* Left-aligned Header with Random Button */}
-              <div className="flex items-center justify-between mb-4">
+              <div className="max-w-6xl mx-auto w-full  flex items-center justify-between mb-4">
                 <div className="text-left">
                   <h1 className="text-3xl font-bold bg-gradient-to-r from-white via-purple-200 to-violet-300 bg-clip-text text-transparent mb-2 font-['Inter',_'system-ui',_sans-serif]">
                     Practice Problems
