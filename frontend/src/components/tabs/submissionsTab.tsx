@@ -206,7 +206,7 @@ const SubmissionsListTabComponent = () => {
                     <tr
                       key={sub._id}
                       className="border-b border-[#232b36] last:border-b-0 hover:bg-[#232b36]/70 transition-colors"
-                      onClick={() => navigate(`/submission/${sub._id}`)}
+                      onClick={() => navigate(`submission/${sub._id}`)}
                     >
                       <td className="p-4">{getverdictComponent(sub.verdict)}</td>
                       <td className="p-4 text-[#e5e5f5]">
