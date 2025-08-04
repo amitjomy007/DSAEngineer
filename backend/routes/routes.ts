@@ -27,25 +27,25 @@ import { getLogsData } from "../controllers/dashboard/auditController";
 import { getUsersData } from "../controllers/dashboard/userController";
 import { getProblemsData } from "../controllers/dashboard/problemsController";
 
-import { 
-  deleteProblem, 
+import {
+  deleteProblem,
   updateProblem,
-  getEditProblem, 
-  approveProblem, 
-  rejectProblem 
+  getEditProblem,
+  approveProblem,
+  rejectProblem,
 } from "../controllers/dashboard/ACTIONS/problemActionsController";
 
-import { 
-  deleteUser, 
-  getEditUser, 
-  setUserRole, 
-  promoteUser, 
-  demoteUser 
+import {
+  deleteUser,
+  getEditUser,
+  setUserRole,
+  promoteUser,
+  demoteUser,
 } from "../controllers/dashboard/ACTIONS/userActionsController";
 
-import { 
-  approveRequest, 
-  rejectRequest 
+import {
+  approveRequest,
+  rejectRequest,
 } from "../controllers/dashboard/ACTIONS/requestActionsController";
 
 import { revertAuditAction } from "../controllers/dashboard/ACTIONS/auditActionsController";
@@ -56,26 +56,26 @@ const { checkDashboardPermission } = require("../middlewares/RBAC/rbac");
 const requirePermission = (action: string) => {
   return (req: any, res: any, next: any) => {
     const userRole = req.user?.role;
-    
+
     if (!userRole) {
       return res.status(401).json({
         success: false,
-        message: 'Authentication required'
+        message: "Authentication required",
       });
     }
-    
+
     const hasPermission = checkDashboardPermission(userRole, action, {
       targetUserId: req.body?.targetUserId || req.params?.userId,
-      targetRole: req.body?.newRole || req.body?.targetRole
+      targetRole: req.body?.newRole || req.body?.targetRole,
     });
-    
+
     if (!hasPermission) {
       return res.status(403).json({
         success: false,
-        message: `Access denied. Required permission: ${action}`
+        message: `Access denied. Required permission: ${action}`,
       });
     }
-    
+
     next();
   };
 };
@@ -92,10 +92,11 @@ router.post(
 );
 
 // ✅ Use existing RBAC permission
-router.post("/addProblem", 
-  smartLimiter(), 
-  verifyJWTToken, 
-  // requirePermission('create_problem'),
+router.post(
+  "/addProblem",
+  smartLimiter(),
+  verifyJWTToken,
+  // requirePermission("create_problem"),
   addProblemControl
 );
 
@@ -169,139 +170,156 @@ router.get(
   getDashboard
 );
 
-router.get("/dashboard/requests", 
-  spamLimiter(), 
-  smartLimiter(), 
+router.get(
+  "/dashboard/requests",
+  spamLimiter(),
+  smartLimiter(),
   verifyJWTToken,
   getRequestsData
 );
 
-router.get("/dashboard/logs", 
-  spamLimiter(), 
-  smartLimiter(), 
+router.get(
+  "/dashboard/logs",
+  spamLimiter(),
+  smartLimiter(),
   verifyJWTToken,
   getLogsData
 );
 
-router.get("/dashboard/problems", 
-  spamLimiter(), 
-  smartLimiter(), 
+router.get(
+  "/dashboard/problems",
+  spamLimiter(),
+  smartLimiter(),
   verifyJWTToken,
   getProblemsData
 );
 
-router.get("/dashboard/users",
-  spamLimiter(), 
-  smartLimiter(), 
+router.get(
+  "/dashboard/users",
+  spamLimiter(),
+  smartLimiter(),
   verifyJWTToken,
   getUsersData
 );
 
 // ✅ Problem actions - use your existing RBAC permissions
-router.delete("/dashboard/problem/delete", 
-  spamLimiter(), 
-  smartLimiter(), 
+router.delete(
+  "/dashboard/problem/delete",
+  spamLimiter(),
+  smartLimiter(),
   verifyJWTToken,
-  requirePermission('delete_problem'),
+  requirePermission("delete_problem"),
   deleteProblem
 );
 
-router.put("/dashboard/problem/update", 
-  spamLimiter(), 
-  smartLimiter(), 
+router.put(
+  "/dashboard/problem/update",
+  spamLimiter(),
+  smartLimiter(),
   verifyJWTToken,
-  requirePermission('edit_any_problem'),
+  requirePermission("edit_any_problem"),
   updateProblem
 );
 
-router.get("/dashboard/problem/edit/:problemId", 
-  spamLimiter(), 
-  smartLimiter(), 
+router.get(
+  "/dashboard/problem/edit/:problemId",
+  spamLimiter(),
+  smartLimiter(),
   verifyJWTToken,
-  requirePermission('edit_any_problem'),
+  requirePermission("edit_any_problem"),
   getEditProblem
 );
 
-router.put("/dashboard/problem/approve", 
-  spamLimiter(), 
-  smartLimiter(), 
+router.put(
+  "/dashboard/problem/approve",
+  spamLimiter(),
+  smartLimiter(),
   verifyJWTToken,
-  requirePermission('approve_problem'),
+  requirePermission("approve_problem"),
   approveProblem
 );
 
-router.put("/dashboard/problem/reject", 
-  spamLimiter(), 
-  smartLimiter(), 
+router.put(
+  "/dashboard/problem/reject",
+  spamLimiter(),
+  smartLimiter(),
   verifyJWTToken,
-  requirePermission('reject_problem'),
+  requirePermission("reject_problem"),
   rejectProblem
 );
 
 // ✅ User actions - use your existing RBAC permissions
-router.delete("/dashboard/user/delete", 
-  spamLimiter(), 
-  smartLimiter(), 
+router.delete(
+  "/dashboard/user/delete",
+  spamLimiter(),
+  smartLimiter(),
   verifyJWTToken,
-  requirePermission('delete_user'),
+  requirePermission("delete_user"),
   deleteUser
 );
 
-router.get("/dashboard/user/edit/:userId", 
-  spamLimiter(), 
-  smartLimiter(), 
+router.get(
+  "/dashboard/user/edit/:userId",
+  spamLimiter(),
+  smartLimiter(),
   verifyJWTToken,
-  requirePermission('manage_users'),
+  requirePermission("manage_users"),
   getEditUser
 );
 
-router.put("/dashboard/user/setrole", 
-  spamLimiter(), 
-  smartLimiter(), 
+router.put(
+  "/dashboard/user/setrole",
+  spamLimiter(),
+  smartLimiter(),
   verifyJWTToken,
-  requirePermission('set_user_role'),
+  requirePermission("set_user_role"),
   setUserRole
 );
 
-router.put("/dashboard/user/promote", 
-  spamLimiter(), 
-  smartLimiter(), 
+router.put(
+  "/dashboard/user/promote",
+  spamLimiter(),
+  smartLimiter(),
   verifyJWTToken,
-  requirePermission('promote_user'),
+  requirePermission("promote_user"),
   promoteUser
 );
 
-router.put("/dashboard/user/demote", 
-  spamLimiter(), 
-  smartLimiter(), 
+router.put(
+  "/dashboard/user/demote",
+  spamLimiter(),
+  smartLimiter(),
   verifyJWTToken,
-  requirePermission('demote_user'),
+  requirePermission("demote_user"),
   demoteUser
 );
 
 // ✅ Request actions - use your existing RBAC permissions
-router.put("/dashboard/request/approve", 
-  spamLimiter(), 
-  smartLimiter(), 
+router.put(
+  "/dashboard/request/approve",
+  spamLimiter(),
+  smartLimiter(),
   verifyJWTToken,
-  requirePermission('approve_requests'),
+  requirePermission("approve_requests"),
   approveRequest
 );
 
-router.put("/dashboard/request/reject", 
-  spamLimiter(), 
-  smartLimiter(), 
+router.put(
+  "/dashboard/request/reject",
+  spamLimiter(),
+  smartLimiter(),
   verifyJWTToken,
-  requirePermission('reject_requests'),
+  requirePermission("reject_requests"),
   rejectRequest
 );
 
 // ✅ Audit actions - use your existing RBAC permissions
-router.post("/dashboard/audit/revert", 
-  spamLimiter(), 
-  smartLimiter(), 
+router.post(
+  "/dashboard/audit/revert",
+  spamLimiter(),
+  smartLimiter(),
   verifyJWTToken,
-  requirePermission('revert_actions'),
+  requirePermission("revert_actions"),
   revertAuditAction
 );
 

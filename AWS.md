@@ -41,3 +41,45 @@ now docker images
 
 docker run -p 3000:3000 your-image-name  
 youn cn use image id also instead of name
+
+
+app.post('/compile', (req, res) => {
+  const userCode = req.body.code;
+  const tempFile = `/tmp/code_${Date.now()}.cpp`;
+  
+  fs.writeFileSync(tempFile, userCode);
+  
+  // Minimum security for code execution
+  const command = `docker run --rm \
+    --user 1000:1000 \
+    --network none \
+    --memory=128m \
+    --cpus="0.5" \
+    -v ${tempFile}:/tmp/code.cpp:ro \
+    gcc:latest \
+    timeout 15s sh -c 'g++ /tmp/code.cpp -o /tmp/output 2>&1 && /tmp/output'`;
+    
+  exec(command, { timeout: 20000 }, (err, stdout, stderr) => {
+    fs.unlinkSync(tempFile); // cleanup
+    res.json({ stdout, stderr, error: err?.message });
+  });
+});
+
+docker run --rm \
+  --user 1000:1000 \
+  -p 3000:3000 \
+  --memory=512m \
+  --cpus="1.0" \
+  0f5297f68e05
+
+
+docker run --rm \
+  --user 1000:1000 \
+  -p 3000:3000 \
+  --memory=512m \
+  --cpus="1.0" \
+  --tmpfs /app/dist:rw,size=600m \
+  0f5297f68e05
+
+
+

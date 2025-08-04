@@ -366,9 +366,9 @@ const LeetCodeProgressRing: React.FC<{
   difficultyStats: Record<string, number>;
 }> = ({ difficultyStats }) => {
   // Hardcoded as requested
-  const totalEasy = 3;
+  const totalEasy = 8;
   const totalMedium = 0;
-  const totalHard = 0;
+  const totalHard = 1;
 
   const easyCount = difficultyStats.Easy || 0;
   const mediumCount = difficultyStats.Medium || 0;

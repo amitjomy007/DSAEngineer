@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { useParams } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   Clock,
   CheckCircle,
@@ -51,6 +52,7 @@ const backendUrl = import.meta.env.VITE_BACKEND_URL || "3000";
 console.log("backendUrl:", backendUrl);
 
 const SubmissionsListTabComponent = () => {
+  const navigate = useNavigate();
   const { slug } = useParams<{ slug: string }>();
   const [problem, setProblem] = useState<ISolveProblem | null>(null);
   const [submissions, setSubmissions] = useState<ISubmission[]>([]);
@@ -165,6 +167,7 @@ const SubmissionsListTabComponent = () => {
       </div>
     );
   }
+  
 
   return (
     <div className="min-h-screen bg-[#171c23] text-[#f8f9fa] font-sans">
@@ -203,6 +206,7 @@ const SubmissionsListTabComponent = () => {
                     <tr
                       key={sub._id}
                       className="border-b border-[#232b36] last:border-b-0 hover:bg-[#232b36]/70 transition-colors"
+                      onClick={() => navigate(`/submission/${sub._id}`)}
                     >
                       <td className="p-4">{getverdictComponent(sub.verdict)}</td>
                       <td className="p-4 text-[#e5e5f5]">

@@ -38,8 +38,6 @@ import {
   Shuffle,
 } from "lucide-react";
 import NavbarNew from "../../components/layout/NavbarNew";
-import Footer from "../../components/layout/Footer";
-import FooterComponent from "../../components/layout/FooterNew";
 const backendUrl = import.meta.env.VITE_BACKEND_URL || "3000";
 console.log("backendUrl:", backendUrl);
 
@@ -899,7 +897,6 @@ const Problems: React.FC = () => {
           }
         `}</style>
       </div>
-      <Footer />
     </TooltipProvider>
   );
 };
