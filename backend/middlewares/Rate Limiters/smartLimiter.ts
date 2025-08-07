@@ -82,8 +82,8 @@ const rateLimiters = {
 
 export const smartLimiter = () => {
   const routeCosts: { [pattern: string]: number } = {
-    '/judge': 10,
-    '/aiChat': 15,
+    '/judge': 8,
+    '/aiChat': 5,
     '/addProblem': 3,
     '/voteProblem': 2,
     '/problems': 1,
